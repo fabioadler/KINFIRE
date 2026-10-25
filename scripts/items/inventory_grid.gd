@@ -54,6 +54,7 @@ func add(item: Item) -> bool:
 	if p.x < 0:
 		return false
 	place(item, p)
+	Game.quest_log.notify_collect()  # Fase 4: objetivos COLLECT
 	return true
 
 

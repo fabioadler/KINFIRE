@@ -24,6 +24,8 @@ var _awaiting_choice := false
 
 func start(p_data: DialogueData) -> void:
 	data = p_data
+	# Fase 4: conversa alimenta objetivos TALK das quests ativas
+	Game.quest_log.notify_talk(p_data.id)
 	current = data.node(data.start_id)
 	_page = 0
 	_awaiting_choice = false
@@ -111,8 +113,10 @@ static func apply_effects(effects: String) -> void:
 				if parts.size() >= 2 and parts[1].contains("="):
 					var kv := parts[1].split("=", false)
 					Game.flags[kv[0]] = kv[1] if kv.size() > 1 else ""
+					Game.quest_log.notify_flag(StringName(kv[0]))  # Fase 4
 				elif parts.size() >= 2:
 					Game.flags[parts[1]] = true
+					Game.quest_log.notify_flag(StringName(parts[1]))  # Fase 4
 			"gold":
 				if Game.hero and parts.size() >= 2:
 					Game.hero.gold = maxi(0, Game.hero.gold + _int(parts[1]))

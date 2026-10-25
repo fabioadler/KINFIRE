@@ -139,6 +139,8 @@ var loot_tables: Array[LootTableData] = []
 var dialogues := {}
 ## NPCs carregados sob demanda: id -> NpcData (data/npcs/*.tres)
 var npcs := {}
+## Quests (Fase 4): id -> QuestData (data/quests/*.tres, lista no index.json)
+var quests := {}
 var _tile_cache := {}
 var _sheet_image: Image
 var _dt2_image: Image
@@ -159,6 +161,13 @@ func _ready() -> void:
 		var p := line.strip_edges().split(" ", false)
 		if p.size() >= 5:
 			_dt2_rects[p[0]] = Rect2i(int(p[1]), int(p[2]), int(p[3]), int(p[4]))
+	# Fase 4: quests (data/quests/*.tres)
+	for qid in idx.get("quests", []):
+		var qres: QuestData = load("res://data/quests/%s.tres" % qid)
+		if qres:
+			quests[StringName(qid)] = qres
+		else:
+			push_error("Quest não encontrada: data/quests/%s.tres" % qid)
 
 
 func _load_dir(dir: String, order: Array) -> Array:
@@ -408,6 +417,16 @@ func territory(id: StringName) -> TerritoryData:
 	if not territories.has(id):
 		territories[id] = load("res://data/territories/%s.tres" % id)
 	return territories[id]
+
+
+## Quest por id (Fase 4); null se não existe
+func quest(id: StringName) -> QuestData:
+	return quests.get(id) as QuestData
+
+
+## Todas as quests registradas (ids)
+func quest_ids() -> Array:
+	return quests.keys()
 
 
 func get_skill(cls: ClassData, id: StringName) -> SkillData:

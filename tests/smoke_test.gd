@@ -812,6 +812,50 @@ func _test_overworld() -> void:
 			kill34 = true
 	assert(kill34, "kill de Lendario deveria ser anunciado na HUD")
 	print("[smoke]   hud/mensagens por raridade ok (afixos no target box, beam+sting+aviso de spawn do Lendario, kill anunciado)")
+	# 4.1: QuestData/QuestLog (Fase 4) — eventos, estágios, recompensas, save
+	var q41: QuestData = DB.quest(&"ato1_1")
+	assert(q41 != null and q41.stages.size() == 3, "ato1_1 deveria existir com 3 estagios")
+	# Reinicia o estado (o despertar/Marn/Bree dos blocos anteriores podem ter progredido)
+	Game.quests.erase(&"ato1_1")
+	Game.quest_log.tracked = &""
+	assert(Game.quest_log.available(q41), "ato1_1 deveria estar disponivel")
+	Game.quest_log.start(q41)
+	assert(Game.quest_log.is_active(&"ato1_1") and int(Game.quest_log.state(&"ato1_1")["stage"]) == 0)
+	assert(Game.quest_log.tracked_quest() != null and Game.quest_log.tracker_line() != "")
+	# Estágio 1 (TALK): um não basta; dois avançam
+	Game.quest_log.notify_talk(&"marn_vigia")
+	assert(int(Game.quest_log.state(&"ato1_1")["stage"]) == 0, "falta a Bree")
+	Game.quest_log.notify_talk(&"bree_cozinheira")
+	assert(int(Game.quest_log.state(&"ato1_1")["stage"]) == 1, "estagio 1 deveria avancar")
+	# Estágio 2 (KILL x3): inimigo errado não conta
+	Game.quest_log.notify_kill(&"goblin")
+	assert(int(Game.quest_log.state(&"ato1_1")["stage"]) == 1, "kill de goblin nao conta")
+	for i in 3:
+		Game.quest_log.notify_kill(&"lobo_sombrio")
+	assert(int(Game.quest_log.state(&"ato1_1")["stage"]) == 2, "estagio 2 deveria avancar")
+	# Estágio 3 (TALK): conclui + recompensas da REGRAS §12
+	Game.hero.xp = 0  # determinismo: 40 XP não cruza o limite do nível
+	var gold41: int = Game.hero.gold
+	var n41: int = Game.hero.inventory.items.size()
+	Game.quest_log.notify_talk(&"cinzento_acampamento")
+	assert(Game.quest_log.is_completed(&"ato1_1"), "ato1_1 deveria concluir")
+	assert(Game.hero.xp == int(40 * q41.quest_level * q41.act * Game.hero.xp_multiplier()),
+		"XP da formula 40 x nivel x ato (REGRAS §12)")
+	assert(Game.hero.gold == gold41 + q41.rewards.gold, "ouro da recompensa")
+	assert(Game.hero.inventory.items.size() == n41 + 1, "item de recompensa")
+	var it41: Item = Game.hero.inventory.items[-1]
+	assert(it41.rarity >= maxi(Item.Rarity.MAGIC, mini(q41.act, Item.Rarity.LEGENDARY)), "raridade minima do ato")
+	# Autosave ao concluir quest (REGRAS §13) persiste o estado no arquivo
+	var sj41: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(Game.SAVE_PATH))
+	var sq41: Dictionary = sj41.get("quests", {}).get("ato1_1", {})
+	assert(bool(sq41.get("done", false)) and int(sq41.get("stage", -1)) == 3,
+		"save deveria persistir a quest concluida (autosave REGRAS §13)")
+	# Fragments/final: logica do Final Dourado (REGRAS §12)
+	assert(Game.quest_log.fragments() == 0 and not Game.quest_log.golden_ending_unlocked())
+	Game.fragmentos.append(&"teste1")
+	Game.quest_log.notify_flag(&"__smoke__")  # auto-inicio por flag é coberto pelo despertar
+	assert(Game.quest_log.fragments() == 1)
+	print("[smoke]   quest log ok (TALK/KILL/FLAG/REACH/COLLECT, estagios, recompensas REGRAS §12, autosave)")
 	await _shot("07_mundo_acampamento")
 	h.gold = 5000
 	ow.hud.open_merchant()

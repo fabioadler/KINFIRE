@@ -22,6 +22,8 @@ var _queue: Array[Vector2i] = []
 var _astar_dirty := true
 var _astar_timer := 0.0
 var _player_chunk := Vector2i(999999, 999999)
+## Último território racial em que o jogador esteve (objetivos REACH, Fase 4)
+var _last_region := &""
 var _tiles := {}              ## "x,y,mod" -> [coords, alt]
 var _src: TileSetAtlasSource
 var _ground_src: TileSetAtlasSource
@@ -232,6 +234,13 @@ func _process(delta: float) -> void:
 	_update_daylight()
 	if player == null:
 		return
+	# Fase 4: mudança de território alimenta objetivos REACH das quests
+	if territories != null:
+		var reg: StringName = territories.territory_at(world_to_cell(player.global_position))
+		if reg != _last_region:
+			_last_region = reg
+			if reg != &"":
+				Game.quest_log.notify_reach(reg)
 	var pc := _chunk_of(world_to_cell(player.global_position))
 	if pc != _player_chunk:
 		_player_chunk = pc

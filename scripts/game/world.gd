@@ -553,6 +553,7 @@ func _on_enemy_killed(e: Enemy) -> void:
 	var hero := Game.hero
 	hero.kills += 1
 	hero.add_xp(e.xp)
+	Game.quest_log.notify_kill(e.data.id)  # Fase 4: objetivos KILL
 	var pos := e.global_position
 	if hero.cls.gain_on_kill > 0 and player and pos.distance_to(player.global_position) < 220.0:
 		player.gain_resource(hero.cls.gain_on_kill)

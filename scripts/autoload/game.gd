@@ -53,6 +53,8 @@ var ignorance: int = 0
 var reputation := {}
 ## Estado das quests (Fase 4)
 var quests := {}
+## Log de quests (Fase 4): progresso/recompensas sobre `quests`
+var quest_log := QuestLog.new()
 ## Flags narrativas (diálogos/quests): nome -> valor (MECANICAS §7)
 var flags := {}
 ## Fragmentos da Verdade coletados (Fase 4 — 8 destravam o Final Dourado)
@@ -165,6 +167,7 @@ func new_game(h: Hero) -> void:
 	world_opened = {}
 	reputation = {}
 	quests = {}
+	quest_log.tracked = &""
 	flags = {}
 	fragmentos = []
 	save_game()
@@ -186,6 +189,7 @@ func new_prologue() -> void:
 	world_opened = {}
 	reputation = {}
 	quests = {}
+	quest_log.tracked = &""
 	flags = {}
 	fragmentos = []
 	save_game()
@@ -207,6 +211,7 @@ func finish_prologue(h: Hero) -> void:
 	world_opened = {}
 	reputation = {}
 	quests = {}
+	quest_log.tracked = &""
 	flags = {}
 	save_game()
 	change_scene(OVERWORLD)
@@ -308,6 +313,7 @@ func load_game() -> bool:
 	ignorance = int(data.get("ignorance", 0))
 	reputation = data.get("reputation", {})
 	quests = data.get("quests", {})
+	quest_log.tracked = &""
 	flags = data.get("flags", {})
 	fragmentos = data.get("fragmentos", [])
 	world_seed = int(data.get("world_seed", randi()))
