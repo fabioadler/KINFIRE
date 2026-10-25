@@ -5,6 +5,7 @@ extends RefCounted
 signal stats_changed
 signal leveled_up(new_level: int)
 signal gold_changed(amount: int)
+signal essence_changed(amount: int)
 signal xp_changed
 
 const MAX_LEVEL := 9999
@@ -25,6 +26,8 @@ var free_bonus := {}
 var level: int = 1
 var xp: int = 0
 var gold: int = 0
+## Moeda "dura" da economia (REGRAS §9): só dropa de Campeão/Lendário/Chefe
+var essence: int = 0
 var unspent_points: int = 0
 var inventory: InventoryGrid
 var equipment := {}
@@ -296,6 +299,11 @@ func add_gold(amount: int) -> void:
 	gold_changed.emit(gold)
 
 
+func add_essence(amount: int) -> void:
+	essence += amount
+	essence_changed.emit(essence)
+
+
 func spend_point(a: String) -> void:
 	if unspent_points <= 0:
 		return
@@ -400,7 +408,7 @@ func to_dict() -> Dictionary:
 	return {
 		"name": hero_name, "race": String(race.id), "class": String(cls.id), "sex": sex, "tint": tint.to_html(),
 		"background": background, "difficulty": difficulty, "hardcore": hardcore, "free_bonus": free_bonus,
-		"abilities": base_abilities, "level": level, "xp": xp, "gold": gold, "points": unspent_points,
+		"abilities": base_abilities, "level": level, "xp": xp, "gold": gold, "essence": essence, "points": unspent_points,
 		"inventory": inventory.to_array(), "equipment": eq, "skill_bar": bar, "kills": kills,
 		"deepest": deepest, "play_time": play_time,
 	}
@@ -423,6 +431,7 @@ static func from_dict(d: Dictionary) -> Hero:
 	h.level = int(d.get("level", 1))
 	h.xp = int(d.get("xp", 0))
 	h.gold = int(d.get("gold", 0))
+	h.essence = int(d.get("essence", 0))
 	h.unspent_points = int(d.get("points", 0))
 	h.kills = int(d.get("kills", 0))
 	h.deepest = int(d.get("deepest", 1))

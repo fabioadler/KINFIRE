@@ -133,6 +133,8 @@ var enemies: Array[EnemyData] = []
 var racial_breath: SkillData
 ## Classe oculta do aldeão do prólogo (fora do index.json → não aparece na criação)
 var villager_class: ClassData
+## LootTableData por raridade de monstro (REGRAS §6); índice = Enemy.Rarity
+var loot_tables: Array[LootTableData] = []
 ## Diálogos carregados sob demanda: id -> DialogueData (data/dialogues/*.tres)
 var dialogues := {}
 ## NPCs carregados sob demanda: id -> NpcData (data/npcs/*.tres)
@@ -152,6 +154,7 @@ func _ready() -> void:
 	enemies.assign(_load_dir("res://data/enemies/", idx.enemies))
 	racial_breath = load("res://data/skills/racial/sopro_draconico.tres")
 	villager_class = load("res://data/classes/aldeao.tres")
+	loot_tables.assign(_build_loot_tables())
 	for line in FileAccess.get_file_as_string(DT2_LIST).split("\n"):
 		var p := line.strip_edges().split(" ", false)
 		if p.size() >= 5:
@@ -166,6 +169,63 @@ func _load_dir(dir: String, order: Array) -> Array:
 			out.append(res)
 		else:
 			push_error("Recurso não encontrado: %s%s.tres" % [dir, id])
+	return out
+
+
+## LootTableData por raridade de monstro — REGRAS §6 ("drops garantidos").
+## Chefe é roteirizado: HP/XP tuned no EnemyData; o ouro ×25 é o da tabela,
+## pois não há dado por inimigo para ouro.
+func _build_loot_tables() -> Array[LootTableData]:
+	var out: Array[LootTableData] = []
+	# COMUM: ouro pequeno; 10% item
+	var t := LootTableData.new()
+	t.gold_chance = 0.4
+	t.gold_mult = 1
+	t.globe_chance = 0.12
+	t.item_chance = 0.10
+	out.append(t)
+	# ELITE: ≥1 item Mágico + ouro
+	t = LootTableData.new()
+	t.gold_chance = 1.0
+	t.gold_mult = 3
+	t.globe_chance = 1.0
+	t.item_chance = 0.35
+	t.item_magic = 0.15
+	t.guaranteed.assign([Item.Rarity.MAGIC])
+	out.append(t)
+	# CAMPEÃO: ≥1 Raro + 20% Lendário + 50% Essência
+	t = LootTableData.new()
+	t.gold_chance = 1.0
+	t.gold_mult = 6
+	t.globe_chance = 1.0
+	t.item_chance = 0.35
+	t.item_magic = 0.25
+	t.guaranteed.assign([Item.Rarity.RARE])
+	t.legend_chance = 0.2
+	t.essence_chance = 0.5
+	out.append(t)
+	# LENDÁRIO: ≥1 Lendário/Único + ≥1 Essência
+	t = LootTableData.new()
+	t.gold_chance = 1.0
+	t.gold_mult = 15
+	t.globe_chance = 1.0
+	t.item_chance = 0.35
+	t.item_magic = 0.4
+	t.guaranteed.assign([Item.Rarity.LEGENDARY])
+	t.essence_chance = 1.0
+	out.append(t)
+	# CHEFE: ≥2 itens (≥1 Raro+) + Essência ×2 + item único garantido
+	t = LootTableData.new()
+	t.gold_chance = 1.0
+	t.gold_mult = 25
+	t.globe_chance = 1.0
+	t.item_chance = 0.6
+	t.item_magic = 0.6
+	t.guaranteed.assign([Item.Rarity.RARE, Item.Rarity.RARE])
+	t.essence_chance = 1.0
+	t.essence_amount = 2
+	t.unique_chance = 1.0
+	out.append(t)
 	return out
 
 
@@ -468,17 +528,25 @@ func random_base() -> StringName:
 	return keys.pick_random()
 
 
+## Base de item aleatória; com "for_class", 60% das armas/mãos secundárias são usáveis por ela
+func random_base_for(for_class: ClassData) -> StringName:
+	if for_class == null or randf() >= 0.6:
+		return random_base()
+	var usable := []
+	for k in BASES:
+		if k == &"wood_sword":
+			continue
+		var b: Dictionary = BASES[k]
+		if (b.slot == "weapon" and b.cat in for_class.allowed_weapons) or (b.slot == "offhand" and b.cat in for_class.allowed_offhands) or (b.slot != "weapon" and b.slot != "offhand"):
+			usable.append(k)
+	return usable.pick_random() if not usable.is_empty() else random_base()
+
+
 ## Rola um item; com "for_class", 60% das armas/mãos secundárias serão usáveis por ela
 func roll_item(ilvl: int, magic_bonus: float = 0.0, for_class: ClassData = null) -> Item:
-	var base := random_base()
-	if for_class and randf() < 0.6:
-		var usable := []
-		for k in BASES:
-			if k == &"wood_sword":
-				continue
-			var b: Dictionary = BASES[k]
-			if (b.slot == "weapon" and b.cat in for_class.allowed_weapons) or (b.slot == "offhand" and b.cat in for_class.allowed_offhands) or (b.slot != "weapon" and b.slot != "offhand"):
-				usable.append(k)
-		if not usable.is_empty():
-			base = usable.pick_random()
-	return create_item(base, ilvl, roll_rarity(magic_bonus))
+	return create_item(random_base_for(for_class), ilvl, roll_rarity(magic_bonus))
+
+
+## Item de raridade garantida — drops garantidos por raridade de monstro (REGRAS §6)
+func roll_item_of(ilvl: int, rarity: int, for_class: ClassData = null) -> Item:
+	return create_item(random_base_for(for_class), ilvl, rarity)

@@ -1,12 +1,13 @@
 class_name LootDrop
 extends Node2D
-## Item, ouro ou globo de vida no chão.
+## Item, ouro, globo de vida ou essência no chão.
 
-enum Kind { ITEM, GOLD, GLOBE }
+enum Kind { ITEM, GOLD, GLOBE, ESSENCE }
 
 var kind: Kind = Kind.ITEM
 var item: Item
 var gold := 0
+var essence := 0
 var world: World
 var _t := 0.0
 var _label: Label
@@ -14,6 +15,7 @@ var _icon: Sprite2D
 var _beam: PointLight2D
 var _from := Vector2.ZERO
 var _to := Vector2.ZERO
+var _landed := false
 
 
 static func drop_item(w: World, pos: Vector2, it: Item) -> LootDrop:
@@ -33,6 +35,14 @@ static func drop_gold(w: World, pos: Vector2, amount: int) -> LootDrop:
 static func drop_globe(w: World, pos: Vector2) -> LootDrop:
 	var l := LootDrop.new()
 	l.kind = Kind.GLOBE
+	return _spawn(w, l, pos)
+
+
+## Essência: moeda rara de Campeão/Lendário/Chefe (REGRAS §9)
+static func drop_essence(w: World, pos: Vector2, amount: int) -> LootDrop:
+	var l := LootDrop.new()
+	l.kind = Kind.ESSENCE
+	l.essence = amount
 	return _spawn(w, l, pos)
 
 
@@ -80,6 +90,12 @@ func _ready() -> void:
 			Sfx.play(&"levelup", -6.0)
 	elif kind == Kind.GOLD:
 		Sfx.play(&"coins", -10.0)
+	elif kind == Kind.ESSENCE:
+		# Beam roxo — visível de longe (drop raro)
+		_beam = Fx.make_light(Color(0.75, 0.5, 1.0), 0.7, 0.9)
+		_beam.position = Vector2(0, -6)
+		add_child(_beam)
+		Sfx.play(&"magic", -10.0)
 
 
 ## Empilha rótulos de itens próximos para não ficarem sobrepostos
@@ -124,8 +140,9 @@ func _process(delta: float) -> void:
 	if _t < 0.4:
 		var k := _t / 0.4
 		position = _from.lerp(_to, k) + Vector2(0, -sin(k * PI) * 14.0)
-	elif position != _to:
+	elif not _landed:
 		position = _to
+		_landed = true
 		_avoid_label_overlap()
 	if _beam:
 		_beam.energy = 0.8 + sin(_t * 4.0) * 0.3
@@ -150,6 +167,14 @@ func _process(delta: float) -> void:
 				Sfx.play(&"potion", -6.0)
 				Fx.burst(world.fx_layer, global_position, Color(1, 0.2, 0.2), 10, 40.0)
 				queue_free()
+		Kind.ESSENCE:
+			if d < 30.0:
+				global_position = global_position.move_toward(world.player.global_position, 160 * delta)
+			if d < 6.0:
+				world.player.hero.add_essence(essence)
+				Sfx.play(&"magic", -4.0)
+				DamageNumber.spawn_text(world.fx_layer, global_position, "+%d ◆" % essence, Color(0.75, 0.55, 1.0))
+				queue_free()
 
 
 func _draw() -> void:
@@ -170,3 +195,11 @@ func _draw() -> void:
 			draw_set_transform(Vector2(0, -0.5), 0, Vector2(1, 0.4))
 			draw_circle(Vector2.ZERO, 5.0, Color(0, 0, 0, 0.35))
 			draw_set_transform(Vector2.ZERO)
+		Kind.ESSENCE:
+			# Losango roxo pulsante
+			var pulse := 1.0 + sin(_t * 5.0) * 0.15
+			var pts := PackedVector2Array()
+			for k in 4:
+				pts.append(Vector2(0, -6) + Vector2.from_angle(TAU * k / 4.0 + PI / 4.0) * 4.5 * pulse)
+			draw_colored_polygon(pts, Color(0.62, 0.38, 0.95))
+			draw_circle(Vector2(0, -6), 1.5, Color(0.95, 0.85, 1.0))

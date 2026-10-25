@@ -31,3 +31,6 @@ enum Behavior { MELEE, RANGED, CHARGER, SWARM, BOSS }
 @export var habitats: PackedStringArray = PackedStringArray(["dungeon"])
 ## Chefe de mundo (aparece raramente em regiões distantes)
 @export var world_boss: bool = false
+## 3.3 — eixo por inimigo do LootTableData: base_id de um item único
+## (lendário nomeado) garantido ao matar este inimigo; vazio = nenhum
+@export var unique_drop: StringName = &""

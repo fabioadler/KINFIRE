@@ -696,6 +696,94 @@ func _test_overworld() -> void:
 		if is_instance_valid(e):
 			e.queue_free()
 	print("[smoke]   afixos ok (roll sem repeticao; furioso/escudo/telurico/venenoso/fantasma/enxame/ardente/sombras)")
+	# 3.3: LootTableData por raridade (REGRAS §6) + essência (REGRAS §9)
+	assert(DB.loot_tables.size() == 5, "uma tabela de loot por raridade")
+	assert(is_equal_approx(DB.loot_tables[Enemy.Rarity.COMUM].item_chance, 0.10))
+	assert(DB.loot_tables[Enemy.Rarity.ELITE].guaranteed == [Item.Rarity.MAGIC])
+	assert(DB.loot_tables[Enemy.Rarity.CAMPEAO].guaranteed == [Item.Rarity.RARE])
+	assert(is_equal_approx(DB.loot_tables[Enemy.Rarity.CAMPEAO].essence_chance, 0.5))
+	assert(DB.loot_tables[Enemy.Rarity.LENDARIO].guaranteed == [Item.Rarity.LEGENDARY])
+	assert(is_equal_approx(DB.loot_tables[Enemy.Rarity.LENDARIO].essence_chance, 1.0))
+	assert(DB.loot_tables[Enemy.Rarity.CHEFE].guaranteed.size() == 2)
+	assert(DB.loot_tables[Enemy.Rarity.CHEFE].essence_amount == 2)
+	var drops33 := func(kind33: int, pos33: Vector2) -> Array:
+		var out := []
+		for n33 in ow.entities.get_children():
+			var d33 := n33 as LootDrop
+			if d33 != null and not d33.is_queued_for_deletion() and d33.kind == kind33 \
+					and d33.global_position.distance_to(pos33) < 60.0:
+				out.append(d33)
+		return out
+	var limpar33 := func(pos33: Vector2) -> void:
+		for n33 in ow.entities.get_children():
+			var d33 := n33 as LootDrop
+			if d33 != null and d33.global_position.distance_to(pos33) < 80.0:
+				ow.entities.remove_child(n33)
+				n33.queue_free()
+	var e33: Enemy = ow.spawn_enemy(goblin, pp + Vector2(3400, 0), Enemy.Rarity.COMUM, 5)
+	e33.take_damage(99999.0, false, Vector2.INF, 0.0)
+	assert(drops33.call(LootDrop.Kind.ESSENCE, e33.global_position).is_empty(), "COMUM nao dropa essencia")
+	limpar33.call(e33.global_position)
+	e33 = ow.spawn_enemy(goblin, pp + Vector2(3450, 0), Enemy.Rarity.ELITE, 5)
+	e33.take_damage(99999.0, false, Vector2.INF, 0.0)
+	var tem_magico := false
+	for l33 in drops33.call(LootDrop.Kind.ITEM, e33.global_position):
+		if (l33 as LootDrop).item.rarity >= Item.Rarity.MAGIC:
+			tem_magico = true
+	assert(tem_magico, "ELITE garante >=1 item magico")
+	assert(drops33.call(LootDrop.Kind.ESSENCE, e33.global_position).is_empty(), "ELITE nao dropa essencia")
+	limpar33.call(e33.global_position)
+	e33 = ow.spawn_enemy(goblin, pp + Vector2(3500, 0), Enemy.Rarity.CAMPEAO, 5)
+	e33.take_damage(99999.0, false, Vector2.INF, 0.0)
+	var tem_raro := false
+	for l33 in drops33.call(LootDrop.Kind.ITEM, e33.global_position):
+		if (l33 as LootDrop).item.rarity >= Item.Rarity.RARE:
+			tem_raro = true
+	assert(tem_raro, "CAMPEAO garante >=1 item raro")
+	limpar33.call(e33.global_position)
+	e33 = ow.spawn_enemy(goblin, pp + Vector2(3550, 0), Enemy.Rarity.LENDARIO, 5)
+	e33.take_damage(99999.0, false, Vector2.INF, 0.0)
+	var tem_lend := false
+	for l33 in drops33.call(LootDrop.Kind.ITEM, e33.global_position):
+		if (l33 as LootDrop).item.rarity == Item.Rarity.LEGENDARY:
+			tem_lend = true
+	assert(tem_lend, "LENDARIO garante >=1 item lendario")
+	assert(drops33.call(LootDrop.Kind.ESSENCE, e33.global_position).size() == 1, "LENDARIO dropa 1 essencia")
+	limpar33.call(e33.global_position)
+	e33 = ow.spawn_enemy(azkhar, pp + Vector2(3600, 0), Enemy.Rarity.CHEFE, 1)
+	e33.take_damage(999999.0, false, Vector2.INF, 0.0)
+	var raros33 := 0
+	var lends33 := 0
+	for l33 in drops33.call(LootDrop.Kind.ITEM, e33.global_position):
+		if (l33 as LootDrop).item.rarity >= Item.Rarity.RARE:
+			raros33 += 1
+		if (l33 as LootDrop).item.rarity == Item.Rarity.LEGENDARY:
+			lends33 += 1
+	assert(raros33 >= 2, "CHEFE garante >=2 itens raros+")
+	assert(lends33 >= 1, "CHEFE dropa >=1 lendario")
+	var ess33: Array = drops33.call(LootDrop.Kind.ESSENCE, e33.global_position)
+	assert(ess33.size() == 1 and (ess33[0] as LootDrop).essence == 2, "CHEFE dropa essencia x2")
+	limpar33.call(e33.global_position)
+	# estatístico: 40 campeões → ~50% dropam essência
+	var ess_cont := 0
+	for i in 40:
+		e33 = ow.spawn_enemy(goblin, pp + Vector2(3650 + i * 4, 0), Enemy.Rarity.CAMPEAO, 5)
+		e33.take_damage(99999.0, false, Vector2.INF, 0.0)
+		ess_cont += drops33.call(LootDrop.Kind.ESSENCE, e33.global_position).size()
+		limpar33.call(e33.global_position)
+	assert(ess_cont >= 12 and ess_cont <= 28, "essencia ~50%% em campeoes (foi %d)" % ess_cont)
+	# pickup magnético de essência + HUD
+	var ess_antes: int = Game.hero.essence
+	LootDrop.drop_essence(ow, ow.player.global_position, 3)
+	var coletou := false
+	for i in 30:
+		await _wait(0.1)
+		if Game.hero.essence == ess_antes + 3:
+			coletou = true
+			break
+	assert(coletou, "essencia deveria ser coletada pelo ima")
+	assert(ow.hud._essence.text.contains(str(ess_antes + 3)), "HUD deveria mostrar a essencia")
+	print("[smoke]   loot por raridade ok (5 tabelas; elite magico, campeao raro+50% ess, lendario lendario, chefe raro x2+unico+ess x2; ima e HUD)")
 	await _shot("07_mundo_acampamento")
 	h.gold = 5000
 	ow.hud.open_merchant()

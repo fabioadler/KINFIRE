@@ -22,6 +22,7 @@ var _target_name: Label
 var _target_bar: ProgressBar
 var _location: Label
 var _gold: Label
+var _essence: Label
 var _messages: VBoxContainer
 var _buff_row: HBoxContainer
 var _hover_label: Label
@@ -249,6 +250,10 @@ func _build_top() -> void:
 	_gold.add_theme_color_override("font_outline_color", Color.BLACK)
 	_gold.add_theme_constant_override("outline_size", 4)
 	info.add_child(_gold)
+	_essence = UIKit.label("", 16, Color(0.75, 0.55, 1.0), true)
+	_essence.add_theme_color_override("font_outline_color", Color.BLACK)
+	_essence.add_theme_constant_override("outline_size", 4)
+	info.add_child(_essence)
 
 	var mm := Minimap.new(world)
 	mm.name = "Minimap"
@@ -297,6 +302,7 @@ func _process(delta: float) -> void:
 	_location.text = world.region_name()
 	var tl := world.time_label()
 	_gold.text = ("Ouro: %d" % hero.gold) + (("   •   " + tl) if tl != "" else "")
+	_essence.text = "◆ Essência: %d" % hero.essence
 	if _popup and is_instance_valid(_popup) and world.player.global_position.distance_to(_popup.get_meta("anchor")) > 40.0:
 		close_popup()
 	_points_hint.visible = hero.unspent_points > 0 and not character.visible

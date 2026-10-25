@@ -550,44 +550,36 @@ func _on_enemy_killed(e: Enemy) -> void:
 	var pos := e.global_position
 	if hero.cls.gain_on_kill > 0 and player and pos.distance_to(player.global_position) < 220.0:
 		player.gain_resource(hero.cls.gain_on_kill)
-	var magic := 0.0
-	var item_chance := 0.09
-	var globe_chance := 0.12
-	var gold_chance := 0.4
-	var item_count := 1
-	# 3.1: mapeio provisório por raridade (3.3 substitui por LootTableData)
-	if e.rarity >= Enemy.Rarity.ELITE:
-		magic = 0.25
-		item_chance = 1.0
-		item_count = 2
-		globe_chance = 1.0
-		gold_chance = 1.0
-	if e.rarity >= Enemy.Rarity.CAMPEAO:
-		magic = 0.4
-		item_count = 3
-	if e.rarity == Enemy.Rarity.LENDARIO:
-		magic = 0.6
-		item_count = 4
+	# 3.3: LootTableData por raridade (REGRAS §6); HP/XP do chefe já vêm tuned
+	# no EnemyData — a tabela carrega só os drops/ouro
+	var t: LootTableData = DB.loot_tables[e.rarity]
+	if randf() < t.gold_chance:
+		LootDrop.drop_gold(self, pos, gold_amount() * t.gold_mult)
+	if randf() < t.globe_chance:
+		LootDrop.drop_globe(self, pos)
+	# Itens garantidos (≥ raridade de cada entrada)
+	for r in t.guaranteed:
+		LootDrop.drop_item(self, pos, DB.roll_item_of(item_level(), r, hero.cls))
+	# Lendário extra (Campeão: 20%)
+	if randf() < t.legend_chance:
+		LootDrop.drop_item(self, pos, DB.roll_item_of(item_level(), Item.Rarity.LEGENDARY, hero.cls))
+	# Item de roll aleatório
+	if randf() < t.item_chance:
+		LootDrop.drop_item(self, pos, roll_loot_item(t.item_magic))
+	# Item único: por inimigo (EnemyData.unique_drop) ou chance da tabela (chefe)
+	if e.data.unique_drop != &"":
+		LootDrop.drop_item(self, pos, DB.create_item(e.data.unique_drop, item_level() + 2, Item.Rarity.LEGENDARY))
+	elif randf() < t.unique_chance:
+		LootDrop.drop_item(self, pos, DB.roll_item_of(item_level() + 2, Item.Rarity.LEGENDARY, hero.cls))
+	# Essência: moeda rara, só Campeão/Lendário/Chefe (REGRAS §9)
+	if t.essence_chance > 0.0 and randf() < t.essence_chance:
+		LootDrop.drop_essence(self, pos, t.essence_amount)
 	if e.is_boss():
-		magic = 0.6
-		item_chance = 1.0
-		item_count = 4
-		gold_chance = 1.0
-		LootDrop.drop_item(self, pos, DB.create_item(DB.random_base(), item_level() + 2, Item.Rarity.LEGENDARY))
 		hud.show_message("%s foi derrotado!" % e.display_name, Color(1, 0.6, 0.2), 3.0)
 		if stairs and stairs.locked:
 			stairs.locked = false
 			hud.show_message("A passagem para as profundezas está aberta.", UIKit.GOLD, 3.0)
 		shake(8.0)
-	if randf() < item_chance:
-		for i in item_count:
-			LootDrop.drop_item(self, pos, roll_loot_item(magic))
-	if randf() < gold_chance:
-		# Ouro por raridade (REGRAS §6); chefe roteirizado mantém o ×3 atual
-		var gold_mult: int = 3 if e.is_boss() else Enemy.RARITY_REWARD[e.rarity]
-		LootDrop.drop_gold(self, pos, gold_amount() * gold_mult)
-	if randf() < globe_chance:
-		LootDrop.drop_globe(self, pos)
 
 
 func time_label() -> String:
