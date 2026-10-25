@@ -910,7 +910,11 @@ func _test_overworld() -> void:
 	# auto-inicio por flag + next, objetivos TALK com wildcard any: (glob com *)
 	Game.quests.clear()
 	Game.quest_log.tracked = &""
-	assert(DB.quest_ids().size() == 7, "Ato 1 completo no DB (7 quests)")
+	var db_ok43 := true
+	for i43 in 7:
+		if DB.quest(StringName("ato1_%d" % (i43 + 1))) == null:
+			db_ok43 = false
+	assert(db_ok43, "Ato 1 completo no DB (7 quests)")
 	Game.quest_log.notify_flag(&"cinzento_primeiro_dialogo")
 	assert(Game.quest_log.is_active(&"ato1_1"), "ato1_1 inicia pela flag do primeiro dialogo")
 	# ato1_1: Marn + Bree -> 3 lobos -> Cinzento (auto-inicia ato1_2 ao concluir)
@@ -960,13 +964,48 @@ func _test_overworld() -> void:
 		Game.quest_log.notify_kill(&"cavaleiro_renegado")
 	Game.quest_log.notify_talk(&"capital_humano_lider")
 	assert(Game.quest_log.is_completed(&"ato1_7"), "ato1_7 (ultima) conclui")
-	var sem_ativas43 := true
-	for qid43 in Game.quests.keys():
-		if Game.quest_log.is_active(qid43):
-			sem_ativas43 = false
-	assert(sem_ativas43, "cadeia encadeada termina sem quests ativas")
-	assert(Game.quest_log.tracker_line() == "", "tracker vazio ao fim da cadeia")
-	print("[smoke]   cadeia ato1 ok (7 quests: flag->next auto-inicio, wildcard any:capital_*_lider e any:_comum, REACH, cadeia completa)")
+	var ato1_ok43 := true
+	for qid43 in [&"ato1_1", &"ato1_2", &"ato1_3", &"ato1_4", &"ato1_5", &"ato1_6", &"ato1_7"]:
+		if not Game.quest_log.is_completed(qid43):
+			ato1_ok43 = false
+	assert(ato1_ok43, "Ato 1 inteiro concluido")
+	# autoflow por pre-requisito: ato2_1 abre sozinha quando ato1_7 completa
+	assert(Game.quest_log.is_active(&"ato2_1"), "ato2_1 auto-inicia por prereq (autoflow)")
+	assert(Game.quest_log.tracker_line() != "", "tracker segue a main (ato2_1)")
+	print("[smoke]   cadeia ato1 ok (7 quests: flag->next auto-inicio, wildcard any:capital_*_lider e any:_comum, REACH, autoflow abre ato2_1)")
+	# 4.4: Ato 2 — O Tabuleiro (LORE §XII): 8 pazes, cada par de territórios
+	# descobre a mentira específica que sustenta aquele ódio.
+	# Estrutura de cada paz: REACH as duas capitais -> KILL dos que lucram
+	# com a discórdia -> TALK com dois líderes (wildcard any:capital_*_lider)
+	var paz44 := func(a44: StringName, b44: StringName, vilao44: StringName, n44: int, qid44: StringName) -> void:
+		assert(Game.quest_log.is_active(qid44), "%s deveria estar ativa" % qid44)
+		Game.quest_log.notify_reach(a44)
+		Game.quest_log.notify_reach(b44)
+		for k44 in n44:
+			Game.quest_log.notify_kill(vilao44)
+		Game.quest_log.notify_talk(&"capital_humano_lider")
+		Game.quest_log.notify_talk(&"capital_drow_lider")
+		assert(Game.quest_log.is_completed(qid44), "%s deveria concluir" % qid44)
+	paz44.call(&"humano", &"alto_elfo", &"arqueiro_bandido", 5, &"ato2_1")
+	paz44.call(&"elfo_floresta", &"drow", &"fantasma", 5, &"ato2_2")
+	paz44.call(&"anao_montanha", &"anao_colinas", &"anao_saqueador", 5, &"ato2_3")
+	paz44.call(&"halfling", &"meio_elfo", &"arqueiro_bandido", 5, &"ato2_4")
+	paz44.call(&"meio_orc", &"tiefling", &"orc_mascarado", 5, &"ato2_5")
+	paz44.call(&"draconato", &"gnomo", &"diabrete", 5, &"ato2_6")
+	paz44.call(&"tabaxi", &"golias", &"aranha_gigante", 6, &"ato2_7")
+	# O Concílio Reunido: convocação de três líderes + revelação do Cinzento
+	assert(Game.quest_log.is_active(&"ato2_8"), "ato2_8 auto-iniciada por prereq ato2_7")
+	Game.quest_log.notify_talk(&"capital_humano_lider")
+	Game.quest_log.notify_talk(&"capital_golias_lider")
+	Game.quest_log.notify_talk(&"capital_tiefling_lider")
+	Game.quest_log.notify_talk(&"cinzento_acampamento")
+	assert(Game.quest_log.is_completed(&"ato2_8"), "concilio conclui o Ato 2")
+	var ato2_ok44 := true
+	for i44 in 8:
+		if not Game.quest_log.is_completed(StringName("ato2_%d" % (i44 + 1))):
+			ato2_ok44 = false
+	assert(ato2_ok44, "Ato 2 inteiro concluido")
+	print("[smoke]   cadeia ato2 ok (8 pazes: REACH pares, KILL dos que lucram, concilio; autoflow por prereq)")
 	await _shot("07_mundo_acampamento")
 	h.gold = 5000
 	ow.hud.open_merchant()
