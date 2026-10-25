@@ -489,6 +489,12 @@ func light_campfire(f: Interactable) -> void:
 	Game.save_game()
 
 
+func _on_campfire_lit(fire: Interactable) -> void:
+	light_campfire(fire)
+	hud.show_message("Fogueira acesa: você renascerá aqui.", Color(1, 0.7, 0.3))
+	hud.open_waypoints()
+
+
 func travel_to(pos: Vector2) -> void:
 	Game.overworld_pos = pos + Vector2(0, 20)
 	Game.save_game()

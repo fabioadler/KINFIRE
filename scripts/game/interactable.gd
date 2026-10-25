@@ -158,10 +158,7 @@ func interact(player: Player) -> void:
 			Game.descend()
 		Kind.CAMPFIRE:
 			Sfx.play(&"magic", -6.0)
-			if world is Overworld:
-				(world as Overworld).light_campfire(self)
-			world.hud.show_message("Fogueira acesa: você renascerá aqui.", Color(1, 0.7, 0.3))
-			world.hud.open_waypoints()
+			world._on_campfire_lit(self)
 		Kind.MERCHANT:
 			Sfx.play(&"coins", -4.0)
 			world.hud.open_merchant()

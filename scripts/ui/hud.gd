@@ -528,7 +528,8 @@ func _merchant_item(kind: String, lvl: int) -> Item:
 
 ## Viagem rápida entre fogueiras acesas (estilo waypoint do Diablo)
 func open_waypoints() -> void:
-	if not world is Overworld:
+	## Duck typing (evita ciclo world → hud → overworld → world)
+	if not world.has_method("travel_to"):
 		return
 	var body := _open_popup("Viagem Rápida", 420)
 	body.add_child(UIKit.label("Fogueiras descobertas:", 15, UIKit.TEXT_DIM))
@@ -541,7 +542,7 @@ func open_waypoints() -> void:
 	for w in Game.waypoints:
 		var pos := Vector2(w.x, w.y)
 		var here := pos.distance_to(world.player.global_position) < 40.0
-		var b := UIKit.button(("%s  (você está aqui)" if here else "%s") % w.name, func(): (world as Overworld).travel_to(pos), 380)
+		var b := UIKit.button(("%s  (você está aqui)" if here else "%s") % w.name, func(): world.travel_to(pos), 380)
 		b.disabled = here
 		list.add_child(b)
 	body.add_child(UIKit.button("Fechar", close_popup, 400))

@@ -132,6 +132,12 @@ func respawn_position() -> Vector2:
 	return cell_to_world(gen.start_room.get_center())
 
 
+## Acender uma fogueira (hook — sobrescrito por Overworld/Prologue)
+func _on_campfire_lit(_fire: Interactable) -> void:
+	hud.show_message("Fogueira acesa: você renascerá aqui.", Color(1, 0.7, 0.3))
+	hud.open_waypoints()
+
+
 func _apply_brightness() -> void:
 	var b: float = Game.settings.brightness
 	var c := Color(0.34, 0.3, 0.34).darkened(clampf((Game.depth - 1) * 0.04, 0.0, 0.3))
