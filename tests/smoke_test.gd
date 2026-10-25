@@ -58,6 +58,7 @@ func _run() -> void:
 	await _shot("02b_criacao_aleatorio")
 	print("[smoke] criação de personagem ok")
 	await _test_prologue()
+	await _test_dialogue()
 	await _test_overworld()
 
 	for i in DB.classes.size():
@@ -278,6 +279,73 @@ func _test_prologue() -> void:
 	assert(Game.awakened_from_prologue == false)  # diálogo de despertar consumido pela 1.5
 	print("[smoke]   wizard concluido — %s %s acorda no acampamento" % [Game.hero.race.display_name, Game.hero.cls.display_name])
 	print("[smoke] prologo ok")
+
+
+func _test_dialogue() -> void:
+	print("[smoke] dialogo")
+	# Herói de teste com ignorância alta (versão "leiga" dos diálogos)
+	var hero := Hero.create("Testador", DB.races[0], DB.classes[0], "m", Color.WHITE, {"str": 14, "dex": 12, "con": 14, "int": 10, "wis": 10, "cha": 10})
+	Game.hero = hero
+	Game.ignorance = 10
+	Game.reputation = {}
+	Game.flags = {}
+	var gold_before := hero.gold
+	# Grafo: raiz (2 páginas) -> escolhas condicionais -> nó final sem escolhas
+	var n_root := DialogueNode.new()
+	n_root.id = &"raiz"
+	n_root.pages = PackedStringArray(["Primeira página.", "Segunda página."])
+	var c_ignorante := DialogueChoice.new()
+	c_ignorante.text = "O que é uma guilda?"
+	c_ignorante.next_id = &"explica"
+	c_ignorante.condition = "ignorancia > 5"
+	c_ignorante.effects = "ignorancia -1\nflag perguntou_guilda\ngold 25\nrep humano +1"
+	var c_sabido := DialogueChoice.new()
+	c_sabido.text = "Sigo meu caminho."
+	c_sabido.condition = "ignorancia <= 5"
+	n_root.choices = [c_ignorante, c_sabido]
+	var n_explica := DialogueNode.new()
+	n_explica.id = &"explica"
+	n_explica.text = "É onde gente de ofício se junta — e onde memória vira salário."
+	var d := DialogueData.new()
+	d.id = &"teste"
+	d.portrait = "k:121"
+	d.start_id = &"raiz"
+	d.nodes = [n_root, n_explica]
+	# Motor: paginação
+	var eng := DialogueEngine.new()
+	# Lambdas capturam locais POR VALOR: mutações (append/índice) são visíveis
+	# fora, mas rebinding (x = ...) não — por isso o estado vai num Dictionary.
+	var st := {"pages": [], "choices": [], "ended": false}
+	eng.page_shown.connect(func(t: String, portrait: String): st["pages"].append([t, portrait]))
+	eng.choices_shown.connect(func(cs: Array): st["choices"] = cs)
+	eng.dialogue_ended.connect(func(): st["ended"] = true)
+	eng.start(d)
+	assert(st["pages"].size() == 1 and st["pages"][0][0] == "Primeira página." and st["pages"][0][1] == "k:121")
+	eng.advance()
+	assert(st["pages"].size() == 2 and st["pages"][1][0] == "Segunda página.")
+	# Escolhas: ignorância 10 > 5 -> só a versão leiga é visível
+	eng.advance()
+	assert(st["choices"].size() == 1 and st["choices"][0].text == "O que é uma guilda?")
+	# Efeitos: ignorância, flag, ouro, reputação
+	eng.choose(0)
+	assert(Game.ignorance == 9)
+	assert(bool(Game.flags.get("perguntou_guilda", false)))
+	assert(hero.gold == gold_before + 25)
+	assert(int(Game.reputation.get(&"humano", 0)) == 1)
+	assert(st["pages"].size() == 3 and st["pages"][2][0] == "É onde gente de ofício se junta — e onde memória vira salário.")
+	# Nó sem escolhas: advance na única página encerra
+	assert(not st["ended"])
+	eng.advance()
+	assert(st["ended"])
+	# Condições do resolver: raca/classe/item/nivel/negacao/AND
+	assert(ConditionResolver.eval("raca = %s" % hero.race.id))
+	assert(ConditionResolver.eval("classe = %s" % hero.cls.id))
+	assert(not ConditionResolver.eval("raca = %s" % hero.race.id + ", !flag perguntou_guilda"))
+	assert(ConditionResolver.eval("flag perguntou_guilda, ignorancia <= 9"))
+	assert(ConditionResolver.eval("nivel >= 1, item wood_sword"))
+	assert(not ConditionResolver.eval("item espada_inexistente"))
+	assert(ConditionResolver.eval(""))
+	print("[smoke] dialogo ok")
 
 
 func _test_overworld() -> void:

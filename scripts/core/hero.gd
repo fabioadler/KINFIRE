@@ -86,6 +86,18 @@ func _make_inventory() -> void:
 	inventory = InventoryGrid.new(10 + race.extra_inventory_cols, 6)
 
 
+## Quantos itens-base o herói possui (inventário + equipados) — condições de diálogo (MECANICAS §7)
+func count_item(base: StringName) -> int:
+	var n := 0
+	for it in inventory.items:
+		if it is Item and it.base_id == base:
+			n += 1
+	for it in equipment.values():
+		if it is Item and it.base_id == base:
+			n += 1
+	return n
+
+
 ## Nome-base do sprite animado
 func sprite_base() -> String:
 	return race.sprite_f if sex == "f" else race.sprite_m

@@ -53,6 +53,8 @@ var ignorance: int = 0
 var reputation := {}
 ## Estado das quests (Fase 4)
 var quests := {}
+## Flags narrativas (diálogos/quests): nome -> valor (MECANICAS §7)
+var flags := {}
 ## Fragmentos da Verdade coletados (Fase 4 — 8 destravam o Final Dourado)
 var fragmentos: Array = []
 ## Mundo aberto
@@ -163,6 +165,7 @@ func new_game(h: Hero) -> void:
 	world_opened = {}
 	reputation = {}
 	quests = {}
+	flags = {}
 	fragmentos = []
 	save_game()
 	change_scene(OVERWORLD)
@@ -183,6 +186,7 @@ func new_prologue() -> void:
 	world_opened = {}
 	reputation = {}
 	quests = {}
+	flags = {}
 	fragmentos = []
 	save_game()
 	change_scene(PROLOGUE)
@@ -201,6 +205,9 @@ func finish_prologue(h: Hero) -> void:
 	respawn_pos = Vector2.INF
 	waypoints = []
 	world_opened = {}
+	reputation = {}
+	quests = {}
+	flags = {}
 	save_game()
 	change_scene(OVERWORLD)
 
@@ -274,7 +281,7 @@ func save_game() -> void:
 	var data := {
 		"version": SAVE_VERSION, "depth": depth, "hero": hero.to_dict(),
 		"phase": phase, "ignorance": ignorance, "reputation": reputation,
-		"quests": quests, "fragmentos": fragmentos,
+		"quests": quests, "flags": flags, "fragmentos": fragmentos,
 		"world_seed": world_seed, "world_time": world_time, "in_dungeon": in_dungeon,
 		"overworld_pos": _vec(overworld_pos), "respawn_pos": _vec(respawn_pos),
 		"waypoints": waypoints, "world_opened": world_opened,
@@ -301,6 +308,7 @@ func load_game() -> bool:
 	ignorance = int(data.get("ignorance", 0))
 	reputation = data.get("reputation", {})
 	quests = data.get("quests", {})
+	flags = data.get("flags", {})
 	fragmentos = data.get("fragmentos", [])
 	world_seed = int(data.get("world_seed", randi()))
 	world_time = float(data.get("world_time", 0.3))
