@@ -67,6 +67,21 @@ static func create(p_name: String, p_race: RaceData, p_cls: ClassData, p_sex: St
 	return h
 
 
+## Herói provisório do prólogo: aldeão nível 0, raça/classe ocultas (REGRAS §13,
+## MECANICAS §11). Ao criar o personagem de verdade, o objeto é reconstruído.
+static func create_villager() -> Hero:
+	var h := Hero.new()
+	h.hero_name = "Aldeão"
+	h.race = DB.get_race(&"humano")
+	h.cls = DB.villager_class
+	h.sex = "m"
+	h.base_abilities = {"str": 10, "dex": 10, "con": 10, "int": 10, "wis": 10, "cha": 10}
+	h.level = 0
+	h._make_inventory()
+	h.refresh_skill_bar()
+	return h
+
+
 func _make_inventory() -> void:
 	inventory = InventoryGrid.new(10 + race.extra_inventory_cols, 6)
 
@@ -243,6 +258,9 @@ func roll_damage(mult: float) -> Array:
 # ------------------------------------------------------------ PROGRESSÃO
 
 func xp_to_next() -> int:
+	## Nível 0 (prólogo do aldeão) usa o mesmo requisito do nível 1 — REGRAS §13
+	if level <= 0:
+		return 20
 	return int(20 * pow(level, 1.5))
 
 
@@ -253,7 +271,8 @@ func add_xp(amount: int) -> void:
 	while xp >= xp_to_next() and level < MAX_LEVEL:
 		xp -= xp_to_next()
 		level += 1
-		unspent_points += 1 if level % 4 == 0 else 0
+		## +1 ponto de atributo a cada 4 níveis (1, 5, 9, 13…) — REGRAS §2
+		unspent_points += 1 if level % 4 == 1 else 0
 		refresh_skill_bar()
 		leveled_up.emit(level)
 	xp_changed.emit()

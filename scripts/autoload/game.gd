@@ -3,12 +3,18 @@ extends Node
 
 const SAVE_PATH := "user://kinfire_save.json"
 const SETTINGS_PATH := "user://kinfire_settings.cfg"
-const VERSION := "0.2"
+const VERSION := "0.3"
+const SAVE_VERSION := 4
 
 const MAIN_MENU := "res://scenes/menus/main_menu.tscn"
 const CHARACTER_CREATION := "res://scenes/menus/character_creation.tscn"
 const WORLD := "res://scenes/game/world.tscn"
 const OVERWORLD := "res://scenes/game/overworld.tscn"
+const PROLOGUE := "res://scenes/game/prologue.tscn"
+
+## Fase do jogador: "prologue" (aldeão do tutorial) ou "created" (personagem criado)
+const PHASE_PROLOGUE := "prologue"
+const PHASE_CREATED := "created"
 
 const WINDOW_SIZES := [Vector2i(1280, 720), Vector2i(1366, 768), Vector2i(1600, 900), Vector2i(1920, 1080), Vector2i(2560, 1440)]
 const FPS_OPTIONS := [30, 60, 120, 144, 240, 0]
@@ -36,6 +42,16 @@ const ACTIONS := {
 
 var hero: Hero
 var depth: int = 1
+## Fase do jogador (PHASE_PROLOGUE | PHASE_CREATED) — REGRAS §15, MECANICAS §12
+var phase: String = PHASE_CREATED
+## Ignorância do Laço-Vivo (10 no pós-prólogo, decai ao aprender; REGRAS §2)
+var ignorance: int = 0
+## Reputação por raça: id da raça -> int 0..4 (Fase 5)
+var reputation := {}
+## Estado das quests (Fase 4)
+var quests := {}
+## Fragmentos da Verdade coletados (Fase 4 — 8 destravam o Final Dourado)
+var fragmentos: Array = []
 ## Mundo aberto
 var world_seed: int = 0
 var world_time: float = 0.3
@@ -133,9 +149,49 @@ func change_scene(path: String) -> void:
 
 func new_game(h: Hero) -> void:
 	hero = h
+	phase = PHASE_CREATED
 	depth = 1
 	world_seed = randi()
 	world_time = 0.3
+	in_dungeon = false
+	overworld_pos = Vector2.INF
+	respawn_pos = Vector2.INF
+	waypoints = []
+	world_opened = {}
+	reputation = {}
+	quests = {}
+	fragmentos = []
+	save_game()
+	change_scene(OVERWORLD)
+
+
+## Inicia o prólogo: o jogador é um aldeão nível 0 na Reminiscência (REGRAS §13)
+func new_prologue() -> void:
+	hero = Hero.create_villager()
+	phase = PHASE_PROLOGUE
+	ignorance = 0
+	depth = 1
+	world_seed = randi()
+	world_time = 0.3
+	in_dungeon = false
+	overworld_pos = Vector2.INF
+	respawn_pos = Vector2.INF
+	waypoints = []
+	world_opened = {}
+	reputation = {}
+	quests = {}
+	fragmentos = []
+	save_game()
+	change_scene(PROLOGUE)
+
+
+## Conclui o prólogo: criação de personagem terminou, herói real acorda no
+## acampamento da raça escolhida (REGRAS §13: nada do prólogo carrega).
+func finish_prologue(h: Hero) -> void:
+	hero = h
+	phase = PHASE_CREATED
+	ignorance = 10
+	depth = 1
 	in_dungeon = false
 	overworld_pos = Vector2.INF
 	respawn_pos = Vector2.INF
@@ -147,7 +203,10 @@ func new_game(h: Hero) -> void:
 
 func continue_game() -> void:
 	if load_game():
-		change_scene(WORLD if in_dungeon else OVERWORLD)
+		if phase == PHASE_PROLOGUE:
+			change_scene(PROLOGUE)
+		else:
+			change_scene(WORLD if in_dungeon else OVERWORLD)
 
 
 ## Entra numa masmorra a partir do mundo aberto
@@ -209,7 +268,9 @@ func save_game() -> void:
 	if w and not in_dungeon and w.player and not w.player.is_dead():
 		overworld_pos = w.player.global_position
 	var data := {
-		"version": 3, "depth": depth, "hero": hero.to_dict(),
+		"version": SAVE_VERSION, "depth": depth, "hero": hero.to_dict(),
+		"phase": phase, "ignorance": ignorance, "reputation": reputation,
+		"quests": quests, "fragmentos": fragmentos,
 		"world_seed": world_seed, "world_time": world_time, "in_dungeon": in_dungeon,
 		"overworld_pos": _vec(overworld_pos), "respawn_pos": _vec(respawn_pos),
 		"waypoints": waypoints, "world_opened": world_opened,
@@ -229,8 +290,14 @@ func load_game() -> bool:
 	var data: Variant = JSON.parse_string(f.get_as_text())
 	if not data is Dictionary:
 		return false
+	data = _migrate(data)
 	depth = int(data.get("depth", 1))
 	hero = Hero.from_dict(data.get("hero", {}))
+	phase = str(data.get("phase", PHASE_CREATED))
+	ignorance = int(data.get("ignorance", 0))
+	reputation = data.get("reputation", {})
+	quests = data.get("quests", {})
+	fragmentos = data.get("fragmentos", [])
 	world_seed = int(data.get("world_seed", randi()))
 	world_time = float(data.get("world_time", 0.3))
 	in_dungeon = bool(data.get("in_dungeon", false))
@@ -241,6 +308,21 @@ func load_game() -> bool:
 	dungeon_level = int(data.get("dungeon_level", 1))
 	dungeon_name = str(data.get("dungeon_name", "Masmorra"))
 	return true
+
+
+## Migração encadeada por versão — nunca quebra saves antigos (MECANICAS §12)
+func _migrate(data: Dictionary) -> Dictionary:
+	var v := int(data.get("version", 3))
+	if v < 4:
+		# v3 -> v4: fase do jogador, ignorância, reputação, quests e fragmentos.
+		# Saves antigos sempre têm personagem criado (não existia prólogo).
+		data["phase"] = PHASE_CREATED
+		data["ignorance"] = 0
+		data["reputation"] = {}
+		data["quests"] = {}
+		data["fragmentos"] = []
+		data["version"] = 4
+	return data
 
 
 func _vec(v: Vector2) -> Variant:
@@ -267,6 +349,8 @@ func save_summary() -> String:
 	var r := DB.get_race(StringName(h.get("race", "")))
 	var c := DB.get_class_data(StringName(h.get("class", "")))
 	var diff: Dictionary = DB.DIFFICULTIES[clampi(int(h.get("difficulty", 0)), 0, 3)]
+	if str(data.get("phase", "created")) == PHASE_PROLOGUE:
+		return "%s — Prólogo (Aldeão, nível %d)" % [h.get("name", "?"), int(h.get("level", 0))]
 	var where := "%s, andar %d" % [data.get("dungeon_name", "Masmorra"), int(data.get("depth", 1))] if data.get("in_dungeon", false) else "Mundo aberto"
 	return "%s — %s %s nível %d — %s (%s%s)" % [h.get("name", "?"), r.display_name, c.display_name, int(h.get("level", 1)),
 		where, diff.name, ", Hardcore" if h.get("hardcore", false) else ""]

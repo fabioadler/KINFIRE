@@ -24,6 +24,21 @@ func _wait(t: float) -> void:
 
 
 func _run() -> void:
+	print("[smoke] migracao v3 -> v4")
+	var v3_save := {"version": 3, "depth": 2, "hero": {"name": "Velho", "race": "humano", "class": "guerreiro", "level": 5},
+		"world_seed": 7, "world_time": 0.5, "in_dungeon": false}
+	var v4_save: Dictionary = Game._migrate(v3_save)
+	assert(int(v4_save.version) == 4)
+	assert(v4_save.phase == Game.PHASE_CREATED)
+	assert(int(v4_save.ignorance) == 0)
+	assert(v4_save.hero.level == 5 and v4_save.world_seed == 7)  # nada perdido
+	print("[smoke] aldeao do prologo")
+	var villager := Hero.create_villager()
+	assert(villager.level == 0 and villager.cls.id == &"aldeao")
+	assert(villager.xp_to_next() == 20)
+	assert(villager.skill_bar[0] == &"golpe_de_lenhador")
+	villager.add_xp(20)
+	assert(villager.level == 1 and villager.unspent_points == 1)
 	print("[smoke] menu principal")
 	await _wait(2.5)
 	await _shot("01_menu")

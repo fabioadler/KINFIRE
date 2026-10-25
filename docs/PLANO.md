@@ -40,7 +40,7 @@
 
 ### Fase 1 — Prólogo: O Aldeão (commits 4–9) — `status: EM ANDAMENTO`
 - [x] 1.0 `feat: design tokens da UI moderna (tema dark-fantasy premium no UIKit)` — paleta §9.1 (vidro escuro, borda dourada 1px, cantos 8/12px), raridades com formas p/ daltônismo, micro-interações (hover lift/glow, press 0.96, foco anel dourado, tweens pop 0.18s), sons hover/click; validado headless sem erros
-- [ ] 1.1 `feat: estado de prologo (VillagerState) e fluxo novo-jogo` — herói provisório "Aldeão" (sem raça/classe), save v4 com `phase: prologue|created`
+- [x] 1.1 `feat: estado de prologo (VillagerState) e fluxo novo-jogo` — herói provisório "Aldeão" (pseudo-classe `aldeao` oculta, nível 0), save v4 com `phase: prologue|created`, migração encadeada v3→v4, `new_prologue()`/`finish_prologue()`, `continue_game` roteia para o prólogo; smoke OK
 - [ ] 1.2 `feat: cena prologue com vila de tutorial` — mapa pequeno handcrafted: casa, campo de treino, floresta rala, os 3 baús didáticos
 - [ ] 1.3 `feat: tutorial guiado com o Silhueta (Cinzento)` — passos: mover → atacar espantalho → coletar drop → equipar → poção → fogueira; gate de saída até concluir
 - [ ] 1.4 `feat: transição prologo -> criacao de personagem no nivel 1` — reordenar `character_creation` em raça → classe → atributos → nome (obrigatório, sem pular)
@@ -143,3 +143,4 @@
 | 2026-10-25 | 021fcf7 | 0.2+0.3 | `docs:` REGRAS/MECANICAS/LORE/PLANO em `docs/`; auditoria `[VERIFICAR]` resolvida (8 confirmados, 4 divergências → 0.4) |
 | 2026-10-25 | 592956a | 0.4 | `fix:` XP `20×lvl^1.5`, nível máx 60, pontos a cada 4 níveis, morte por dificuldade — smoke OK |
 | 2026-10-25 | (pendente) | 1.0 | `feat:` design tokens dark-fantasy premium no UIKit (MECANICAS §9.1) |
+| 2026-10-25 | (pendente) | 1.1 | `feat:` VillagerState (pseudo-classe aldeao), save v4 + migração v3→v4, `new_prologue`/`finish_prologue` — smoke OK |

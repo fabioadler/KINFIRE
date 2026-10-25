@@ -131,6 +131,8 @@ var races: Array[RaceData] = []
 var classes: Array[ClassData] = []
 var enemies: Array[EnemyData] = []
 var racial_breath: SkillData
+## Classe oculta do aldeão do prólogo (fora do index.json → não aparece na criação)
+var villager_class: ClassData
 var _tile_cache := {}
 var _sheet_image: Image
 var _dt2_image: Image
@@ -145,6 +147,7 @@ func _ready() -> void:
 	classes.assign(_load_dir("res://data/classes/", idx.classes))
 	enemies.assign(_load_dir("res://data/enemies/", idx.enemies))
 	racial_breath = load("res://data/skills/racial/sopro_draconico.tres")
+	villager_class = load("res://data/classes/aldeao.tres")
 	for line in FileAccess.get_file_as_string(DT2_LIST).split("\n"):
 		var p := line.strip_edges().split(" ", false)
 		if p.size() >= 5:
@@ -303,6 +306,8 @@ func get_race(id: StringName) -> RaceData:
 
 
 func get_class_data(id: StringName) -> ClassData:
+	if id == villager_class.id:
+		return villager_class
 	for c in classes:
 		if c.id == id:
 			return c
