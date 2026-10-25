@@ -156,3 +156,4 @@
 | 2026-10-25 | (pendente) | 2.6 | `test:` smoke valida a aceitação da Fase 2 permanentemente (14 raças × capital + 4 NPCs + diálogo ramificado + economia própria) — **Fase 2 concluída** |
 | 2026-10-25 | (pendente) | 3.1 | `feat:` `Enemy.Rarity` (Comum/Elite/Campeão/Lendário/Chefe) com multiplicadores/visuais da REGRAS §6 e `roll_rarity` (+bônus de dificuldade); `elite: bool` removido |
 | 2026-10-25 | (pendente) | 3.2 | `feat:` `Enemy.Affix` — 8 afixos de Campeão estilo Diablo (Furioso, Escudo Arcano, Telúrico, Venenoso, Fantasma, Mestre-de-Enxame, Ardente, Campeão-das-Sombras) com `roll_affixes` sem repetição, `affixes_for` por raridade (+1 no Inferno), veneno no player e zonas de fogo no world |
+| 2026-10-25 | (pendente) | §2 | `fix:` nível máximo do personagem 60 → 9999 (REGRAS §2 atualizada pelo autor — doc vence); REGRAS reformatada (tabelas/headings), sem outras mudanças semânticas (word-diff auditado) |

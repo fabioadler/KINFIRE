@@ -7,7 +7,7 @@ signal leveled_up(new_level: int)
 signal gold_changed(amount: int)
 signal xp_changed
 
-const MAX_LEVEL := 60
+const MAX_LEVEL := 9999
 const SKILL_SLOTS := 6
 const BASE_MOVE_SPEED := 72.0
 
