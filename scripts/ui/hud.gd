@@ -357,7 +357,7 @@ func _update_target() -> void:
 	if e:
 		_target_box.visible = true
 		_target_name.text = e.display_name
-		_target_name.add_theme_color_override("font_color", Color(1, 0.6, 0.2) if e.is_boss() else (Color(0.45, 0.65, 1.0) if e.elite else Color.WHITE))
+		_target_name.add_theme_color_override("font_color", Color(1, 0.6, 0.2) if e.is_boss() else Enemy.RARITY_COLORS[e.rarity])
 		_target_bar.max_value = e.max_hp
 		_target_bar.value = e.hp
 	else:

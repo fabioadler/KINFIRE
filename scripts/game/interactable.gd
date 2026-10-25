@@ -138,7 +138,7 @@ func interact(player: Player) -> void:
 			Sfx.play(&"door", -4.0)
 			if world.level() >= 2 and randf() < 0.12:
 				world.hud.show_message("É um Mímico!", Color(1, 0.3, 0.2))
-				world.spawn_enemy(DB.get_enemy(&"mimico"), global_position, false)
+				world.spawn_enemy(DB.get_enemy(&"mimico"), global_position, Enemy.Rarity.COMUM)
 				queue_free()
 				return
 			_animate_chest()

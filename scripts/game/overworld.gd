@@ -503,11 +503,12 @@ func _spawn_chunk_content(k: Vector2i, data: Dictionary) -> void:
 			continue
 		var data_e := _weighted_pick(pool)
 		var count := rng.randi_range(2, 4) if data_e.behavior != EnemyData.Behavior.SWARM else rng.randi_range(4, 7)
-		var elite_pack := rng.randf() < 0.08 + lvl * 0.01
+		# 3.1: raridade do pack pelo rng do chunk (determinístico) + bônus de dificuldade
+		var pack_rarity := Enemy.roll_rarity(lvl, Game.hero.difficulty_data().loot if Game.hero else 0.0, rng)
 		for j in count:
 			var off := Vector2(rng.randf_range(-24, 24), rng.randf_range(-24, 24))
 			var pos := last_free_point(p, p + off)
-			var en := spawn_enemy(data_e, pos, elite_pack and j == 0, lvl)
+			var en := spawn_enemy(data_e, pos, pack_rarity if j == 0 else Enemy.Rarity.COMUM, lvl)
 			nodes.append(en)
 	# Chefe de mundo (raro, regiões distantes)
 	if lvl >= 4 and rng.randf() < 0.025:
@@ -515,7 +516,7 @@ func _spawn_chunk_content(k: Vector2i, data: Dictionary) -> void:
 		var biome := og.biome_at(world_to_cell(p)) if p != Vector2.INF else ""
 		for e in DB.enemies:
 			if e.world_boss and biome in e.habitats and p != Vector2.INF:
-				var bb := spawn_enemy(e, p, false, lvl + 2)
+				var bb := spawn_enemy(e, p, Enemy.Rarity.CHEFE, lvl + 2)
 				nodes.append(bb)
 				break
 

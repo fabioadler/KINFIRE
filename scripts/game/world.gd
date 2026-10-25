@@ -467,19 +467,19 @@ func _spawn_content() -> void:
 			var data := _weighted_pick(pool)
 			var count := randi_range(3, 5) if data.behavior != EnemyData.Behavior.SWARM else randi_range(5, 8)
 			var center := gen.random_floor_in(room, 2)
-			var elite_pack := randf() < 0.1 + level() * 0.02
+			var pack_rarity := Enemy.roll_rarity(level(), Game.hero.difficulty_data().loot if Game.hero else 0.0)
 			for i in count:
 				var c := center + Vector2i(randi_range(-2, 2), randi_range(-2, 2))
 				if not gen.is_floor(c):
 					c = center
-				spawn_enemy(data, cell_to_world(c) + Vector2(randf_range(-4, 4), randf_range(-4, 4)), elite_pack and i == 0)
+				spawn_enemy(data, cell_to_world(c) + Vector2(randf_range(-4, 4), randf_range(-4, 4)), pack_rarity if i == 0 else Enemy.Rarity.COMUM)
 
 	var end_pos := cell_to_world(gen.end_room.get_center())
 	stairs = Interactable.create(self, Interactable.Kind.STAIRS, end_pos)
 	if is_boss_level:
 		var bosses := DB.bosses()
 		var b: EnemyData = bosses[(Game.depth / 3 - 1) % bosses.size()]
-		boss = spawn_enemy(b, end_pos + Vector2(0, -24), false)
+		boss = spawn_enemy(b, end_pos + Vector2(0, -24), Enemy.Rarity.CHEFE)
 		stairs.locked = true
 
 	var rooms_copy := gen.rooms.duplicate()
@@ -514,9 +514,9 @@ func _weighted_pick(pool: Array[EnemyData]) -> EnemyData:
 	return pool[0]
 
 
-func spawn_enemy(data: EnemyData, pos: Vector2, elite: bool, lvl := -1) -> Enemy:
+func spawn_enemy(data: EnemyData, pos: Vector2, rarity: int, lvl := -1) -> Enemy:
 	var e: Enemy = ENEMY_SCENE.instantiate()
-	e.setup(data, self, lvl if lvl > 0 else level(), elite)
+	e.setup(data, self, lvl if lvl > 0 else level(), rarity)
 	e.position = pos
 	entities.add_child(e)
 	e.killed.connect(_on_enemy_killed)
@@ -535,12 +535,19 @@ func _on_enemy_killed(e: Enemy) -> void:
 	var globe_chance := 0.12
 	var gold_chance := 0.4
 	var item_count := 1
-	if e.elite:
+	# 3.1: mapeio provisório por raridade (3.3 substitui por LootTableData)
+	if e.rarity >= Enemy.Rarity.ELITE:
 		magic = 0.25
 		item_chance = 1.0
 		item_count = 2
 		globe_chance = 1.0
 		gold_chance = 1.0
+	if e.rarity >= Enemy.Rarity.CAMPEAO:
+		magic = 0.4
+		item_count = 3
+	if e.rarity == Enemy.Rarity.LENDARIO:
+		magic = 0.6
+		item_count = 4
 	if e.is_boss():
 		magic = 0.6
 		item_chance = 1.0
@@ -556,7 +563,9 @@ func _on_enemy_killed(e: Enemy) -> void:
 		for i in item_count:
 			LootDrop.drop_item(self, pos, roll_loot_item(magic))
 	if randf() < gold_chance:
-		LootDrop.drop_gold(self, pos, gold_amount() * (3 if e.elite or e.is_boss() else 1))
+		# Ouro por raridade (REGRAS §6); chefe roteirizado mantém o ×3 atual
+		var gold_mult: int = 3 if e.is_boss() else Enemy.RARITY_REWARD[e.rarity]
+		LootDrop.drop_gold(self, pos, gold_amount() * gold_mult)
 	if randf() < globe_chance:
 		LootDrop.drop_globe(self, pos)
 

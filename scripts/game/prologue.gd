@@ -111,7 +111,7 @@ func _spawn_content() -> void:
 	# Fogueira central da vila
 	Interactable.create(self, Interactable.Kind.CAMPFIRE, cell_to_world(CAMPFIRE_CELL))
 	# Espantalho de treino (passivo — nunca agride)
-	_espantalho = spawn_enemy(DB.get_enemy(&"espantalho"), cell_to_world(SCARECROW_CELL), false)
+	_espantalho = spawn_enemy(DB.get_enemy(&"espantalho"), cell_to_world(SCARECROW_CELL), Enemy.Rarity.COMUM)
 	# Baús didáticos
 	for c in CHEST_CELLS:
 		Interactable.create(self, Interactable.Kind.CHEST, cell_to_world(c))
@@ -249,7 +249,7 @@ func _open_gate() -> void:
 	_gate_wall = null
 	# As duas lutas do prólogo (REGRAS §13)
 	for c in WOLF_CELLS:
-		spawn_enemy(DB.get_enemy(&"lobo_sombrio"), cell_to_world(c), false)
+		spawn_enemy(DB.get_enemy(&"lobo_sombrio"), cell_to_world(c), Enemy.Rarity.COMUM)
 
 
 func _on_hero_leveled_up(new_level: int) -> void:

@@ -553,6 +553,45 @@ func _test_overworld() -> void:
 		races_ok += 1
 	assert(races_ok == 14)
 	print("[smoke]   aceitacao fase 2: %d racas com capital + 4 NPCs + dialogo ramificado + economia" % races_ok)
+	# 3.1: raridades de monstro — multiplicadores, títulos e roll (REGRAS §6)
+	var goblin: EnemyData = DB.get_enemy(&"goblin")
+	var diff: Dictionary = Game.hero.difficulty_data()
+	var base_hp: float = goblin.max_hp * (1.0 + 0.4 * (5 - 1)) * diff.hp
+	var e_lend: Enemy = ow.spawn_enemy(goblin, ow.player.global_position + Vector2(2400, 0), Enemy.Rarity.LENDARIO, 5)
+	assert(e_lend.rarity == Enemy.Rarity.LENDARIO)
+	assert(is_equal_approx(e_lend.max_hp, base_hp * 10.0))
+	assert(e_lend.display_name.ends_with(", o Lendário"))
+	var e_camp: Enemy = ow.spawn_enemy(goblin, ow.player.global_position + Vector2(2500, 0), Enemy.Rarity.CAMPEAO, 5)
+	assert(is_equal_approx(e_camp.max_hp, base_hp * 5.0))
+	assert(is_equal_approx(e_camp.damage, goblin.damage * (1.0 + 0.25 * 4.0) * diff.dmg * 1.8))
+	assert(e_camp.display_name.begins_with("Campeão "))
+	var e_elite: Enemy = ow.spawn_enemy(goblin, ow.player.global_position + Vector2(2600, 0), Enemy.Rarity.ELITE, 5)
+	assert(is_equal_approx(e_elite.max_hp, base_hp * 2.5) and e_elite.xp == int(goblin.xp * (1.0 + 0.3 * 4)) * 3)
+	var azkhar: EnemyData = DB.get_enemy(&"azkhar")
+	var e_chefe: Enemy = ow.spawn_enemy(azkhar, ow.player.global_position + Vector2(2700, 0), Enemy.Rarity.CHEFE, 1)
+	assert(e_chefe.is_boss() and e_chefe.rarity == Enemy.Rarity.CHEFE)
+	assert(is_equal_approx(e_chefe.max_hp, azkhar.max_hp * diff.hp))  # tabela não multiplica chefe (roteirizado)
+	e_lend.queue_free()
+	e_camp.queue_free()
+	e_elite.queue_free()
+	e_chefe.queue_free()
+	# roll: distribuição estatística (20k rolagens, nível 1, Normal)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 42
+	var counts := [0, 0, 0, 0, 0]
+	for i in 20000:
+		counts[Enemy.roll_rarity(1, 0.0, rng)] += 1
+	assert(counts[Enemy.Rarity.LENDARIO] >= 30 and counts[Enemy.Rarity.LENDARIO] <= 90)     # ~0.3%
+	assert(counts[Enemy.Rarity.CAMPEAO] >= 300 and counts[Enemy.Rarity.CAMPEAO] <= 500)    # ~2%
+	assert(counts[Enemy.Rarity.ELITE] >= 1500 and counts[Enemy.Rarity.ELITE] <= 2100)      # ~9%
+	# bônus de dificuldade (Inferno +28%) aumenta as raridades
+	rng.seed = 42
+	var raros := 0
+	for i in 20000:
+		if Enemy.roll_rarity(1, 0.28, rng) >= Enemy.Rarity.ELITE:
+			raros += 1
+	assert(raros > 6000)  # ~40% vs ~11% sem bônus
+	print("[smoke]   raridades ok (elite x2.5, campeao x5, lendario x10; roll distribuido)")
 	await _shot("07_mundo_acampamento")
 	h.gold = 5000
 	ow.hud.open_merchant()

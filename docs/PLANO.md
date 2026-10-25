@@ -57,7 +57,7 @@
 - **Aceitação:** cada raça tem capital com ≥4 NPCs únicos, diálogo ramificado e economia própria. **✅ Validada no smoke (2.6):** 14 capitais posicionadas (Voronoi determinístico), líder + 3 plebeus por capital com diálogos ramificados gerados por template, economia/cultura próprias por TerritoryData.
 
 ### Fase 3 — Raridade de Monstros e Loot (commits 15–18) — `status: PENDENTE`
-- [ ] 3.1 `feat: enum de raridade de monstro (Comum/Elite/Campeao/Lendario/Chefe) com visuais e multiplicadores` — substitui `elite: bool` por `rarity: int` (elite vira valor 1; retrocompatível no save)
+- [x] 3.1 `feat: enum de raridade de monstro (Comum/Elite/Campeao/Lendario/Chefe) com visuais e multiplicadores` — `Enemy.Rarity` + tabelas `RARITY_HP/DMG/REWARD/SCALE/COLORS` (REGRAS §6: Elite ×2.5/×1.3/×3, Campeão ×5/×1.8/×6, Lendário ×10/×2.5/×15; chefe roteirizado — tabelas valem 1 no índice CHEFE, dados já tuned); `elite: bool` → `rarity: int` em todos os call sites (retrocompatível: elite semântico = valor 1; inimigos não são persistidos no save); `roll_rarity(level, bonus, rng)` com as chances da tabela (Elite 8%+1%/nível, Campeão 2%, Lendário 0,3%) + bônus de dificuldade (`diff.loot` 0/8/16/28%); visuais à primeira vista: contorno por raridade, aura pulsante em Campeão/Lendário, título no nome ("Campeão X", "X, o Lendário"), barra de vida e HUD/minimapa coloridos por raridade; drops/ouro provisionais por raridade (LootTableData formal na 3.3); nerfs doc-driven: Elite HP 3.2→2.5, dano 1.4→1.3, XP 4→3 (doc vence código)
 - [ ] 3.2 `feat: modificadores de Campeao estilo afixo (Furioso, Escudo Arcano, etc.)`
 - [ ] 3.3 `feat: LootTableData por (inimigo x raridade) com drops especificos` — essência como moeda rara; lendário/chefe com itens únicos garantidos
 - [ ] 3.4 `feat: HUD/minimap/mensagens refletem as novas raridades`
@@ -154,3 +154,4 @@
 | 2026-10-25 | (pendente) | 2.4 | `feat:` territórios raciais procedurais — 14 capitais (LORE §X) por Voronoi determinístico (semente+raça), Vale do Centro neutro, acampamento promovido a capital, `region_level`/`region_name_at`; smoke OK |
 | 2026-10-25 | (pendente) | 2.5 | `feat:` `TerritoryNpcs` — líder + 3 plebeus por capital com ganho-de-vida por raça e diálogos gerados por template do TerritoryData (56 diálogos no cache do DB, zero .tres à mão); Fogueira Principal como waypoint; smoke OK |
 | 2026-10-25 | (pendente) | 2.6 | `test:` smoke valida a aceitação da Fase 2 permanentemente (14 raças × capital + 4 NPCs + diálogo ramificado + economia própria) — **Fase 2 concluída** |
+| 2026-10-25 | (pendente) | 3.1 | `feat:` `Enemy.Rarity` (Comum/Elite/Campeão/Lendário/Chefe) com multiplicadores/visuais da REGRAS §6 e `roll_rarity` (+bônus de dificuldade); `elite: bool` removido |

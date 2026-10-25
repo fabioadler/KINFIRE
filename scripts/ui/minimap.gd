@@ -60,12 +60,14 @@ func _draw() -> void:
 		draw_circle(mp, 3.5, Color.BLACK)
 		draw_circle(mp, 2.6, poi.color)
 	for e in world.enemies_near(world.player.global_position, 160.0):
-		var col := Color(1, 0.2, 0.2)
-		if e.elite:
-			col = Color(0.4, 0.6, 1.0)
+		# 3.1: cor/contorno do minimapa por raridade (chefe maior e laranja)
+		var col: Color = Color(1, 0.2, 0.2) if e.rarity == Enemy.Rarity.COMUM else Enemy.RARITY_COLORS[e.rarity]
 		if e.is_boss():
 			col = Color(1, 0.55, 0.1)
-		draw_circle(to_map.call(e.global_position), 2.4 if (e.elite or e.is_boss()) else 1.6, col)
+		var r_map := 2.4 if (e.rarity >= Enemy.Rarity.ELITE or e.is_boss()) else 1.6
+		if e.rarity >= Enemy.Rarity.LENDARIO:
+			r_map = 3.0
+		draw_circle(to_map.call(e.global_position), r_map, col)
 	for m in world.minions_near(world.player.global_position, 160.0):
 		draw_circle(to_map.call(m.global_position), 1.6, Color(0.4, 1, 0.6))
 	draw_circle(size * 0.5, 3.0, Color(0.3, 1.0, 0.3))

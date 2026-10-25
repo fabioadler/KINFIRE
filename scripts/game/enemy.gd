@@ -6,7 +6,24 @@ signal killed(enemy: Enemy)
 
 enum State { IDLE, CHASE, WINDUP, ATTACK, RECOVER, STUNNED, DEAD }
 
-const ELITE_PREFIXES := ["Campeão", "Ancião", "Furioso", "Pestilento", "Sombrio", "Incandescente"]
+## Raridade de monstro (MECANICAS §5.2, REGRAS §6). Chefe é roteirizado:
+## vira CHEFE no spawn; os dados do EnemyData já são tuned de chefe.
+enum Rarity { COMUM, ELITE, CAMPEAO, LENDARIO, CHEFE }
+
+## Multiplicadores por raridade (REGRAS §6): HP, dano, XP/ouro, escala visual
+const RARITY_HP := [1.0, 2.5, 5.0, 10.0, 1.0]
+const RARITY_DMG := [1.0, 1.3, 1.8, 2.5, 1.0]
+const RARITY_REWARD := [1, 3, 6, 15, 1]
+const RARITY_SCALE := [1.0, 1.25, 1.4, 1.55, 1.0]
+## Cor identificável à primeira vista (aceitação da Fase 3): barra, contorno, HUD
+const RARITY_COLORS := [
+	Color.WHITE,
+	Color(0.3, 0.55, 1.0),   # Elite: azul (atual)
+	Color(0.68, 0.32, 1.0),  # Campeão: roxo
+	Color(1.0, 0.55, 0.15),  # Lendário: laranja-brasa
+	Color(1.0, 0.45, 0.1),   # Chefe: laranja (atual)
+]
+const ELITE_PREFIXES := ["Ancião", "Furioso", "Pestilento", "Sombrio", "Incandescente"]
 
 @onready var visual: Node2D = $Visual
 @onready var sprite: AnimatedSprite2D = $Visual/Sprite
@@ -14,7 +31,7 @@ const ELITE_PREFIXES := ["Campeão", "Ancião", "Furioso", "Pestilento", "Sombri
 var data: EnemyData
 var world: World
 var depth := 1
-var elite := false
+var rarity: int = Rarity.COMUM
 var display_name := ""
 var hp := 10.0
 var max_hp := 10.0
@@ -43,6 +60,7 @@ var _boss_phase := 0
 var _wander_target := Vector2.ZERO
 var _shader: ShaderMaterial
 var _hp_bar_visible := 0.0
+var _aura: PointLight2D
 var _home := Vector2.ZERO
 var _target: Node2D
 var _telegraph_target := Vector2.ZERO
@@ -51,11 +69,11 @@ var _single_frame := false
 var _sprite_y := 0.0
 
 
-func setup(p_data: EnemyData, p_world: World, p_depth: int, p_elite: bool) -> void:
+func setup(p_data: EnemyData, p_world: World, p_depth: int, p_rarity: int) -> void:
 	data = p_data
 	world = p_world
 	depth = p_depth
-	elite = p_elite
+	rarity = p_rarity
 
 
 func _ready() -> void:
@@ -70,12 +88,20 @@ func _ready() -> void:
 	xp = int(data.xp * (1.0 + 0.3 * (depth - 1)))
 	display_name = data.display_name
 	var sc := data.scale
-	if elite:
-		max_hp *= 3.2
-		damage *= 1.4
-		xp *= 4
-		sc *= 1.25
-		display_name = "%s %s" % [data.display_name, ELITE_PREFIXES.pick_random()]
+	# 3.1: raridades (REGRAS §6) — multiplicadores, título e escala.
+	# Chefe é roteirizado: tabelas valem 1.0/1 no índice CHEFE (dados já tuned).
+	if rarity != Rarity.COMUM:
+		max_hp *= RARITY_HP[rarity]
+		damage *= RARITY_DMG[rarity]
+		xp *= RARITY_REWARD[rarity]
+		sc *= RARITY_SCALE[rarity]
+		match rarity:
+			Rarity.ELITE:
+				display_name = "%s %s" % [ELITE_PREFIXES.pick_random(), data.display_name]
+			Rarity.CAMPEAO:
+				display_name = "Campeão %s" % data.display_name
+			Rarity.LENDARIO:
+				display_name = "%s, o Lendário" % data.display_name
 	hp = max_hp
 	_home = global_position
 	sprite.sprite_frames = DB.frames(data.sprite)
@@ -91,8 +117,13 @@ func _ready() -> void:
 	_shader = ShaderMaterial.new()
 	_shader.shader = preload("res://shaders/hit_flash.gdshader")
 	sprite.material = _shader
-	if elite:
-		_shader.set_shader_parameter("outline_color", Color(0.3, 0.55, 1.0, 1.0))
+	if rarity >= Rarity.ELITE and not is_boss():
+		_shader.set_shader_parameter("outline_color", RARITY_COLORS[rarity])
+	# Aura pulsante: Campeão/Lendário se destacam à primeira vista (aceitação 3.1)
+	if rarity >= Rarity.CAMPEAO and not is_boss():
+		_aura = Fx.make_light(RARITY_COLORS[rarity], 1.4, 0.9)
+		_aura.position = Vector2(0, -10)
+		add_child(_aura)
 	if is_boss():
 		_shader.set_shader_parameter("outline_color", Color(1.0, 0.45, 0.1, 1.0))
 		var l := Fx.make_light(Color(1, 0.4, 0.2), 1.6, 0.8)
@@ -105,6 +136,24 @@ func _ready() -> void:
 
 func is_dead() -> bool:
 	return state == State.DEAD
+
+
+## Sorteia a raridade do pack (REGRAS §6): Elite 8% +1%/nível, Campeão 2%,
+## Lendário 0,3%. `bonus` = dificuldade (diff.loot: 0/8/16/28%) — cada
+## dificuldade aumenta as chances de raridade. `rng` opcional para
+## determinismo por chunk; null usa o RNG global.
+static func roll_rarity(level: int, bonus := 0.0, rng: RandomNumberGenerator = null) -> int:
+	var p_lend := 0.003 + bonus * 0.01
+	var p_camp := 0.02 + bonus * 0.02
+	var p_elit := 0.08 + level * 0.01 + bonus
+	var r := rng.randf() if rng != null else randf()
+	if r < p_lend:
+		return Rarity.LENDARIO
+	if r < p_lend + p_camp:
+		return Rarity.CAMPEAO
+	if r < p_lend + p_camp + p_elit:
+		return Rarity.ELITE
+	return Rarity.COMUM
 
 
 func is_boss() -> bool:
@@ -136,7 +185,7 @@ func take_damage(amount: float, crit: bool, from_pos: Vector2, knockback: float,
 	DamageNumber.spawn(world.fx_layer, hit_center(), final, crit, DB.ELEMENT_COLORS.get(element, Color.WHITE))
 	Fx.burst(world.fx_layer, hit_center(), Color(0.7, 0.05, 0.05) if element == "physical" else DB.ELEMENT_COLORS.get(element, Color.WHITE), 5 if not crit else 10, 50.0, 0.35, 1.5)
 	if not is_boss() and knockback > 0:
-		_knock = from_pos.direction_to(global_position) * knockback * (0.4 if elite else 1.0)
+		_knock = from_pos.direction_to(global_position) * knockback * (0.4 if rarity >= Rarity.ELITE else 1.0)
 	if state == State.IDLE:
 		state = State.CHASE
 	if hp <= 0.0:
@@ -205,6 +254,8 @@ func _physics_process(delta: float) -> void:
 	var tscale := world.time_scale_at(global_position)
 	delta *= tscale
 	_state_time += delta
+	if _aura:
+		_aura.energy = 0.75 + sin(_state_time * 3.2) * 0.25
 	_attack_cd -= delta
 	_repath -= delta
 	_hp_bar_visible -= delta
@@ -512,11 +563,12 @@ func _draw() -> void:
 		draw_arc(Vector2(0, -1), r + 2.0, 0, TAU, 20, Color(0.5, 1, 0.3, 0.7), 1.0)
 	# Barra de vida sobre elites/danificados
 	var always: bool = Game.settings.always_show_health
-	if (elite or always or _hp_bar_visible > 0.0) and not is_boss() and not is_dead():
+	if (rarity >= Rarity.ELITE or always or _hp_bar_visible > 0.0) and not is_boss() and not is_dead():
 		var w := 16.0 * visual.scale.x
 		var y := -(_frame_h + 4.0) * visual.scale.y
 		draw_rect(Rect2(-w * 0.5 - 1, y - 1, w + 2, 4), Color(0, 0, 0, 0.8))
-		draw_rect(Rect2(-w * 0.5, y, w * clampf(hp / max_hp, 0, 1), 2), Color(0.85, 0.1, 0.1) if not elite else Color(0.35, 0.55, 1.0))
+		draw_rect(Rect2(-w * 0.5, y, w * clampf(hp / max_hp, 0, 1), 2),
+			Color(0.85, 0.1, 0.1) if rarity == Rarity.COMUM else RARITY_COLORS[rarity])
 	if _confuse_time > 0.0 or _fear_time > 0.0 or state == State.STUNNED:
 		var y2 := -(_frame_h + 9.0) * visual.scale.y
 		var t := Time.get_ticks_msec() * 0.006
