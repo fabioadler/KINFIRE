@@ -46,7 +46,8 @@ func is_weapon() -> bool:
 
 
 func required_level() -> int:
-	return maxi(1, item_level - 1)
+	## ilvl 1 = equipamento de treino: usado já no prólogo pelo aldeão nível 0
+	return maxi(0, item_level - 1)
 
 
 func sell_value() -> int:

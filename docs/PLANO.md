@@ -42,7 +42,7 @@
 - [x] 1.0 `feat: design tokens da UI moderna (tema dark-fantasy premium no UIKit)` — paleta §9.1 (vidro escuro, borda dourada 1px, cantos 8/12px), raridades com formas p/ daltônismo, micro-interações (hover lift/glow, press 0.96, foco anel dourado, tweens pop 0.18s), sons hover/click; validado headless sem erros
 - [x] 1.1 `feat: estado de prologo (VillagerState) e fluxo novo-jogo` — herói provisório "Aldeão" (pseudo-classe `aldeao` oculta, nível 0), save v4 com `phase: prologue|created`, migração encadeada v3→v4, `new_prologue()`/`finish_prologue()`, `continue_game` roteia para o prólogo; smoke OK
 - [x] 1.2 `feat: cena prologue com vila de tutorial` — mapa handcrafted determinístico (casa, clareira com fogueira, campo de treino com espantalho + 3 baús, floresta rala); hook virtual `_on_campfire_lit` desacopla fogueira; HUD desacoplada de `Overworld` (corrige ciclo de dependência)
-- [ ] 1.3 `feat: tutorial guiado com o Silhueta (Cinzento)` — passos: mover → atacar espantalho → coletar drop → equipar → poção → fogueira; gate de saída até concluir
+- [x] 1.3 `feat: tutorial guiado com o Silhueta (Cinzento)` — 6 passos (mover → atacar espantalho → coletar a Espada de Treino → equipar → poção → fogueira) com sussurros do Cinzento; portão de névoa abre ao concluir e spawna 3 lobos sombrios; nível 1 sussurra sobre o espelho; fix `Item.required_level()` (ilvl 1 = treino, usável no nível 0); smoke OK
 - [ ] 1.4 `feat: transição prologo -> criacao de personagem no nivel 1` — reordenar `character_creation` em raça → classe → atributos → nome (obrigatório, sem pular)
 - [ ] 1.5 `feat: despertar no acampamento racial com dialogo de abertura`
 - **Aceitação:** fluxo menu → prólogo → nível 1 → criação → acampamento funciona ponta a ponta no smoke test.
@@ -145,3 +145,4 @@
 | 2026-10-25 | (pendente) | 1.0 | `feat:` design tokens dark-fantasy premium no UIKit (MECANICAS §9.1) |
 | 2026-10-25 | (pendente) | 1.1 | `feat:` VillagerState (pseudo-classe aldeao), save v4 + migração v3→v4, `new_prologue`/`finish_prologue` — smoke OK |
 | 2026-10-25 | (pendente) | 1.2 | `feat:` prologue.tscn — vila handcrafted (casa, fogueira, espantalho, 3 baús, floresta); hook `_on_campfire_lit`; fix ciclo hud↔overworld |
+| 2026-10-25 | (pendente) | 1.3 | `feat:` tutorial guiado com o Cinzento (6 passos, portão de névoa, lobos, nível 1); fix `required_level` — smoke OK |

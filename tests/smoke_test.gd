@@ -57,6 +57,7 @@ func _run() -> void:
 	await _wait(0.5)
 	await _shot("02b_criacao_aleatorio")
 	print("[smoke] criação de personagem ok")
+	await _test_prologue()
 	await _test_overworld()
 
 	for i in DB.classes.size():
@@ -176,6 +177,76 @@ func _run() -> void:
 	await _wait(1.5)
 	print("[smoke] SMOKE OK")
 	get_tree().quit()
+
+
+func _test_prologue() -> void:
+	print("[smoke] prologo")
+	Game.delete_save()
+	Game.new_prologue()
+	await _wait(2.5)
+	var pro: Prologue = get_tree().current_scene
+	assert(pro is Prologue)
+	assert(Game.phase == Game.PHASE_PROLOGUE)
+	assert(Game.hero.level == 0 and Game.hero.cls.id == &"aldeao")
+	assert(pro._gate_wall != null)
+	print("[smoke]   prologo carregou — passo %d" % pro.tut_step)
+	# Passo 1: mover
+	pro._moved = Prologue.MOVE_DIST
+	await _wait(0.3)
+	assert(pro.tut_step == Prologue.TutStep.ATTACK)
+	# Passo 2: atacar — espantalho cai e solta a Espada de Treino
+	pro._espantalho.take_damage(999999.0, true, Vector2.ZERO, 0.0)
+	await _wait(0.5)
+	assert(pro.tut_step == Prologue.TutStep.COLLECT)
+	# Passo 3: coletar a Espada de Treino
+	var sword: Item = null
+	for n in get_tree().get_nodes_in_group("interactables"):
+		if n is LootDrop and n.item and n.item.base_id == &"wood_sword":
+			sword = n.item
+			n.interact(pro.player)
+			break
+	assert(sword != null)
+	await _wait(0.3)
+	assert(pro.tut_step == Prologue.TutStep.EQUIP)
+	print("[smoke]   atacar/coletar ok")
+	# Passo 4: equipar
+	pro.hud.inventory.equip_from_inventory(sword)
+	await _wait(0.3)
+	assert(pro.tut_step == Prologue.TutStep.POTION)
+	assert(Game.hero.equipment.weapon != null)
+	# Passo 5: poção
+	pro.player.potion_cd = 0.1
+	await _wait(0.3)
+	assert(pro.tut_step == Prologue.TutStep.CAMPFIRE)
+	# Passo 6: fogueira — portão de névoa abre e lobos surgem na floresta
+	var fire: Interactable = null
+	for n in get_tree().get_nodes_in_group("interactables"):
+		if n is Interactable and n.kind == Interactable.Kind.CAMPFIRE:
+			fire = n
+			break
+	assert(fire != null)
+	fire.interact(pro.player)
+	await _wait(0.3)
+	assert(pro.tut_step == Prologue.TutStep.DONE)
+	print("[smoke]   tutorial completo — portao aberto")
+	# As duas lutas: lobos dão XP para alcançar o nível 1
+	var wolves := 0
+	for e in pro.enemies_near(pro.player.global_position, 99999.0):
+		if e.data.id == &"lobo_sombrio":
+			wolves += 1
+	assert(wolves >= 3)
+	for e in pro.enemies_near(pro.player.global_position, 99999.0):
+		if e.data.id == &"lobo_sombrio":
+			e.take_damage(999999.0, true, Vector2.ZERO, 0.0)
+	await _wait(1.0)
+	assert(Game.hero.level == 1)
+	assert(pro._level1_seen)
+	print("[smoke]   nivel 1 alcancado (%d lobos)" % wolves)
+	# Save v4 do prólogo sobrevive a um roundtrip
+	Game.save_game()
+	assert(Game.load_game())
+	assert(Game.phase == Game.PHASE_PROLOGUE and Game.hero.level == 1)
+	print("[smoke] prologo ok")
 
 
 func _test_overworld() -> void:
