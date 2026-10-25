@@ -144,7 +144,7 @@ func _event(type: int, target: StringName) -> void:
 				continue
 			match o.type:
 				QuestObjective.Type.KILL, QuestObjective.Type.TALK, QuestObjective.Type.REACH:
-					if o.type == type and o.target == target:
+					if o.type == type and _matches(o.target, target):
 						p[i] += 1
 						touched = true
 				QuestObjective.Type.FLAG:
@@ -161,6 +161,30 @@ func _event(type: int, target: StringName) -> void:
 			_check_stage(q)
 			objective_updated.emit(q.id)
 	_check_autoflow()
+
+
+## Alvo exato OU wildcard "any:<fragmento>": casa por substring —
+## `any:_comum` conta conversa com qualquer plebeu (`capital_<raca>_comum0-2`).
+## O fragmento pode conter `*` (qualquer sequência): `any:capital_*_lider`
+## casa o líder de qualquer capital (`capital_<raca>_lider`).
+static func _matches(spec: StringName, id: StringName) -> bool:
+	if spec == id:
+		return true
+	var s := String(spec)
+	if not s.begins_with("any:"):
+		return false
+	var frag := s.substr(4)
+	var sid := String(id)
+	if not frag.contains("*"):
+		return sid.contains(frag)
+	# glob: partes literais em ordem, * casa qualquer sequência (inclusive vazio)
+	var from := 0
+	for p in frag.split("*", false):
+		var idx := sid.find(p, from)
+		if idx < 0:
+			return false
+		from = idx + p.length()
+	return true
 
 
 ## Recalcula objetivos idempotentes (FLAG/COLLECT) da quest ativa

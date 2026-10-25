@@ -861,7 +861,7 @@ func _test_overworld() -> void:
 	for m42 in ow.hud._messages.get_children():
 		ow.hud._messages.remove_child(m42)
 		m42.queue_free()
-	Game.quests.erase(&"ato1_1")
+	Game.quests.clear()  # 4.3: completar ato1_1 auto-inicia ato1_2 — limpa tudo
 	Game.quest_log.tracked = &""
 	Game.quest_log.start(DB.quest(&"ato1_1"))
 	await _wait(0.1)  # _process da HUD atualiza o tracker
@@ -906,6 +906,67 @@ func _test_overworld() -> void:
 	ow.hud.toggle_quests()
 	assert(not ow.hud.questlog.visible, "painel deveria fechar")
 	print("[smoke]   quest ui ok (tracker lateral com titulo+objetivo, aviso de nova missao, painel com progresso e fragmentos, tecla J)")
+	# 4.3: cadeia principal Ato 1 — "A Estranha" (LORE §XI): 7 quests encadeadas,
+	# auto-inicio por flag + next, objetivos TALK com wildcard any: (glob com *)
+	Game.quests.clear()
+	Game.quest_log.tracked = &""
+	assert(DB.quest_ids().size() == 7, "Ato 1 completo no DB (7 quests)")
+	Game.quest_log.notify_flag(&"cinzento_primeiro_dialogo")
+	assert(Game.quest_log.is_active(&"ato1_1"), "ato1_1 inicia pela flag do primeiro dialogo")
+	# ato1_1: Marn + Bree -> 3 lobos -> Cinzento (auto-inicia ato1_2 ao concluir)
+	Game.quest_log.notify_talk(&"marn_vigia")
+	Game.quest_log.notify_talk(&"bree_cozinheira")
+	for i43 in 3:
+		Game.quest_log.notify_kill(&"lobo_sombrio")
+	Game.quest_log.notify_talk(&"cinzento_acampamento")
+	assert(Game.quest_log.is_completed(&"ato1_1") and Game.quest_log.is_active(&"ato1_2"),
+		"concluir ato1_1 deve auto-iniciar ato1_2")
+	# ato1_2: TALK any:capital_*_lider (wildcard: lider de OUTRA raca conta)
+	Game.quest_log.notify_talk(&"capital_drow_lider")
+	assert(int(Game.quest_log.state(&"ato1_2")["stage"]) == 1, "wildcard any:capital_*_lider casa qualquer lider")
+	# ato1_2: TALK any:_comum (plebeu de qualquer capital) + KILL goblin x5 -> Cinzento
+	Game.quest_log.notify_talk(&"capital_anao_colinas_comum1")
+	assert(int(Game.quest_log.state(&"ato1_2")["stage"]) == 1, "plebeu entra no estagio dos goblins")
+	for i43 in 5:
+		Game.quest_log.notify_kill(&"goblin")
+	Game.quest_log.notify_talk(&"cinzento_acampamento")
+	assert(Game.quest_log.is_completed(&"ato1_2") and Game.quest_log.is_active(&"ato1_3"))
+	# ato1_3: REACH golias + KILL anao_saqueador x4 -> TALK lider
+	Game.quest_log.notify_reach(&"golias")
+	for i43 in 4:
+		Game.quest_log.notify_kill(&"anao_saqueador")
+	Game.quest_log.notify_talk(&"capital_humano_lider")
+	assert(Game.quest_log.is_completed(&"ato1_3") and Game.quest_log.is_active(&"ato1_4"))
+	# ato1_4: TALK lider -> KILL orc_mascarado x3 -> TALK lider
+	Game.quest_log.notify_talk(&"capital_humano_lider")
+	for i43 in 3:
+		Game.quest_log.notify_kill(&"orc_mascarado")
+	Game.quest_log.notify_talk(&"capital_tabaxi_lider")
+	assert(Game.quest_log.is_completed(&"ato1_4") and Game.quest_log.is_active(&"ato1_5"))
+	# ato1_5: KILL esqueleto x6 -> TALK lider
+	for i43 in 6:
+		Game.quest_log.notify_kill(&"esqueleto")
+	Game.quest_log.notify_talk(&"capital_draconato_lider")
+	assert(Game.quest_log.is_completed(&"ato1_5") and Game.quest_log.is_active(&"ato1_6"))
+	# ato1_6: TALK lider -> KILL anjo_caido (recompensa RARE — ato 1 so na 4.4+; aqui MAGIC min)
+	Game.quest_log.notify_talk(&"capital_gnomo_lider")
+	Game.quest_log.notify_kill(&"anjo_caido")
+	assert(Game.quest_log.is_completed(&"ato1_6") and Game.quest_log.is_active(&"ato1_7"))
+	# ato1_7: REACH draconato + KILL guerreiro_orc x4 + cavaleiro_renegado x2 -> TALK lider
+	Game.quest_log.notify_reach(&"draconato")
+	for i43 in 4:
+		Game.quest_log.notify_kill(&"guerreiro_orc")
+	for i43 in 2:
+		Game.quest_log.notify_kill(&"cavaleiro_renegado")
+	Game.quest_log.notify_talk(&"capital_humano_lider")
+	assert(Game.quest_log.is_completed(&"ato1_7"), "ato1_7 (ultima) conclui")
+	var sem_ativas43 := true
+	for qid43 in Game.quests.keys():
+		if Game.quest_log.is_active(qid43):
+			sem_ativas43 = false
+	assert(sem_ativas43, "cadeia encadeada termina sem quests ativas")
+	assert(Game.quest_log.tracker_line() == "", "tracker vazio ao fim da cadeia")
+	print("[smoke]   cadeia ato1 ok (7 quests: flag->next auto-inicio, wildcard any:capital_*_lider e any:_comum, REACH, cadeia completa)")
 	await _shot("07_mundo_acampamento")
 	h.gold = 5000
 	ow.hud.open_merchant()
