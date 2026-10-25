@@ -68,32 +68,18 @@ func _awakening() -> void:
 	var c := Cinzento.new()
 	entities.add_child(c)
 	c.appear_at(Vector2(TILE * 0.5 + 20.0, TILE * 0.5 + 6.0))
-	hud.show_message("Você acorda com cheiro de brasa e chuva antiga. Não é sonho desta vez.", UIKit.TEXT_DIM, 5.0)
-	hud.show_message("%s. O nome chega antes da memória." % Game.hero.hero_name, UIKit.GOLD, 5.0)
-	_whisper_seq(c, [
-		["Bem-vindo ao que é real, %s. O espelho não mentiu: isto é você agora." % Game.hero.hero_name, 1.2],
-		["Os %s dizem que ninguém acorda duas vezes na mesma vida. Vocês dizem muitas coisas." % Game.hero.race.display_name, 6.0],
-		["Siga o fumo, cinza. Fogueiras guardam quem as acende — e o mundo guarda o resto.", 6.0],
-	])
-	# A sombra se despede e se dissolve na névoa
-	var tw := create_tween()
-	tw.tween_interval(18.0)
-	tw.tween_property(c, "modulate:a", 0.0, 2.0)
-	tw.tween_callback(c.queue_free)
-
-
-## Sussurros encadeados do Cinzento (agenda relativo ao instante atual)
-func _whisper_seq(c: Cinzento, lines: Array) -> void:
-	var delay := 0.0
-	for line in lines:
-		var text: String = line[0]
-		delay += float(line[1])
-		var t := get_tree().create_timer(delay, true, false, true)
-		t.timeout.connect(func():
-			if is_instance_valid(c) and is_instance_valid(hud):
-				hud.show_message(text, Cinzento.VOICE, 5.0)
-				Sfx.play(&"magic", -12.0)
+	hud.show_message("Você acorda com cheiro de brasa e chuva antiga. Não é sonho desta vez.", UIKit.TEXT_DIM, 4.0)
+	# A sombra termina de chegar antes de o diálogo pausar o mundo (2.2)
+	var t := get_tree().create_timer(0.9, true, false, true)
+	t.timeout.connect(func():
+		var box := hud.open_dialogue(DB.dialogue(&"cinzento_acampamento"), "Cinzento")
+		box.closed.connect(func():
+			if is_instance_valid(c):
+				var tw := c.create_tween()
+				tw.tween_property(c, "modulate:a", 0.0, 2.0)
+				tw.tween_callback(c.queue_free)
 		)
+	)
 
 
 func _spawn_content() -> void:

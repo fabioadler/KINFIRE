@@ -1,0 +1,70 @@
+[gd_resource type="Resource" script_class="DialogueData" load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scripts/data/dialogue_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/data/dialogue_node.gd" id="2_node"]
+[ext_resource type="Script" path="res://scripts/data/dialogue_choice.gd" id="3_choice"]
+
+[sub_resource type="Resource" id="DialogueChoice_lugar"]
+script = ExtResource("3_choice")
+text = "O que é este lugar?"
+next_id = &"lugar"
+effects = "ignorancia -1"
+
+[sub_resource type="Resource" id="DialogueChoice_aconteceu"]
+script = ExtResource("3_choice")
+text = "O que aconteceu comigo?"
+next_id = &"aconteceu"
+effects = "ignorancia -1"
+
+[sub_resource type="Resource" id="DialogueChoice_sabio"]
+script = ExtResource("3_choice")
+text = "Eu sei onde estou. Sigo o fumo."
+condition = "ignorancia <= 5"
+next_id = &"adeus"
+
+[sub_resource type="Resource" id="DialogueNode_acorda"]
+script = ExtResource("2_node")
+id = &"acorda"
+pages = PackedStringArray("Você acorda com cheiro de brasa e chuva antiga. Não é sonho desta vez — o peso no peito é seu.", "{heroi}. O nome chega antes da memória. Aos {raca} dizem que ninguém acorda duas vezes na mesma vida.")
+choices = Array[ExtResource("3_choice")]([SubResource("DialogueChoice_lugar"), SubResource("DialogueChoice_aconteceu"), SubResource("DialogueChoice_sabio")])
+
+[sub_resource type="Resource" id="DialogueChoice_e_eu"]
+script = ExtResource("3_choice")
+text = "…e o que aconteceu comigo?"
+next_id = &"aconteceu"
+
+[sub_resource type="Resource" id="DialogueNode_lugar"]
+script = ExtResource("2_node")
+id = &"lugar"
+pages = PackedStringArray("Isto é o que restou do acampamento — o mundo real, {heroi}. Kinfire se estende daqui para fora, território por território, brasa por brasa.")
+choices = Array[ExtResource("3_choice")]([SubResource("DialogueChoice_e_eu")])
+
+[sub_resource type="Resource" id="DialogueChoice_agora"]
+script = ExtResource("3_choice")
+text = "E agora?"
+next_id = &"adeus"
+
+[sub_resource type="Resource" id="DialogueNode_aconteceu"]
+script = ExtResource("2_node")
+id = &"aconteceu"
+pages = PackedStringArray("O espelho não mentiu: quem você era morreu com a vila.", "Quem você é agora — isso o fogo ainda está escrevendo.")
+choices = Array[ExtResource("3_choice")]([SubResource("DialogueChoice_agora")])
+
+[sub_resource type="Resource" id="DialogueChoice_partir"]
+script = ExtResource("3_choice")
+text = "(Partir)"
+effects = "flag cinzento_primeiro_dialogo"
+
+[sub_resource type="Resource" id="DialogueNode_adeus"]
+script = ExtResource("2_node")
+id = &"adeus"
+pages = PackedStringArray("Siga o fumo, cinza. Fogueiras guardam quem as acende — e o mundo guarda o resto. Nos encontraremos onde as pedras forem cinza.")
+choices = Array[ExtResource("3_choice")]([SubResource("DialogueChoice_partir")])
+
+[resource]
+script = ExtResource("1_script")
+id = &"cinzento_acampamento"
+display_name = "Cinzento"
+portrait = "k:121"
+start_id = &"acorda"
+nodes = Array[ExtResource("2_node")]([SubResource("DialogueNode_acorda"), SubResource("DialogueNode_lugar"), SubResource("DialogueNode_aconteceu"), SubResource("DialogueNode_adeus")])

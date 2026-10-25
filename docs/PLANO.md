@@ -49,7 +49,7 @@
 
 ### Fase 2 — Diálogos, NPCs e Territórios (commits 9–14) — `status: EM ANDAMENTO`
 - [x] 2.1 `feat: DialogueData (resource) e motor de dialogo com nos, escolhas e condicoes` — `DialogueNode`/`DialogueChoice`/`DialogueData` (resources .tres, nós paginados + escolhas condicionais); `ConditionResolver` (DSL: flag/raca/classe/nivel/ignorancia/rep/quest/item, `!` nega, vírgula = AND); `DialogueEngine` (sinais `page_shown`/`choices_shown`/`dialogue_ended`, efeitos flag/gold/xp/item/rep/ignorancia/quest reutilizáveis pelas quests); `Game.flags` persistido no save v4 + reset no finish_prologue; `Hero.count_item()`; smoke `_test_dialogue()` (paginação, condição leigo/instruído, efeitos, resolver)
-- [ ] 2.2 `feat: UI de dialogo com retratos e escolhas`
+- [x] 2.2 `feat: UI de dialogo com retratos e escolhas` — `DialogueBox`: dim overlay, retrato animado (silhueta "k:121" padrão), máquina-de-escrever 40 char/s (clique conclui), botões de escolha, Espaço/Enter/Esc, pop_in/pop_out, pausa o mundo; tokens `{heroi}/{raca}/{classe}`; `HUD.open_dialogue()` retorna a caixa; `DB.dialogue(id)` lazy loader; diálogo real de despertar `cinzento_acampamento.tres` (acorda→lugar→aconteceu→adeus, escolha instruída `ignorancia <= 5`, flag `cinzento_primeiro_dialogo`) substitui os toasts hardcoded; smoke valida caixa aberta + navegação completa + fechamento
 - [ ] 2.3 `feat: NpcNode conversavel e reputacao por raca (5 niveis)` — flag `ignorance` decresce conforme o jogador aprende (diálogos mudam)
 - [ ] 2.4 `feat: geracao de territorios raciais procedurais (14 capitais + zona neutra da Kinfire)` — Voronoi procedural sobre o mundo infinito; capital = acampamento ampliado
 - [ ] 2.5 `feat: NPCs por territorio com ganho-de-vida por raca` (elfo→chefe da aldeia, humano→guilda, anão→forja, etc., por LORE §6)
@@ -149,3 +149,4 @@
 | 2026-10-25 | (pendente) | 1.4 | `feat:` espelho sem reflexo (Kind.MIRROR) → cutscene → wizard de criação (4 passos obrigatórios) → acampamento; menu → prólogo — smoke OK |
 | 2026-10-25 | (pendente) | 1.5 | `feat:` despertar no acampamento com diálogo do Cinzento (flag transiente `awakened_from_prologue`) — Fase 1 concluída, smoke OK |
 | 2026-10-25 | (pendente) | 2.1 | `feat:` DialogueData (.tres) + motor de diálogo com nós, escolhas e condições — resolver DSL, efeitos, `Game.flags` no save, `count_item`; smoke `_test_dialogue` OK |
+| 2026-10-25 | (pendente) | 2.2 | `feat:` DialogueBox (retratos, máquina-de-escrever, escolhas) + diálogo ramificado real de despertar com o Cinzento — smoke OK |

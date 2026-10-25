@@ -133,6 +133,8 @@ var enemies: Array[EnemyData] = []
 var racial_breath: SkillData
 ## Classe oculta do aldeão do prólogo (fora do index.json → não aparece na criação)
 var villager_class: ClassData
+## Diálogos carregados sob demanda: id -> DialogueData (data/dialogues/*.tres)
+var dialogues := {}
 var _tile_cache := {}
 var _sheet_image: Image
 var _dt2_image: Image
@@ -319,6 +321,13 @@ func get_enemy(id: StringName) -> EnemyData:
 		if e.id == id:
 			return e
 	return null
+
+
+## Diálogo por id, carregado sob demanda de data/dialogues/<id>.tres
+func dialogue(id: StringName) -> DialogueData:
+	if not dialogues.has(id):
+		dialogues[id] = load("res://data/dialogues/%s.tres" % id)
+	return dialogues[id]
 
 
 func get_skill(cls: ClassData, id: StringName) -> SkillData:

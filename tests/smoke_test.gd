@@ -278,6 +278,28 @@ func _test_prologue() -> void:
 	assert(ow != null and ow.has_method("travel_to"))
 	assert(Game.awakened_from_prologue == false)  # diálogo de despertar consumido pela 1.5
 	print("[smoke]   wizard concluido — %s %s acorda no acampamento" % [Game.hero.race.display_name, Game.hero.cls.display_name])
+	# 2.2: diálogo ramificado real do despertar, via DialogueBox/UI (motor)
+	var box: DialogueBox = ow.hud._dialogue_box
+	assert(box != null and box.engine.current != null)
+	box.engine.advance()  # acorda: página 2
+	box.engine.advance()  # -> escolhas (ignorância 10 > 5: versão leiga, 2 visíveis)
+	assert(box.engine.visible_choices().size() == 2)
+	box.engine.choose(0)  # "O que é este lugar?" -> ignorancia -1
+	assert(Game.ignorance == 9 and box.engine.current.id == &"lugar")
+	box.engine.advance()  # lugar: 1 página -> escolhas
+	box.engine.choose(0)  # "…e o que aconteceu comigo?"
+	assert(box.engine.current.id == &"aconteceu")
+	box.engine.advance()  # aconteceu: página 2
+	box.engine.advance()  # -> escolhas
+	box.engine.choose(0)  # "E agora?" -> adeus
+	assert(box.engine.current.id == &"adeus")
+	box.engine.advance()  # adeus: 1 página -> escolhas
+	box.engine.choose(0)  # "(Partir)" -> encerra + flag
+	assert(box.engine.current == null)
+	assert(bool(Game.flags.get("cinzento_primeiro_dialogo", false)))
+	await _wait(1.0)
+	assert(ow.hud._dialogue_box == null)  # caixa fechou e se libertou
+	print("[smoke]   dialogo de despertar concluido (ignorancia %d)" % Game.ignorance)
 	print("[smoke] prologo ok")
 
 

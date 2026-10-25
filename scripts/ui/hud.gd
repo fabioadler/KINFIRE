@@ -35,6 +35,7 @@ var skills: SkillsPanel
 var _pause_layer: Control
 var _death_layer: Control
 var _popup: Control
+var _dialogue_box: DialogueBox
 
 
 func setup(p_world: World, p_player: Player) -> void:
@@ -452,6 +453,22 @@ func close_popup() -> void:
 	if _popup and is_instance_valid(_popup):
 		_popup.queue_free()
 	_popup = null
+
+
+## Abre um diálogo (NPC/Guia) — pausa o mundo enquanto a caixa estiver aberta
+func open_dialogue(data: DialogueData, speaker_name: String = "") -> DialogueBox:
+	if _dialogue_box and is_instance_valid(_dialogue_box):
+		_dialogue_box.queue_free()
+		_dialogue_box = null
+	var box := DialogueBox.new()
+	_root.add_child(box)
+	box.closed.connect(func():
+		if _dialogue_box == box:
+			_dialogue_box = null
+	)
+	_dialogue_box = box
+	box.open(data, speaker_name)
+	return box
 
 
 func _open_popup(title_text: String, width: float) -> VBoxContainer:
