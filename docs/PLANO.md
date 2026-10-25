@@ -38,8 +38,8 @@
 - [x] 0.4 `fix: alinhar fórmulas de progressão e morte às regras canônicas` — XP `20×nível^1.5`, nível máx 60, pontos +1 a cada 4 níveis, penalidade de morte por dificuldade (`REGRAS_DO_JOGO.md` §2/§5); smoke test OK
 - **Aceitação:** `git status` limpo (só `.godot/` ignorado); `godot --headless -- --smoke` passa; docs sem pendências `[VERIFICAR]`. **✅ Fase concluída.**
 
-### Fase 1 — Prólogo: O Aldeão (commits 4–9) — `status: PENDENTE`
-- [ ] 1.0 `feat: design tokens da UI moderna (tema dark-fantasy premium no UIKit)` — paleta, blur, raios, sombras, fonte Cinzel/Alegreya, estilos de hover/press/foco, sons de UI (spec: `MECANICAS.md` §9). Fundação visual — todo painel novo já nasce moderno.
+### Fase 1 — Prólogo: O Aldeão (commits 4–9) — `status: EM ANDAMENTO`
+- [x] 1.0 `feat: design tokens da UI moderna (tema dark-fantasy premium no UIKit)` — paleta §9.1 (vidro escuro, borda dourada 1px, cantos 8/12px), raridades com formas p/ daltônismo, micro-interações (hover lift/glow, press 0.96, foco anel dourado, tweens pop 0.18s), sons hover/click; validado headless sem erros
 - [ ] 1.1 `feat: estado de prologo (VillagerState) e fluxo novo-jogo` — herói provisório "Aldeão" (sem raça/classe), save v4 com `phase: prologue|created`
 - [ ] 1.2 `feat: cena prologue com vila de tutorial` — mapa pequeno handcrafted: casa, campo de treino, floresta rala, os 3 baús didáticos
 - [ ] 1.3 `feat: tutorial guiado com o Silhueta (Cinzento)` — passos: mover → atacar espantalho → coletar drop → equipar → poção → fogueira; gate de saída até concluir
@@ -141,4 +141,5 @@
 | Data | Commit | Fase | Notas |
 |---|---|---|---|
 | 2026-10-25 | 021fcf7 | 0.2+0.3 | `docs:` REGRAS/MECANICAS/LORE/PLANO em `docs/`; auditoria `[VERIFICAR]` resolvida (8 confirmados, 4 divergências → 0.4) |
-| 2026-10-25 | (pendente) | 0.4 | `fix:` XP `20×lvl^1.5`, nível máx 60, pontos a cada 4 níveis, morte por dificuldade — smoke OK |
+| 2026-10-25 | 592956a | 0.4 | `fix:` XP `20×lvl^1.5`, nível máx 60, pontos a cada 4 níveis, morte por dificuldade — smoke OK |
+| 2026-10-25 | (pendente) | 1.0 | `feat:` design tokens dark-fantasy premium no UIKit (MECANICAS §9.1) |
