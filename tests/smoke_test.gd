@@ -445,6 +445,38 @@ func _test_overworld() -> void:
 	await _wait(1.2)
 	assert(ow.hud._dialogue_box == null)
 	print("[smoke]   npcs conversam (ignorancia %d, rep humano %d)" % [Game.ignorance, int(Game.reputation.get(&"humano", 0))])
+	# 2.4: territórios raciais — 14 capitais, Voronoi determinístico, Vale neutro
+	var terr: Territories = ow.territories
+	assert(terr != null and terr.capitals.size() == 14)
+	# capital do jogador na origem; acampamento promovido a capital
+	assert(terr.capital_of(h.race.id) == Vector2.ZERO)
+	var camp := ""
+	for n in get_tree().get_nodes_in_group("interactables"):
+		if n is Interactable and n.kind == Interactable.Kind.CAMPFIRE:
+			camp = n.label
+	assert(camp == DB.territory(h.race.id).capital_name)
+	# espaçamento mínimo garantido + sem líquido + bioma válido
+	var races_list: Array = terr.capitals.keys()
+	var og := ow.og
+	for i in races_list.size():
+		var ci: Vector2 = terr.capitals[races_list[i]]
+		var biome: String = og.biome_at(Vector2i(roundi(ci.x), roundi(ci.y)))
+		assert(not og.liquid_at(Vector2i(roundi(ci.x), roundi(ci.y)), biome))
+		for j in range(i + 1, races_list.size()):
+			assert(ci.distance_to(terr.capitals[races_list[j]]) >= Territories.CAPITAL_MIN_GAP)
+		# a vizinhança da capital pertence ao seu território (nome da capital na HUD)
+		assert(terr.region_name_at(Vector2i(roundi(ci.x), roundi(ci.y))).begins_with(DB.territory(races_list[i]).capital_name))
+	# Vale do Centro: neutro até o raio, território de alguém depois
+	assert(terr.territory_at(Vector2i(30, 0)) == &"")
+	assert(terr.territory_at(Vector2i(50, 0)) != &"")
+	assert(terr.region_name_at(Vector2i(30, 0)) == "Vale do Centro — a Kinfire apagada" or terr.region_name_at(Vector2i(30, 0)).begins_with(DB.territory(h.race.id).capital_name))
+	# determinismo: mesma semente + raça => mesmas capitais
+	var terr2 := Territories.new(Game.world_seed, h.race.id)
+	for race in terr.capitals:
+		assert(terr.capitals[race] == terr2.capitals[race])
+	# level_at integra o modificador do território
+	assert(ow.level_at(ow.player.global_position) == 1)  # capital: nível 1
+	print("[smoke]   territorios ok (%d capitais, gap >= %d)" % [terr.capitals.size(), Territories.CAPITAL_MIN_GAP])
 	await _shot("07_mundo_acampamento")
 	h.gold = 5000
 	ow.hud.open_merchant()

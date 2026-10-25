@@ -339,6 +339,17 @@ func npc(id: StringName) -> NpcData:
 	return npcs[id]
 
 
+## Territórios carregados sob demanda: race_id -> TerritoryData (data/territories/*.tres)
+var territories := {}
+
+
+## Território racial por id da raça, carregado sob demanda
+func territory(id: StringName) -> TerritoryData:
+	if not territories.has(id):
+		territories[id] = load("res://data/territories/%s.tres" % id)
+	return territories[id]
+
+
 func get_skill(cls: ClassData, id: StringName) -> SkillData:
 	for s in cls.skills:
 		if s.id == id:

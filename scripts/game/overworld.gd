@@ -15,6 +15,7 @@ const DUNGEON_NAMES := ["Cripta Esquecida", "Catacumbas de Varn", "Mina Abandona
 @onready var props: TileMapLayer = $Entities/Props
 
 var og: OverworldGen
+var territories: Territories
 var chunks := {}              ## Vector2i -> {"solid": PackedByteArray, "biome": PackedByteArray, "nodes": Array}
 var explored_cells := {}      ## Vector2i (chunk) -> PackedByteArray
 var _queue: Array[Vector2i] = []
@@ -29,6 +30,9 @@ var _time := 0.3
 
 func _setup_map() -> void:
 	og = OverworldGen.new(Game.world_seed)
+	# 2.4: Voronoi determinístico por (semente + raça do jogador) — não é salvo.
+	# A capital da raça do jogador é o acampamento promovido (LORE §X).
+	territories = Territories.new(Game.world_seed, Game.hero.race.id if Game.hero else &"humano")
 	_time = Game.world_time
 	_build_tileset()
 	var start := world_to_cell(_start_position())
@@ -83,10 +87,13 @@ func _awakening() -> void:
 
 
 func _spawn_content() -> void:
-	# Acampamento inicial (área segura): fogueira, mercador, tendas e gente (2.3)
+	# Acampamento inicial = capital da raça do jogador, promovida (2.4, MECANICAS §3).
+	# O rótulo usa o nome da capital do território (LORE §X): "Porto Franco"...
+	var terr: TerritoryData = DB.territory(Game.hero.race.id) if Game.hero else null
+	var capital := terr.capital_name if terr != null else "Acampamento"
 	var fire := Interactable.create(self, Interactable.Kind.CAMPFIRE, Vector2(TILE * 0.5, TILE * 0.5))
-	fire.label = "Acampamento"
-	_register_waypoint("Acampamento", fire.global_position)
+	fire.label = capital
+	_register_waypoint(capital, fire.global_position)
 	if Game.respawn_pos == Vector2.INF:
 		Game.respawn_pos = fire.global_position + Vector2(0, 24)
 	Interactable.create(self, Interactable.Kind.MERCHANT, Vector2(TILE * 4.5, TILE * -1.5))
@@ -114,8 +121,10 @@ func level() -> int:
 	return level_at(player.global_position) if player else 1
 
 
-## Nível da região: cresce com a distância do acampamento
+## Nível da região: distância do Vale do Centro + modificador do território (REGRAS §11)
 func level_at(p: Vector2) -> int:
+	if territories != null:
+		return territories.region_level(world_to_cell(p))
 	var d := OverworldGen.danger(world_to_cell(p))
 	return clampi(1 + int(d * 0.9), 1, 60)
 
@@ -124,7 +133,10 @@ func biome_at_pos(p: Vector2) -> String:
 	return og.biome_at(world_to_cell(p))
 
 
+## Nome da região para a HUD: capital > Vale do Centro > território racial (2.4)
 func region_name() -> String:
+	if player and territories != null:
+		return territories.region_name_at(world_to_cell(player.global_position))
 	var b: String = biome_at_pos(player.global_position) if player else "planicie"
 	if Vector2(world_to_cell(player.global_position)).length() < OverworldGen.SAFE_RADIUS:
 		return "Acampamento (área segura)"
@@ -417,8 +429,10 @@ func _spawn_chunk_content(k: Vector2i, data: Dictionary) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash(Vector3i(k.x, k.y, Game.world_seed))
 	var center_cell := k * CHUNK + Vector2i(CHUNK / 2, CHUNK / 2)
-	var lvl := clampi(1 + int(OverworldGen.danger(center_cell) * 0.9), 1, 60)
-	var safe := Vector2(center_cell).length() < OverworldGen.SAFE_RADIUS + 20
+	var lvl := territories.region_level(center_cell) if territories != null else clampi(1 + int(OverworldGen.danger(center_cell) * 0.9), 1, 60)
+	# Seguro: acampamento/capital do jogador OU perímetro de qualquer capital (2.4)
+	var safe := Vector2(center_cell).length() < OverworldGen.SAFE_RADIUS + 20 \
+		or (territories != null and territories.near_any_capital(center_cell))
 	var nodes: Array = data.nodes
 
 	# Entrada de masmorra (garantida no chunk (1,0) para o jogador achar logo)
