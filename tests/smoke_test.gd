@@ -733,7 +733,9 @@ func _test_overworld() -> void:
 	assert(tem_magico, "ELITE garante >=1 item magico")
 	assert(drops33.call(LootDrop.Kind.ESSENCE, e33.global_position).is_empty(), "ELITE nao dropa essencia")
 	limpar33.call(e33.global_position)
-	e33 = ow.spawn_enemy(goblin, pp + Vector2(3500, 0), Enemy.Rarity.CAMPEAO, 5)
+	# afixos explícitos: FANTASMA tem 20% de esquiva (enemy.gd) e faria o
+	# take_damage determinístico falhar aleatoriamente
+	e33 = ow.spawn_enemy(goblin, pp + Vector2(3500, 0), Enemy.Rarity.CAMPEAO, 5, [Enemy.Affix.FURIOSO, Enemy.Affix.VENENOSO])
 	e33.take_damage(99999.0, false, Vector2.INF, 0.0)
 	var tem_raro := false
 	for l33 in drops33.call(LootDrop.Kind.ITEM, e33.global_position):
@@ -741,7 +743,7 @@ func _test_overworld() -> void:
 			tem_raro = true
 	assert(tem_raro, "CAMPEAO garante >=1 item raro")
 	limpar33.call(e33.global_position)
-	e33 = ow.spawn_enemy(goblin, pp + Vector2(3550, 0), Enemy.Rarity.LENDARIO, 5)
+	e33 = ow.spawn_enemy(goblin, pp + Vector2(3550, 0), Enemy.Rarity.LENDARIO, 5, [Enemy.Affix.FURIOSO, Enemy.Affix.VENENOSO])
 	e33.take_damage(99999.0, false, Vector2.INF, 0.0)
 	var tem_lend := false
 	for l33 in drops33.call(LootDrop.Kind.ITEM, e33.global_position):
@@ -798,7 +800,7 @@ func _test_overworld() -> void:
 	e34c.queue_free()
 	# Lendário: beam de spawn + aviso na HUD + kill anunciado (inimigo diferente => texto único)
 	var aranha34: EnemyData = DB.get_enemy(&"aranha_gigante")
-	var e34l: Enemy = ow.spawn_enemy(aranha34, pp + Vector2(4000, 0), Enemy.Rarity.LENDARIO, 5)
+	var e34l: Enemy = ow.spawn_enemy(aranha34, pp + Vector2(4000, 0), Enemy.Rarity.LENDARIO, 5, [Enemy.Affix.FURIOSO, Enemy.Affix.VENENOSO])
 	assert(e34l._spawn_beam != null, "Lendario deveria ter beam de spawn visivel de longe")
 	var aviso34 := false
 	for m34 in ow.hud._messages.get_children():
@@ -1038,6 +1040,58 @@ func _test_overworld() -> void:
 			main_ativas45 = true
 	assert(not main_ativas45, "historia principal encerra sem quests ativas")
 	print("[smoke]   cadeia ato3 ok (7 Chamas + final O Fogo dos Lacos; prereq ato2_8; is_final)")
+	# 4.6: os 8 Mistérios (LORE §XIV) — "regra sagrada: o jogo nunca diz
+	# mistério aqui": abrem sem alarde por pré-requisitos das quests da
+	# principal que narrativamente os destravam; cada um rende 1 Fragmento
+	# da Verdade (8 destravam o Final Dourado, REGRAS §12).
+	# Durante os drives anteriores, misterio_2 completou sozinho (os 5
+	# fantasmas do Ato 2) e os demais ficaram nos objetivos que nenhum
+	# drive anterior cobre — este bloco completa o que falta de cada um.
+	Game.fragmentos.erase(&"teste1")  # remove o fragmento de teste do bloco 4.1
+	assert(Game.quest_log.fragments() == 1, "so misterio_2 completou sozinho durante o Ato 2")
+	assert(Game.quest_log.is_completed(&"misterio_2"), "misterio_2 (prereq ato1_2) concluida")
+	for qid46 in [&"misterio_1", &"misterio_3", &"misterio_4", &"misterio_5", &"misterio_6", &"misterio_7"]:
+		assert(Game.quest_log.is_active(qid46), "%s ativa por autoflow (prereqs da principal)" % qid46)
+	# misterio_1: O Sussurro nos Mapas — mapa errado do cartógrafo
+	Game.quest_log.notify_talk(&"capital_humano_comum0")
+	for k46 in 3:
+		Game.quest_log.notify_kill(&"chort")
+	assert(Game.quest_log.is_completed(&"misterio_1"), "misterio_1 conclui")
+	# misterio_3: A Cura Que Envenena — médicos sem registro + vítimas sem nome
+	for k46 in 4:
+		Game.quest_log.notify_kill(&"medico_da_peste")
+	for k46 in 5:
+		Game.quest_log.notify_kill(&"zumbi")
+	assert(Game.quest_log.is_completed(&"misterio_3"), "misterio_3 conclui")
+	# misterio_4: O Enigma de Salomé — a canção denuncia as emboscadas
+	Game.quest_log.notify_talk(&"capital_humano_comum1")
+	for k46 in 6:
+		Game.quest_log.notify_kill(&"arqueiro_bandido")
+	assert(Game.quest_log.is_completed(&"misterio_4"), "misterio_4 conclui")
+	# misterio_5: As Sete Relíquias — agente do colecionador + profanadores
+	# (os necromantes também alimentam o misterio_7, ativo desde o fim do Ato 2)
+	Game.quest_log.notify_talk(&"capital_humano_comum2")
+	for k46 in 4:
+		Game.quest_log.notify_kill(&"necromante_profano")
+	assert(Game.quest_log.is_completed(&"misterio_5"), "misterio_5 conclui")
+	# misterio_6: A Torre sem Portas — o 5º cavaleiro + a carta ao Cinzento
+	Game.quest_log.notify_kill(&"cavaleiro_renegado")
+	Game.quest_log.notify_talk(&"cinzento_acampamento")
+	assert(Game.quest_log.is_completed(&"misterio_6"), "misterio_6 conclui")
+	# misterio_7: O Diário de Ithariel — páginas guardadas + confronto
+	for k46 in 6:
+		Game.quest_log.notify_kill(&"necromante_profano")
+	Game.quest_log.notify_talk(&"cinzento_acampamento")
+	assert(Game.quest_log.is_completed(&"misterio_7"), "misterio_7 conclui")
+	assert(Game.quest_log.is_active(&"misterio_8"), "misterio_8 auto-inicia com os 7 concluidos")
+	# misterio_8: A Vila que Ninguém Lembrava — lobos da primeira floresta
+	for k46 in 3:
+		Game.quest_log.notify_kill(&"lobo_sombrio")
+	Game.quest_log.notify_talk(&"cinzento_acampamento")
+	assert(Game.quest_log.is_completed(&"misterio_8"), "misterio_8 (oculto) conclui")
+	assert(Game.quest_log.fragments() == 8, "8 Fragmentos da Verdade coletados")
+	assert(Game.quest_log.golden_ending_unlocked(), "Final Dourado destravado (REGRAS §12)")
+	print("[smoke]   misterios ok (8 cadeias ocultas por prereqs, 1 fragmento cada, Final Dourado destravado)")
 	await _shot("07_mundo_acampamento")
 	h.gold = 5000
 	ow.hud.open_merchant()
