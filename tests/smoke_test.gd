@@ -275,6 +275,7 @@ func _test_prologue() -> void:
 	assert(Game.hero.level == 1 and Game.hero.cls.id != &"aldeao")
 	var ow := get_tree().get_first_node_in_group("world")
 	assert(ow != null and ow.has_method("travel_to"))
+	assert(Game.awakened_from_prologue == false)  # diálogo de despertar consumido pela 1.5
 	print("[smoke]   wizard concluido — %s %s acorda no acampamento" % [Game.hero.race.display_name, Game.hero.cls.display_name])
 	print("[smoke] prologo ok")
 

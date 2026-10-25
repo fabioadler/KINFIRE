@@ -38,16 +38,16 @@
 - [x] 0.4 `fix: alinhar fórmulas de progressão e morte às regras canônicas` — XP `20×nível^1.5`, nível máx 60, pontos +1 a cada 4 níveis, penalidade de morte por dificuldade (`REGRAS_DO_JOGO.md` §2/§5); smoke test OK
 - **Aceitação:** `git status` limpo (só `.godot/` ignorado); `godot --headless -- --smoke` passa; docs sem pendências `[VERIFICAR]`. **✅ Fase concluída.**
 
-### Fase 1 — Prólogo: O Aldeão (commits 4–9) — `status: EM ANDAMENTO`
+### Fase 1 — Prólogo: O Aldeão (commits 4–9) — `status: CONCLUÍDA` ✅
 - [x] 1.0 `feat: design tokens da UI moderna (tema dark-fantasy premium no UIKit)` — paleta §9.1 (vidro escuro, borda dourada 1px, cantos 8/12px), raridades com formas p/ daltônismo, micro-interações (hover lift/glow, press 0.96, foco anel dourado, tweens pop 0.18s), sons hover/click; validado headless sem erros
 - [x] 1.1 `feat: estado de prologo (VillagerState) e fluxo novo-jogo` — herói provisório "Aldeão" (pseudo-classe `aldeao` oculta, nível 0), save v4 com `phase: prologue|created`, migração encadeada v3→v4, `new_prologue()`/`finish_prologue()`, `continue_game` roteia para o prólogo; smoke OK
 - [x] 1.2 `feat: cena prologue com vila de tutorial` — mapa handcrafted determinístico (casa, clareira com fogueira, campo de treino com espantalho + 3 baús, floresta rala); hook virtual `_on_campfire_lit` desacopla fogueira; HUD desacoplada de `Overworld` (corrige ciclo de dependência)
 - [x] 1.3 `feat: tutorial guiado com o Silhueta (Cinzento)` — 6 passos (mover → atacar espantalho → coletar a Espada de Treino → equipar → poção → fogueira) com sussurros do Cinzento; portão de névoa abre ao concluir e spawna 3 lobos sombrios; nível 1 sussurra sobre o espelho; fix `Item.required_level()` (ilvl 1 = treino, usável no nível 0); smoke OK
 - [x] 1.4 `feat: transição prologo -> criacao de personagem no nivel 1` — `Kind.MIRROR` (vazio sem reflexo + luz fria pulsante) na casa; interação no nível 1 + tutorial completo → cutscene (sussurros do Cinzento + escurecimento) → criação; `character_creation` vira wizard sequencial raça → classe → atributos (27 pts obrigatórios) → nome (obrigatório), prévia lateral persistente, Aleatório; `_on_start` → `finish_prologue` no prólogo; menu "Novo Jogo" → `new_prologue()`; smoke OK
-- [ ] 1.5 `feat: despertar no acampamento racial com dialogo de abertura`
+- [x] 1.5 `feat: despertar no acampamento racial com dialogo de abertura` — flag transiente `Game.awakened_from_prologue` (não salva; acontece uma única vez); o Cinzento aparece junto à fogueira, entrega 3 sussurros com nome/herói e raça interpolados e se dissolve na névoa; acampamento racial por território fica na Fase 2
 - **Aceitação:** fluxo menu → prólogo → nível 1 → criação → acampamento funciona ponta a ponta no smoke test.
 
-### Fase 2 — Diálogos, NPCs e Territórios (commits 9–14) — `status: PENDENTE`
+### Fase 2 — Diálogos, NPCs e Territórios (commits 9–14) — `status: EM ANDAMENTO`
 - [ ] 2.1 `feat: DialogueData (resource) e motor de dialogo com nos, escolhas e condicoes`
 - [ ] 2.2 `feat: UI de dialogo com retratos e escolhas`
 - [ ] 2.3 `feat: NpcNode conversavel e reputacao por raca (5 niveis)` — flag `ignorance` decresce conforme o jogador aprende (diálogos mudam)
@@ -128,8 +128,8 @@
 | Fase | Status | Última atualização |
 |---|---|---|
 | 0. Higiene e Fundação | ✅ Pronta | 2026-10-25 |
-| 1. Prólogo | 🟨 Em andamento (1.0 pronto) | 2026-10-25 |
-| 2. Diálogos/Territórios | ⬜ Não iniciada | — |
+| 1. Prólogo | ✅ Concluída | 2026-10-25 |
+| 2. Diálogos/Territórios | 🟨 Em andamento | 2026-10-25 |
 | 3. Raridade/Loot | ⬜ Não iniciada | — |
 | 4. Quests | ⬜ Não iniciada | — |
 | 5. Economia | ⬜ Não iniciada | — |
@@ -147,3 +147,4 @@
 | 2026-10-25 | (pendente) | 1.2 | `feat:` prologue.tscn — vila handcrafted (casa, fogueira, espantalho, 3 baús, floresta); hook `_on_campfire_lit`; fix ciclo hud↔overworld |
 | 2026-10-25 | (pendente) | 1.3 | `feat:` tutorial guiado com o Cinzento (6 passos, portão de névoa, lobos, nível 1); fix `required_level` — smoke OK |
 | 2026-10-25 | (pendente) | 1.4 | `feat:` espelho sem reflexo (Kind.MIRROR) → cutscene → wizard de criação (4 passos obrigatórios) → acampamento; menu → prólogo — smoke OK |
+| 2026-10-25 | (pendente) | 1.5 | `feat:` despertar no acampamento com diálogo do Cinzento (flag transiente `awakened_from_prologue`) — Fase 1 concluída, smoke OK |

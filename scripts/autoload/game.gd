@@ -44,6 +44,9 @@ var hero: Hero
 var depth: int = 1
 ## Fase do jogador (PHASE_PROLOGUE | PHASE_CREATED) — REGRAS §15, MECANICAS §12
 var phase: String = PHASE_CREATED
+## Transiente: true logo após finish_prologue — dispara o diálogo de despertar
+## no acampamento (não é salvo; o despertar acontece uma única vez)
+var awakened_from_prologue := false
 ## Ignorância do Laço-Vivo (10 no pós-prólogo, decai ao aprender; REGRAS §2)
 var ignorance: int = 0
 ## Reputação por raça: id da raça -> int 0..4 (Fase 5)
@@ -191,6 +194,7 @@ func finish_prologue(h: Hero) -> void:
 	hero = h
 	phase = PHASE_CREATED
 	ignorance = 10
+	awakened_from_prologue = true
 	depth = 1
 	in_dungeon = false
 	overworld_pos = Vector2.INF
