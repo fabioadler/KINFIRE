@@ -592,6 +592,110 @@ func _test_overworld() -> void:
 			raros += 1
 	assert(raros > 6000)  # ~40% vs ~11% sem bônus
 	print("[smoke]   raridades ok (elite x2.5, campeao x5, lendario x10; roll distribuido)")
+	# 3.2: afixos de Campeão (MECANICAS §5.2) — roll determinístico e efeitos
+	var pp := ow.player.global_position
+	var rng3 := RandomNumberGenerator.new()
+	rng3.seed = 99
+	var a1 := Enemy.roll_affixes(rng3, 4)
+	assert(a1.size() == 4)
+	for i in a1.size():
+		assert(a1[i] >= 0 and a1[i] <= Enemy.Affix.CAMPEAO_DAS_SOMBRAS, "afixo fora do enum")
+		for j in range(i + 1, a1.size()):
+			assert(a1[i] != a1[j], "afixo repetido no roll")
+	assert(Enemy.roll_affixes(rng3, 8).size() == 8)  # todos os 8 sem repetição
+	# affixes_for: Comum/Chefe sem afixos; Campeão 1–2; Lendário 2–3; Inferno +1 a Elite+
+	rng3.seed = 99
+	assert(Enemy.affixes_for(Enemy.Rarity.COMUM, rng3).is_empty())
+	assert(Enemy.affixes_for(Enemy.Rarity.ELITE, rng3).is_empty())
+	assert(Enemy.affixes_for(Enemy.Rarity.ELITE, rng3, true).size() == 1)  # Inferno +1
+	assert(Enemy.affixes_for(Enemy.Rarity.CHEFE, rng3, true).is_empty())    # chefe roteirizado
+	var sizes := [0, 0, 0, 0, 0]
+	for i in 500:
+		sizes[Enemy.affixes_for(Enemy.Rarity.CAMPEAO, rng3).size()] += 1
+	assert(sizes[0] == 0 and sizes[3] == 0 and sizes[4] == 0 and sizes[1] > 0 and sizes[2] > 0)
+	sizes = [0, 0, 0, 0, 0]
+	for i in 500:
+		sizes[Enemy.affixes_for(Enemy.Rarity.LENDARIO, rng3).size()] += 1
+	assert(sizes[0] == 0 and sizes[1] == 0 and sizes[4] == 0 and sizes[2] > 0 and sizes[3] > 0)
+	for i in 200:
+		var n := Enemy.affixes_for(Enemy.Rarity.LENDARIO, rng3, true).size()
+		assert(n == 3 or n == 4)  # Inferno: Lendário 3–4
+	# inimigos de teste: longe do jogador para não interferir
+	var test_es: Array[Enemy] = []
+	# TELÚRICO: knockback ignorado
+	var e_ctl: Enemy = ow.spawn_enemy(goblin, pp + Vector2(2800, 0), Enemy.Rarity.COMUM, 5)
+	var e_tel: Enemy = ow.spawn_enemy(goblin, pp + Vector2(2900, 0), Enemy.Rarity.COMUM, 5, [Enemy.Affix.TELURICO])
+	test_es.append(e_ctl)
+	test_es.append(e_tel)
+	e_ctl.take_damage(5.0, false, e_ctl.global_position + Vector2(100, 0), 100.0)
+	e_tel.take_damage(5.0, false, e_tel.global_position + Vector2(100, 0), 100.0)
+	assert(e_ctl._knock.length() > 1.0, "controle deveria sofrer knockback")
+	assert(e_tel._knock == Vector2.ZERO, "TELÚRICO imune a knockback")
+	assert(e_tel.affix_names() == ["Telúrico"])
+	# FURIOSO: recarga de ataque 30% mais rápida
+	var e_fur: Enemy = ow.spawn_enemy(goblin, pp + Vector2(3050, -200), Enemy.Rarity.COMUM, 5, [Enemy.Affix.FURIOSO])
+	test_es.append(e_fur)
+	assert(absf(e_fur._reset_attack_cd(1.0) - 0.7) < 0.001)
+	assert(absf(e_ctl._reset_attack_cd(1.0) - 1.0) < 0.001)  # sem afixo: base cheia
+	# MESTRE-DE-ENXAME: invoca 3 lacaios COMUM a 50% de HP
+	var e_swm: Enemy = ow.spawn_enemy(goblin, pp + Vector2(2950, 200), Enemy.Rarity.COMUM, 5, [Enemy.Affix.MESTRE_DE_ENXAME])
+	test_es.append(e_swm)
+	e_swm.take_damage(e_swm.max_hp * 0.6, false, Vector2.INF, 0.0)
+	# consulta direta ao grupo: o hash espacial só reconstrói a cada frame de física
+	var swarm := 0
+	for n in get_tree().get_nodes_in_group("enemies"):
+		var en := n as Enemy
+		if en != null and en.global_position.distance_to(e_swm.global_position) < 100.0:
+			swarm += 1
+			if not test_es.has(en):
+				test_es.append(en)
+	assert(swarm >= 4, "enxame deveria ter 3 lacaios + o mestre")
+	# ARDENTE: deixa piso em chamas a cada 1,5s
+	var e_ard: Enemy = ow.spawn_enemy(goblin, pp + Vector2(3150, 200), Enemy.Rarity.COMUM, 5, [Enemy.Affix.ARDENTE])
+	test_es.append(e_ard)
+	await _wait(0.2)
+	assert(ow.fire_zones.size() >= 1, "ARDENTE deveria criar zona de fogo")
+	# VENENOSO: golpe aplica veneno; veneno tica a cada 1s (dano direto)
+	var e_ven: Enemy = ow.spawn_enemy(goblin, pp + Vector2(3250, 0), Enemy.Rarity.COMUM, 5, [Enemy.Affix.VENENOSO])
+	test_es.append(e_ven)
+	e_ven._hit_target(ow.player, 5.0)
+	assert(ow.player.is_poisoned(), "VENENOSO deveria envenenar o alvo")
+	ow.player._combat_timer = 4.0  # sem regeneração fora de combate no teste
+	ow.player.hp = ow.player.max_hp
+	ow.player.apply_poison(10.0, 1.5)
+	await _wait(1.15)
+	assert(ow.player.hp <= ow.player.max_hp - 10.0, "tique de veneno deveria ferir 10")
+	# ESCUDO ARCANO: absorve antes do HP e regenera a cada 5s
+	var e_esc: Enemy = ow.spawn_enemy(goblin, pp + Vector2(3100, 0), Enemy.Rarity.CAMPEAO, 5, [Enemy.Affix.ESCUDO_ARCANO])
+	test_es.append(e_esc)
+	var esc_max: float = e_esc.max_hp * 0.1
+	assert(is_equal_approx(e_esc._shield, esc_max), "escudo inicial 10% do HP")
+	var shield_before: float = e_esc._shield
+	var ret_esc := e_esc.take_damage(20.0, false, Vector2.INF, 0.0)
+	assert(ret_esc == 0.0 and e_esc.hp == e_esc.max_hp, "escudo absorve antes do HP")
+	assert(e_esc._shield < shield_before and e_esc._shield > 0.0)
+	await _wait(5.3)
+	assert(is_equal_approx(e_esc._shield, esc_max), "escudo regenera a cada 5s")
+	# FANTASMA: ~20% de esquiva (100 golpes)
+	var e_fan: Enemy = ow.spawn_enemy(goblin, pp + Vector2(3000, 0), Enemy.Rarity.CAMPEAO, 5, [Enemy.Affix.FANTASMA])
+	test_es.append(e_fan)
+	var esquivas := 0
+	for i in 100:
+		var hp_antes: float = e_fan.hp
+		if e_fan.take_damage(1.0, false, Vector2.INF, 0.0) == 0.0 and e_fan.hp == hp_antes:
+			esquivas += 1
+	assert(esquivas >= 8 and esquivas <= 32, "FANTASMA ~20%% de esquiva (foi %d)" % esquivas)
+	# CAMPEÃO-DAS-SOMBRAS: teleporta para perto do alvo a cada 6s
+	var e_shd: Enemy = ow.spawn_enemy(goblin, pp + Vector2(3200, -200), Enemy.Rarity.COMUM, 5, [Enemy.Affix.CAMPEAO_DAS_SOMBRAS])
+	test_es.append(e_shd)
+	e_shd.state = Enemy.State.CHASE
+	assert(e_shd.global_position.distance_to(ow.player.global_position) > 2000.0)
+	await _wait(3.5)
+	assert(e_shd.global_position.distance_to(ow.player.global_position) < 200.0, "SOMBRAS deveria teleportar")
+	for e in test_es:
+		if is_instance_valid(e):
+			e.queue_free()
+	print("[smoke]   afixos ok (roll sem repeticao; furioso/escudo/telurico/venenoso/fantasma/enxame/ardente/sombras)")
 	await _shot("07_mundo_acampamento")
 	h.gold = 5000
 	ow.hud.open_merchant()

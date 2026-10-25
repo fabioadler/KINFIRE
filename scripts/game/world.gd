@@ -33,6 +33,7 @@ var stairs: Interactable
 var boss: Enemy
 var explored := PackedByteArray()
 var slow_zones: Array[Dictionary] = []
+var fire_zones: Array[Dictionary] = []
 var _tile_index := {}
 ## Hash espacial de inimigos (reconstruído uma vez por frame de física)
 const BUCKET := 32.0
@@ -160,6 +161,12 @@ func _process(delta: float) -> void:
 	for z in slow_zones:
 		z.time -= delta
 	slow_zones = slow_zones.filter(func(z): return z.time > 0.0)
+	# 3.2: piso em chamas (afixo ARDENTE) — queimadura enquanto o jogador fica dentro
+	for z in fire_zones:
+		z.time -= delta
+		if z.time > 0.0 and player and not player.is_dead() and player.global_position.distance_to(z.pos) <= z.radius:
+			player.apply_poison(z.dps * 0.5, 0.6)
+	fire_zones = fire_zones.filter(func(z): return z.time > 0.0)
 
 
 # ------------------------------------------------------------------ MAPA
@@ -415,6 +422,12 @@ func add_slow_zone(pos: Vector2, radius: float, amount: float, time: float) -> v
 	slow_zones.append({"pos": pos, "radius": radius, "amount": amount, "time": time})
 
 
+## Piso em chamas (afixo ARDENTE, 3.2): dps de queimadura dentro do raio
+func add_fire_zone(pos: Vector2, radius: float, dps: float, time: float) -> void:
+	fire_zones.append({"pos": pos, "radius": radius, "dps": dps, "time": time})
+	Fx.explosion(fx_layer, pos, Color(1.0, 0.45, 0.15), radius * 0.8)
+
+
 ## Multiplicador de tempo local (Dobra Temporal do Mago)
 func time_scale_at(p: Vector2) -> float:
 	var s := 1.0
@@ -514,9 +527,16 @@ func _weighted_pick(pool: Array[EnemyData]) -> EnemyData:
 	return pool[0]
 
 
-func spawn_enemy(data: EnemyData, pos: Vector2, rarity: int, lvl := -1) -> Enemy:
+func spawn_enemy(data: EnemyData, pos: Vector2, rarity: int, lvl := -1, p_affixes: Array = []) -> Enemy:
 	var e: Enemy = ENEMY_SCENE.instantiate()
-	e.setup(data, self, lvl if lvl > 0 else level(), rarity)
+	# 3.2: afixos explícitos (determinismo do chunk) ou rolagem pela raridade;
+	# Inferno dá +1 afixo a Elite+ (REGRAS §7)
+	var aff: Array[int] = []
+	aff.assign(p_affixes)
+	if aff.is_empty():
+		var hell: bool = Game.hero != null and Game.hero.difficulty_data().loot >= 0.28
+		aff = Enemy.affixes_for(rarity, null, hell)
+	e.setup(data, self, lvl if lvl > 0 else level(), rarity, aff)
 	e.position = pos
 	entities.add_child(e)
 	e.killed.connect(_on_enemy_killed)

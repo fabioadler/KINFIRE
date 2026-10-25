@@ -71,6 +71,10 @@ var _last_streak_hit := 0
 var _melee_cdr_done := false
 var _shape := ""
 var _base_scale := 1.0
+# 3.2: veneno (afixo VENENOSO / piso ardente) — dano por segundo direto
+var _poison_dps := 0.0
+var _poison_time := 0.0
+var _poison_tick := 0.0
 
 
 func setup(p_hero: Hero, p_world: World) -> void:
@@ -185,6 +189,20 @@ func _physics_process(delta: float) -> void:
 
 	_state_time += delta
 	hero.play_time += delta
+	# 3.2: veneno — tique de 1s; dano direto no HP (ignora armadura/resistências)
+	if _poison_time > 0.0:
+		_poison_time -= delta
+		_poison_tick -= delta
+		if _poison_tick <= 0.0:
+			_poison_tick += 1.0
+			hp -= _poison_dps
+			_combat_timer = 4.0
+			DamageNumber.spawn_text(world.fx_layer, global_position + Vector2(0, -14), "%d" % int(ceilf(_poison_dps)), Color(0.45, 1.0, 0.35))
+			if hp <= 0.0:
+				_die()
+				return
+		if _poison_time <= 0.0:
+			_poison_dps = 0.0
 	var mouse := get_global_mouse_position()
 	if not Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
 		_lmb_down = false
@@ -530,6 +548,17 @@ func _recompute_buffs() -> void:
 
 # ------------------------------------------------------------------ DANO
 
+## Veneno (3.2): dps por segundo que ignora armadura/resistências
+func apply_poison(dps: float, time: float) -> void:
+	if is_dead() or dps <= 0.0 or time <= 0.0:
+		return
+	_poison_dps = maxf(_poison_dps, dps)
+	_poison_time = maxf(_poison_time, time)
+
+func is_poisoned() -> bool:
+	return _poison_time > 0.0
+
+
 func take_damage(amount: float, from_pos: Vector2 = Vector2.INF, element := "physical", attacker: Node2D = null) -> void:
 	if is_dead() or _invuln > 0.0:
 		return
@@ -594,6 +623,9 @@ func revive() -> void:
 	visual.rotation = 0.0
 	visual.modulate = Color.WHITE
 	_invuln = 2.0
+	_poison_dps = 0.0
+	_poison_time = 0.0
+	_poison_tick = 0.0
 	_set_state(State.IDLE)
 
 

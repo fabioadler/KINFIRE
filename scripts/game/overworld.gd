@@ -505,10 +505,13 @@ func _spawn_chunk_content(k: Vector2i, data: Dictionary) -> void:
 		var count := rng.randi_range(2, 4) if data_e.behavior != EnemyData.Behavior.SWARM else rng.randi_range(4, 7)
 		# 3.1: raridade do pack pelo rng do chunk (determinístico) + bônus de dificuldade
 		var pack_rarity := Enemy.roll_rarity(lvl, Game.hero.difficulty_data().loot if Game.hero else 0.0, rng)
+		# 3.2: afixos de Campeão pelo rng do chunk; Inferno dá +1 a Elite+ (REGRAS §7)
+		var hell: bool = Game.hero != null and Game.hero.difficulty_data().loot >= 0.28
+		var pack_affixes: Array[int] = Enemy.affixes_for(pack_rarity, rng, hell)
 		for j in count:
 			var off := Vector2(rng.randf_range(-24, 24), rng.randf_range(-24, 24))
 			var pos := last_free_point(p, p + off)
-			var en := spawn_enemy(data_e, pos, pack_rarity if j == 0 else Enemy.Rarity.COMUM, lvl)
+			var en := spawn_enemy(data_e, pos, pack_rarity if j == 0 else Enemy.Rarity.COMUM, lvl, pack_affixes if j == 0 else [])
 			nodes.append(en)
 	# Chefe de mundo (raro, regiões distantes)
 	if lvl >= 4 and rng.randf() < 0.025:

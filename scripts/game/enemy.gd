@@ -10,6 +10,23 @@ enum State { IDLE, CHASE, WINDUP, ATTACK, RECOVER, STUNNED, DEAD }
 ## vira CHEFE no spawn; os dados do EnemyData já são tuned de chefe.
 enum Rarity { COMUM, ELITE, CAMPEAO, LENDARIO, CHEFE }
 
+## Afixos de Campeão/Lendário, estilo Diablo (MECANICAS §5.2).
+## Sorteados sem repetição pelo RNG do chunk (determinístico pela semente).
+enum Affix {
+	FURIOSO,              # +30% velocidade de ataque
+	ESCUDO_ARCANO,        # escudo que absorve dano e regenera a cada 5s
+	TELURICO,             # imune a knockback
+	VENENOSO,             # ataques aplicam veneno
+	FANTASMA,             # 20% de esquiva
+	MESTRE_DE_ENXAME,     # invoca 3 lacaios a 50% de HP
+	ARDENTE,              # deixa o piso em chamas
+	CAMPEAO_DAS_SOMBRAS,  # teleporta para perto do alvo a cada 6s
+}
+const AFFIX_NAMES := [
+	"Furioso", "Escudo Arcano", "Telúrico", "Venenoso", "Fantasma",
+	"Mestre-de-Enxame", "Ardente", "Campeão-das-Sombras",
+]
+
 ## Multiplicadores por raridade (REGRAS §6): HP, dano, XP/ouro, escala visual
 const RARITY_HP := [1.0, 2.5, 5.0, 10.0, 1.0]
 const RARITY_DMG := [1.0, 1.3, 1.8, 2.5, 1.0]
@@ -67,13 +84,23 @@ var _telegraph_target := Vector2.ZERO
 var _frame_h := 16.0
 var _single_frame := false
 var _sprite_y := 0.0
+# 3.2: estado dos afixos (MECANICAS §5.2)
+var affixes: Array[int] = []
+var _shield := 0.0
+var _shield_max := 0.0
+var _shield_timer := 5.0
+var _swarm_done := false
+var _shadow_cd := 3.0
+var _fire_cd := 0.0
 
 
-func setup(p_data: EnemyData, p_world: World, p_depth: int, p_rarity: int) -> void:
+func setup(p_data: EnemyData, p_world: World, p_depth: int, p_rarity: int, p_affixes: Array = []) -> void:
 	data = p_data
 	world = p_world
 	depth = p_depth
 	rarity = p_rarity
+	affixes.clear()
+	affixes.assign(p_affixes)
 
 
 func _ready() -> void:
@@ -103,6 +130,10 @@ func _ready() -> void:
 			Rarity.LENDARIO:
 				display_name = "%s, o Lendário" % data.display_name
 	hp = max_hp
+	# 3.2: Escudo Arcano — escudo inicial de 10% do HP máximo, regenera a cada 5s
+	if has_affix(Affix.ESCUDO_ARCANO):
+		_shield_max = max_hp * 0.1
+		_shield = _shield_max
 	_home = global_position
 	sprite.sprite_frames = DB.frames(data.sprite)
 	sprite.play("idle")
@@ -156,6 +187,51 @@ static func roll_rarity(level: int, bonus := 0.0, rng: RandomNumberGenerator = n
 	return Rarity.COMUM
 
 
+## Sorteia `count` afixos sem repetição (MECANICAS §5.2). `rng` opcional para
+## determinismo por chunk; null usa o RNG global.
+static func roll_affixes(rng: RandomNumberGenerator, count: int) -> Array[int]:
+	var pool: Array[int] = [
+		Affix.FURIOSO, Affix.ESCUDO_ARCANO, Affix.TELURICO, Affix.VENENOSO,
+		Affix.FANTASMA, Affix.MESTRE_DE_ENXAME, Affix.ARDENTE, Affix.CAMPEAO_DAS_SOMBRAS,
+	]
+	var out: Array[int] = []
+	for i in count:
+		if pool.is_empty():
+			break
+		var idx := rng.randi_range(0, pool.size() - 1) if rng != null else randi_range(0, pool.size() - 1)
+		out.append(pool[idx])
+		pool.remove_at(idx)
+	return out
+
+
+## Afixos por raridade: Campeão 1–2, Lendário 2–3 (MECANICAS §5.2).
+## Inferno dá +1 a Elite+ (REGRAS §7). Comum e Chefe (roteirizado) não ganham.
+static func affixes_for(rarity: int, rng: RandomNumberGenerator = null, hell_bonus := false) -> Array[int]:
+	var count := 0
+	match rarity:
+		Rarity.CAMPEAO:
+			count = 1 + (1 if (rng.randf() if rng != null else randf()) < 0.5 else 0)
+		Rarity.LENDARIO:
+			count = 2 + (1 if (rng.randf() if rng != null else randf()) < 0.5 else 0)
+	if hell_bonus and rarity >= Rarity.ELITE and rarity != Rarity.CHEFE:
+		count += 1
+	if count <= 0:
+		return []
+	return roll_affixes(rng, count)
+
+
+func has_affix(a: int) -> bool:
+	return affixes.has(a)
+
+
+## Nomes legíveis dos afixos (HUD do alvo, 3.4)
+func affix_names() -> Array[String]:
+	var out: Array[String] = []
+	for a in affixes:
+		out.append(AFFIX_NAMES[a])
+	return out
+
+
 func is_boss() -> bool:
 	return data.behavior == EnemyData.Behavior.BOSS
 
@@ -178,16 +254,34 @@ func body_radius() -> float:
 func take_damage(amount: float, crit: bool, from_pos: Vector2, knockback: float, element := "physical", ignore_armor := false) -> float:
 	if is_dead():
 		return 0.0
+	# FANTASMA: 20% de esquiva (MECANICAS §5.2)
+	if has_affix(Affix.FANTASMA) and randf() < 0.2:
+		DamageNumber.spawn_text(world.fx_layer, hit_center(), "Esquiva", Color(0.65, 0.85, 1.0))
+		return 0.0
 	var final := amount if ignore_armor else amount * (100.0 / (100.0 + armor))
-	hp -= final
 	_flash = 1.0
 	_hp_bar_visible = 4.0
+	# ESCUDO ARCANO: absorve o dano antes de tocar o HP
+	if _shield > 0.0 and final > 0.0:
+		var absorbed: float = minf(_shield, final)
+		_shield -= absorbed
+		final -= absorbed
+		DamageNumber.spawn_text(world.fx_layer, hit_center(), "%.0f" % absorbed, Color(0.55, 0.8, 1.0))
+		if final <= 0.0:
+			if state == State.IDLE:
+				state = State.CHASE
+			return 0.0
+	hp -= final
 	DamageNumber.spawn(world.fx_layer, hit_center(), final, crit, DB.ELEMENT_COLORS.get(element, Color.WHITE))
 	Fx.burst(world.fx_layer, hit_center(), Color(0.7, 0.05, 0.05) if element == "physical" else DB.ELEMENT_COLORS.get(element, Color.WHITE), 5 if not crit else 10, 50.0, 0.35, 1.5)
-	if not is_boss() and knockback > 0:
+	# TELÚRICO: imune a knockback (MECANICAS §5.2)
+	if not is_boss() and knockback > 0 and not has_affix(Affix.TELURICO):
 		_knock = from_pos.direction_to(global_position) * knockback * (0.4 if rarity >= Rarity.ELITE else 1.0)
 	if state == State.IDLE:
 		state = State.CHASE
+	# MESTRE-DE-ENXAME: invoca 3 lacaios ao chegar a 50% de HP (uma vez)
+	if has_affix(Affix.MESTRE_DE_ENXAME) and not _swarm_done and hp > 0.0 and hp <= max_hp * 0.5:
+		_summon_swarm()
 	if hp <= 0.0:
 		_die()
 	return final
@@ -246,6 +340,38 @@ func _die() -> void:
 	tw.tween_callback(queue_free)
 
 
+# ------------------------------------------------------------------ AFIXOS (3.2)
+
+## MESTRE-DE-ENXAME: 3 lacaios COMUM (sem afixos, evita recursão)
+func _summon_swarm() -> void:
+	_swarm_done = true
+	FxShape.spawn(world.fx_layer, FxShape.Type.RING, global_position, Color(0.9, 0.7, 1.0), 34.0, 0.5)
+	Sfx.play(&"magic", -8.0)
+	for i in 3:
+		var p := global_position + Vector2.from_angle(TAU * i / 3.0 + randf() * 0.6) * 26.0
+		if world.is_solid(p):
+			p = global_position
+		var m: Enemy = world.spawn_enemy(data, p, Rarity.COMUM, depth)
+		if m:
+			m.state = State.CHASE
+
+
+## CAMPEÃO-DAS-SOMBRAS: reaparece a ~60px do alvo, em solo livre
+func _teleport_to_target() -> void:
+	var p := _target.global_position + Vector2.from_angle(randf() * TAU) * 64.0
+	if world.is_solid(p):
+		p = world.last_free_point(_target.global_position, p)
+	Fx.burst(world.fx_layer, hit_center(), Color(0.45, 0.25, 0.9), 12, 70.0, 0.4, 2.0)
+	global_position = p
+	Fx.burst(world.fx_layer, hit_center(), Color(0.45, 0.25, 0.9), 12, 70.0, 0.4, 2.0)
+
+
+## FURIOSO: recarga de ataque 30% mais rápida (MECANICAS §5.2)
+func _reset_attack_cd(base: float) -> float:
+	_attack_cd = base * (0.7 if has_affix(Affix.FURIOSO) else 1.0)
+	return _attack_cd
+
+
 # ------------------------------------------------------------------ IA
 
 func _physics_process(delta: float) -> void:
@@ -266,6 +392,24 @@ func _physics_process(delta: float) -> void:
 	_flash = maxf(_flash - delta * 6.0, 0.0)
 	_shader.set_shader_parameter("flash", _flash)
 	queue_redraw()
+
+	# 3.2: afixos com pulso contínuo (MECANICAS §5.2) — antes da economia de CPU
+	# do "sono", para que os efeitos rodam mesmo longe do jogador (teste/despawn)
+	if has_affix(Affix.ESCUDO_ARCANO) and _shield < _shield_max:
+		_shield_timer -= delta
+		if _shield_timer <= 0.0:
+			_shield_timer = 5.0
+			_shield = _shield_max
+	if has_affix(Affix.ARDENTE):
+		_fire_cd -= delta
+		if _fire_cd <= 0.0:
+			_fire_cd = 1.5
+			world.add_fire_zone(global_position, 18.0, damage * 0.15, 3.0)
+	if has_affix(Affix.CAMPEAO_DAS_SOMBRAS) and state == State.CHASE and _target != null and is_instance_valid(_target):
+		_shadow_cd -= delta
+		if _shadow_cd <= 0.0:
+			_shadow_cd = 6.0
+			_teleport_to_target()
 
 	# Inimigos ociosos longe do jogador "dormem" (economiza CPU em hordas grandes)
 	if state == State.IDLE and world.player and global_position.distance_squared_to(world.player.global_position) > 360.0 * 360.0:
@@ -365,6 +509,9 @@ func _hit_target(t: Node2D, dmg: float) -> void:
 		(t as Enemy).take_damage(dmg, false, global_position, 40.0, data.element)
 	elif t.has_method("take_damage"):
 		t.take_damage(dmg, global_position, data.element, self)
+		# VENENOSO: o golpe aplica veneno (não em outros inimigos; MECANICAS §5.2)
+		if has_affix(Affix.VENENOSO) and t.has_method("apply_poison"):
+			t.apply_poison(dmg * 0.25, 3.0)
 
 
 func _chase(to_target: Vector2, dist: float) -> Vector2:
@@ -501,10 +648,10 @@ func _execute_attack(to_target: Vector2) -> void:
 			pr.hits_minions = true
 			pr.hits_enemies = not hostile_to_player
 			Sfx.play(&"magic", -12.0)
-			_attack_cd = data.attack_cooldown
+			_reset_attack_cd(data.attack_cooldown)
 		EnemyData.Behavior.CHARGER:
 			Sfx.play(&"cloth", -8.0)
-			_attack_cd = data.attack_cooldown + 1.0
+			_reset_attack_cd(data.attack_cooldown + 1.0)
 		EnemyData.Behavior.BOSS:
 			match _boss_phase:
 				0:
@@ -529,13 +676,13 @@ func _execute_attack(to_target: Vector2) -> void:
 					Sfx.play(&"magic", -4.0)
 				2:
 					Sfx.play(&"hit_heavy", -4.0)
-			_attack_cd = data.attack_cooldown + (0.8 if _boss_phase != 2 else 0.0)
+			_reset_attack_cd(data.attack_cooldown + (0.8 if _boss_phase != 2 else 0.0))
 		_:
 			Sfx.play(&"chop", -10.0)
 			if _target.global_position.distance_to(global_position) < data.attack_range + 10.0 * visual.scale.x:
 				_hit_target(_target, damage)
 			FxShape.spawn(world.fx_layer, FxShape.Type.ARC, hit_center(), Color(1, 0.4, 0.3), 14.0 * visual.scale.x, 0.18, to_target.normalized(), 90.0)
-			_attack_cd = data.attack_cooldown
+			_reset_attack_cd(data.attack_cooldown)
 
 
 func _do_attack() -> Vector2:
