@@ -526,6 +526,33 @@ func _test_overworld() -> void:
 	await _wait(1.2)
 	assert(ow.hud._dialogue_box == null)
 	print("[smoke]   capital povoada (lider + %d comuns, rep humano %d, ignorancia %d)" % [comuns, int(Game.reputation.get(&"humano", 0)), Game.ignorance])
+	# 2.6: aceitação da Fase 2 — cada raça com capital, 4 NPCs únicos,
+	# diálogo ramificado e economia própria (validação permanente dos templates)
+	var races_ok := 0
+	for race_res in DB.races:
+		var race: RaceData = race_res
+		var td: TerritoryData = DB.territory(race.id)
+		assert(td != null, "territorio %s ausente" % race.id)
+		assert(td.capital_name != "" and td.leader_name != "" and td.economy != "" and td.culture != "",
+			"territorio %s com campo vazio" % race.id)
+		assert(terr.capital_of(race.id) != Vector2.INF, "capital de %s sem posicao" % race.id)
+		TerritoryNpcs._ensure_dialogues(race.id, td)
+		for suffix in ["lider", "comum0", "comum1", "comum2"]:
+			var dd: DialogueData = DB.dialogue(TerritoryNpcs._id(race.id, suffix))
+			assert(dd != null, "dialogo %s/%s nulo" % [race.id, suffix])
+			assert(dd.node(dd.start_id) != null, "dialogo %s/%s start quebrado" % [race.id, suffix])
+			var has_branch := false
+			for n in dd.nodes:
+				assert(n.page_count() >= 1, "dialogo %s/%s no %s vazio" % [race.id, suffix, n.id])
+				for c in n.choices:
+					assert(c.next_id == &"" or dd.node(c.next_id) != null,
+						"dialogo %s/%s no %s -> %s inexistente" % [race.id, suffix, n.id, c.next_id])
+					if c.condition != "" or c.next_id != &"":
+						has_branch = true
+			assert(has_branch, "dialogo %s/%s sem ramificacao" % [race.id, suffix])
+		races_ok += 1
+	assert(races_ok == 14)
+	print("[smoke]   aceitacao fase 2: %d racas com capital + 4 NPCs + dialogo ramificado + economia" % races_ok)
 	await _shot("07_mundo_acampamento")
 	h.gold = 5000
 	ow.hud.open_merchant()
