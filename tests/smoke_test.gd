@@ -784,6 +784,34 @@ func _test_overworld() -> void:
 	assert(coletou, "essencia deveria ser coletada pelo ima")
 	assert(ow.hud._essence.text.contains(str(ess_antes + 3)), "HUD deveria mostrar a essencia")
 	print("[smoke]   loot por raridade ok (5 tabelas; elite magico, campeao raro+50% ess, lendario lendario, chefe raro x2+unico+ess x2; ima e HUD)")
+	# 3.4: HUD/minimapa/mensagens refletem as novas raridades (REGRAS §6)
+	var e34: Enemy = ow.spawn_enemy(goblin, pp + Vector2(3900, 0), Enemy.Rarity.CAMPEAO, 5, [Enemy.Affix.FURIOSO, Enemy.Affix.VENENOSO])
+	assert(e34._spawn_beam == null, "beam de spawn e exclusivo do Lendario")
+	ow.hud.show_target(e34)
+	assert(ow.hud._target_affixes.visible, "target box deveria mostrar a linha de afixos")
+	assert(ow.hud._target_affixes.text.contains("Furioso") and ow.hud._target_affixes.text.contains("Venenoso"),
+		"afixos do Campeao deveriam aparecer no target box")
+	var e34c: Enemy = ow.spawn_enemy(goblin, pp + Vector2(3950, 0), Enemy.Rarity.COMUM, 5)
+	ow.hud.show_target(e34c)
+	assert(not ow.hud._target_affixes.visible, "comum sem afixos deveria esconder a linha")
+	e34.queue_free()
+	e34c.queue_free()
+	# Lendário: beam de spawn + aviso na HUD + kill anunciado (inimigo diferente => texto único)
+	var aranha34: EnemyData = DB.get_enemy(&"aranha_gigante")
+	var e34l: Enemy = ow.spawn_enemy(aranha34, pp + Vector2(4000, 0), Enemy.Rarity.LENDARIO, 5)
+	assert(e34l._spawn_beam != null, "Lendario deveria ter beam de spawn visivel de longe")
+	var aviso34 := false
+	for m34 in ow.hud._messages.get_children():
+		if m34 is Label and (m34 as Label).text.contains(aranha34.display_name) and (m34 as Label).text.contains("surge nas redondezas"):
+			aviso34 = true
+	assert(aviso34, "spawn de Lendario deveria ser anunciado na HUD")
+	e34l.take_damage(999999.0, false, Vector2.INF, 0.0)
+	var kill34 := false
+	for m34 in ow.hud._messages.get_children():
+		if m34 is Label and (m34 as Label).text.contains(aranha34.display_name) and (m34 as Label).text.contains("Espólios lendários"):
+			kill34 = true
+	assert(kill34, "kill de Lendario deveria ser anunciado na HUD")
+	print("[smoke]   hud/mensagens por raridade ok (afixos no target box, beam+sting+aviso de spawn do Lendario, kill anunciado)")
 	await _shot("07_mundo_acampamento")
 	h.gold = 5000
 	ow.hud.open_merchant()

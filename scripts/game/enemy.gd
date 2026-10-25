@@ -78,6 +78,8 @@ var _wander_target := Vector2.ZERO
 var _shader: ShaderMaterial
 var _hp_bar_visible := 0.0
 var _aura: PointLight2D
+## 3.4: beam vertical de spawn do Lendário — visível de longe (REGRAS §6)
+var _spawn_beam: Polygon2D
 var _home := Vector2.ZERO
 var _target: Node2D
 var _telegraph_target := Vector2.ZERO
@@ -155,6 +157,19 @@ func _ready() -> void:
 		_aura = Fx.make_light(RARITY_COLORS[rarity], 1.4, 0.9)
 		_aura.position = Vector2(0, -10)
 		add_child(_aura)
+	# 3.4: Lendário anuncia o spawn com beam visível de longe (REGRAS §6);
+	# afunilado (largo na base, estreino no topo) com gradiente até transparente
+	if rarity == Rarity.LENDARIO and not is_boss():
+		_spawn_beam = Polygon2D.new()
+		var bc: Color = RARITY_COLORS[rarity]
+		var y0 := _sprite_y - fs.y * 0.5
+		_spawn_beam.polygon = PackedVector2Array([
+			Vector2(-6.0, y0), Vector2(6.0, y0),
+			Vector2(3.0, y0 - 84.0), Vector2(-3.0, y0 - 84.0)])
+		var solid := Color(bc.r, bc.g, bc.b, 0.85)
+		_spawn_beam.vertex_colors = PackedColorArray([solid, solid,
+			Color(bc.r, bc.g, bc.b, 0.0), Color(bc.r, bc.g, bc.b, 0.0)])
+		visual.add_child(_spawn_beam)
 	if is_boss():
 		_shader.set_shader_parameter("outline_color", Color(1.0, 0.45, 0.1, 1.0))
 		var l := Fx.make_light(Color(1, 0.4, 0.2), 1.6, 0.8)
@@ -382,6 +397,8 @@ func _physics_process(delta: float) -> void:
 	_state_time += delta
 	if _aura:
 		_aura.energy = 0.75 + sin(_state_time * 3.2) * 0.25
+	if _spawn_beam:
+		_spawn_beam.modulate.a = 0.65 + sin(_state_time * 3.2) * 0.35
 	_attack_cd -= delta
 	_repath -= delta
 	_hp_bar_visible -= delta

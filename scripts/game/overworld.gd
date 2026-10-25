@@ -521,6 +521,10 @@ func _spawn_chunk_content(k: Vector2i, data: Dictionary) -> void:
 			if e.world_boss and biome in e.habitats and p != Vector2.INF:
 				var bb := spawn_enemy(e, p, Enemy.Rarity.CHEFE, lvl + 2)
 				nodes.append(bb)
+				# 3.4: chefe de mundo é anunciado quando surge numa região distante
+				if hud:
+					hud.show_message("Um terror ancestral ronda estas terras: %s" % bb.display_name,
+						Color(1, 0.55, 0.1), 4.0)
 				break
 
 

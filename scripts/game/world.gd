@@ -540,6 +540,12 @@ func spawn_enemy(data: EnemyData, pos: Vector2, rarity: int, lvl := -1, p_affixe
 	e.position = pos
 	entities.add_child(e)
 	e.killed.connect(_on_enemy_killed)
+	# 3.4: Lendário anuncia o spawn — sting + aviso na HUD (REGRAS §6)
+	if rarity == Enemy.Rarity.LENDARIO:
+		Sfx.play(&"levelup", -8.0)
+		if hud:
+			hud.show_message("✦ %s surge nas redondezas..." % e.display_name,
+				Enemy.RARITY_COLORS[Enemy.Rarity.LENDARIO], 4.0)
 	return e
 
 
@@ -574,6 +580,10 @@ func _on_enemy_killed(e: Enemy) -> void:
 	# Essência: moeda rara, só Campeão/Lendário/Chefe (REGRAS §9)
 	if t.essence_chance > 0.0 and randf() < t.essence_chance:
 		LootDrop.drop_essence(self, pos, t.essence_amount)
+	# 3.4: kill de Lendário anunciado na HUD (chefe já tem mensagem própria)
+	if e.rarity == Enemy.Rarity.LENDARIO:
+		hud.show_message("%s foi derrotado! Espólios lendários aguardam." % e.display_name,
+			Enemy.RARITY_COLORS[Enemy.Rarity.LENDARIO], 3.5)
 	if e.is_boss():
 		hud.show_message("%s foi derrotado!" % e.display_name, Color(1, 0.6, 0.2), 3.0)
 		if stairs and stairs.locked:

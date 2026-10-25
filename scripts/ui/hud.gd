@@ -19,6 +19,7 @@ var _xp_bar: ProgressBar
 var _xp_text: Label
 var _target_box: PanelContainer
 var _target_name: Label
+var _target_affixes: Label
 var _target_bar: ProgressBar
 var _location: Label
 var _gold: Label
@@ -227,6 +228,11 @@ func _build_top() -> void:
 	_target_name = UIKit.label("", 17, Color.WHITE, true)
 	_target_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	tv.add_child(_target_name)
+	_target_affixes = UIKit.label("", 13, Color(1.0, 0.82, 0.45), true)
+	_target_affixes.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_target_affixes.add_theme_color_override("font_outline_color", Color.BLACK)
+	_target_affixes.add_theme_constant_override("outline_size", 3)
+	tv.add_child(_target_affixes)
 	_target_bar = ProgressBar.new()
 	_target_bar.show_percentage = false
 	_target_bar.custom_minimum_size = Vector2(0, 12)
@@ -355,17 +361,28 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
+## Preenche o painel do alvo (nome, cor da raridade, afixos e barra).
+## 3.4: extraído de _update_target para ser testável e reutilizado pelo smoke.
+func show_target(e: Enemy) -> void:
+	_target_box.visible = true
+	_target_name.text = e.display_name
+	_target_name.add_theme_color_override("font_color", Color(1, 0.6, 0.2) if e.is_boss() else Enemy.RARITY_COLORS[e.rarity])
+	_target_bar.max_value = e.max_hp
+	_target_bar.value = e.hp
+	# 3.4: afixos do Campeão/Lendário sob o nome (REGRAS §6)
+	var afx := e.affix_names()
+	_target_affixes.visible = not afx.is_empty()
+	if not afx.is_empty():
+		_target_affixes.text = " • ".join(afx)
+
+
 func _update_target() -> void:
 	var mouse := world.get_global_mouse_position()
 	var e := world.get_enemy_at(mouse)
 	if e == null and world.boss and is_instance_valid(world.boss) and not world.boss.is_dead() and world.boss.state != Enemy.State.IDLE:
 		e = world.boss
 	if e:
-		_target_box.visible = true
-		_target_name.text = e.display_name
-		_target_name.add_theme_color_override("font_color", Color(1, 0.6, 0.2) if e.is_boss() else Enemy.RARITY_COLORS[e.rarity])
-		_target_bar.max_value = e.max_hp
-		_target_bar.value = e.hp
+		show_target(e)
 	else:
 		_target_box.visible = false
 	# Rótulo de objetos interativos (duck-typed: Interactable OU Npc)

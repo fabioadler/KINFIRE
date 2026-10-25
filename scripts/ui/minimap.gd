@@ -67,6 +67,9 @@ func _draw() -> void:
 		var r_map := 2.4 if (e.rarity >= Enemy.Rarity.ELITE or e.is_boss()) else 1.6
 		if e.rarity >= Enemy.Rarity.LENDARIO:
 			r_map = 3.0
+			# 3.4: anel pulsante — Lendário identificável no minimapa à primeira vista
+			var pulse_r := r_map + 1.4 + sin(Time.get_ticks_msec() * 0.005) * 0.8
+			draw_circle(to_map.call(e.global_position), pulse_r, Color(col.r, col.g, col.b, 0.3))
 		draw_circle(to_map.call(e.global_position), r_map, col)
 	for m in world.minions_near(world.player.global_position, 160.0):
 		draw_circle(to_map.call(m.global_position), 1.6, Color(0.4, 1, 0.6))
