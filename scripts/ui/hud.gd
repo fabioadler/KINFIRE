@@ -30,10 +30,15 @@ var _hover_label: Label
 var _vignette: ColorRect
 var _held_icon: TextureRect
 var _points_hint: Button
+## Fase 4.2: tracker lateral de quest (minimapa acima)
+var _quest_tracker: PanelContainer
+var _quest_title: Label
+var _quest_obj: Label
 
 var inventory: InventoryPanel
 var character: CharacterPanel
 var skills: SkillsPanel
+var questlog: QuestPanel
 var _pause_layer: Control
 var _death_layer: Control
 var _popup: Control
@@ -90,6 +95,13 @@ func _build() -> void:
 	skills.setup(self, hero)
 	skills.visible = false
 	_root.add_child(skills)
+	# Fase 4.2: diário de missões + tracker lateral
+	questlog = QuestPanel.new()
+	questlog.setup(self)
+	_root.add_child(questlog)
+	_setup_quest_tracker()
+	Game.quest_log.quest_started.connect(_on_quest_started)
+	Game.quest_log.quest_completed.connect(_on_quest_completed)
 
 	_held_icon = TextureRect.new()
 	_held_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -141,7 +153,7 @@ func _build_bottom_bar() -> void:
 		h.add_child(_spacer(6))
 		h.add_child(rs)
 	h.add_child(_spacer(10))
-	for b in [["I", toggle_inventory, "Inventário (I)"], ["C", toggle_character, "Personagem (C)"], ["K", toggle_skills, "Habilidades (K)"], ["≡", toggle_pause, "Menu (Esc)"]]:
+	for b in [["I", toggle_inventory, "Inventário (I)"], ["C", toggle_character, "Personagem (C)"], ["K", toggle_skills, "Habilidades (K)"], ["J", toggle_quests, "Missões (J)"], ["≡", toggle_pause, "Menu (Esc)"]]:
 		var btn := Button.new()
 		btn.text = b[0]
 		btn.tooltip_text = b[2]
@@ -286,6 +298,10 @@ func _layout() -> void:
 	inventory.position = Vector2(vs.x - inventory.size.x - 14, 14)
 	character.reset_size()
 	character.position = Vector2(14, 56)
+	questlog.reset_size()
+	questlog.position = Vector2(14, vs.y * 0.42)
+	_quest_tracker.reset_size()
+	_quest_tracker.position = Vector2(vs.x - _quest_tracker.size.x - 14, 216)
 	skills.reset_size()
 	skills.position = (vs - skills.size) * 0.5 - Vector2(0, 40)
 
@@ -338,6 +354,9 @@ func _process(delta: float) -> void:
 		toggle_character()
 	if Input.is_action_just_pressed("skills"):
 		toggle_skills()
+	if Input.is_action_just_pressed("quests"):
+		toggle_quests()
+	_update_quest_tracker()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -346,10 +365,11 @@ func _unhandled_input(event: InputEvent) -> void:
 			close_popup()
 			get_viewport().set_input_as_handled()
 			return
-		if inventory.visible or character.visible or skills.visible:
+		if inventory.visible or character.visible or skills.visible or questlog.visible:
 			inventory.visible = false
 			character.visible = false
 			skills.visible = false
+			questlog.visible = false
 			Sfx.play(&"ui_close")
 		elif _death_layer == null:
 			toggle_pause()
@@ -468,6 +488,63 @@ func toggle_skills() -> void:
 		skills.refresh()
 	Sfx.play(&"ui_open" if skills.visible else &"ui_close")
 	_layout()
+
+
+## Fase 4.2: diário de missões (tecla J)
+func toggle_quests() -> void:
+	questlog.visible = not questlog.visible
+	if questlog.visible:
+		questlog.refresh()
+	Sfx.play(&"ui_open" if questlog.visible else &"ui_close")
+	_layout()
+
+
+## Tracker lateral: quest em destaque + objetivo atual (Fase 4.2)
+func _setup_quest_tracker() -> void:
+	_quest_tracker = PanelContainer.new()
+	_quest_tracker.add_theme_stylebox_override("panel", UIKit.box(Color(0.03, 0.02, 0.02, 0.7), UIKit.GOLD_DIM, 1, 4))
+	_quest_tracker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_quest_tracker.custom_minimum_size = Vector2(220, 0)
+	var v := VBoxContainer.new()
+	v.add_theme_constant_override("separation", 2)
+	_quest_tracker.add_child(v)
+	_quest_title = UIKit.label("", 15, UIKit.GOLD, true)
+	_quest_title.add_theme_color_override("font_outline_color", Color.BLACK)
+	_quest_title.add_theme_constant_override("outline_size", 3)
+	v.add_child(_quest_title)
+	_quest_obj = UIKit.label("", 13, Color.WHITE)
+	_quest_obj.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_quest_obj.add_theme_color_override("font_outline_color", Color.BLACK)
+	_quest_obj.add_theme_constant_override("outline_size", 3)
+	v.add_child(_quest_obj)
+	_root.add_child(_quest_tracker)
+	_quest_tracker.visible = false
+
+
+func _update_quest_tracker() -> void:
+	var q := Game.quest_log.tracked_quest()
+	if q == null:
+		_quest_tracker.visible = false
+		return
+	_quest_tracker.visible = true
+	_quest_title.text = "✦ %s" % q.title
+	_quest_obj.text = Game.quest_log.tracker_line()
+
+
+func _on_quest_started(id: StringName) -> void:
+	var q: QuestData = DB.quest(id)
+	if q != null:
+		show_message("✦ Nova missão: %s" % q.title, UIKit.GOLD, 3.0)
+	if questlog != null and is_instance_valid(questlog) and questlog.visible:
+		questlog.refresh()
+
+
+func _on_quest_completed(id: StringName) -> void:
+	var q: QuestData = DB.quest(id)
+	if q != null:
+		show_message("✔ Missão concluída: %s" % q.title, Color(0.5, 1, 0.5), 3.5)
+	if questlog != null and is_instance_valid(questlog) and questlog.visible:
+		questlog.refresh()
 
 
 # ------------------------------------------------------------------ JANELAS DO MUNDO

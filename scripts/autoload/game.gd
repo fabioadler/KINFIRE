@@ -36,6 +36,7 @@ const ACTIONS := {
 	"inventory": ["Inventário", [KEY_I, KEY_B]],
 	"character": ["Personagem", [KEY_C]],
 	"skills": ["Habilidades", [KEY_K]],
+	"quests": ["Missões", [KEY_J, KEY_L]],
 	"show_loot": ["Mostrar itens no chão", [KEY_ALT]],
 	"pause": ["Menu / Pausa", [KEY_ESCAPE]],
 }

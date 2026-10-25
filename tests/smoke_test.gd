@@ -856,6 +856,56 @@ func _test_overworld() -> void:
 	Game.quest_log.notify_flag(&"__smoke__")  # auto-inicio por flag é coberto pelo despertar
 	assert(Game.quest_log.fragments() == 1)
 	print("[smoke]   quest log ok (TALK/KILL/FLAG/REACH/COLLECT, estagios, recompensas REGRAS §12, autosave)")
+	# 4.2: UI de quest log + tracker no HUD
+	# limpa mensagens antigas (show_message deduplica por texto exato)
+	for m42 in ow.hud._messages.get_children():
+		ow.hud._messages.remove_child(m42)
+		m42.queue_free()
+	Game.quests.erase(&"ato1_1")
+	Game.quest_log.tracked = &""
+	Game.quest_log.start(DB.quest(&"ato1_1"))
+	await _wait(0.1)  # _process da HUD atualiza o tracker
+	assert(ow.hud._quest_tracker.visible, "tracker lateral deveria aparecer")
+	assert(ow.hud._quest_title.text.contains("O Eco do Primeiro Passo"), "tracker deveria mostrar o titulo")
+	assert(ow.hud._quest_obj.text.length() > 0, "tracker deveria mostrar o objetivo atual")
+	var nova42 := false
+	for m42 in ow.hud._messages.get_children():
+		if m42 is Label and (m42 as Label).text.contains("Nova missão"):
+			nova42 = true
+	assert(nova42, "inicio de quest deveria ser anunciado na HUD")
+	# painel: labels ficam dentro de VBoxContainers — busca descendente;
+	# um frame para o queue_free dos labels do refresh anterior completar
+	ow.hud.toggle_quests()
+	await _wait(0.1)
+	var labels42: Array = []
+	for l42 in ow.hud.questlog.find_children("*", "Label", true, false):
+		labels42.append((l42 as Label).text)
+	assert(ow.hud.questlog.visible, "painel de missoes deveria abrir (J)")
+	assert(labels42.has("O Eco do Primeiro Passo"), "painel deveria listar a quest ativa")
+	var obj42 := false
+	var frag42 := false
+	for t42 in labels42:
+		if t42.contains("Apresente-se a Marn"):
+			obj42 = true
+		if t42.contains("1/8"):
+			frag42 = true
+	assert(obj42, "painel deveria listar o objetivo atual")
+	assert(frag42, "painel deveria contar os fragmentos (1 do bloco 4.1)")
+	# progresso avanca no painel e no tracker: estagio 2 (KILL) mostra '0/3'
+	Game.quest_log.notify_talk(&"marn_vigia")
+	Game.quest_log.notify_talk(&"bree_cozinheira")
+	ow.hud.questlog.refresh()
+	await _wait(0.1)
+	var prog42 := false
+	for l42 in ow.hud.questlog.find_children("*", "Label", true, false):
+		if (l42 as Label).text.contains("0/3"):
+			prog42 = true
+	assert(prog42, "painel deveria mostrar o progresso 0/3 do objetivo de kill")
+	assert(ow.hud._quest_obj.text.contains("0/3"), "tracker deveria mostrar o progresso 0/3")
+	# toggle fecha
+	ow.hud.toggle_quests()
+	assert(not ow.hud.questlog.visible, "painel deveria fechar")
+	print("[smoke]   quest ui ok (tracker lateral com titulo+objetivo, aviso de nova missao, painel com progresso e fragmentos, tecla J)")
 	await _shot("07_mundo_acampamento")
 	h.gold = 5000
 	ow.hud.open_merchant()
