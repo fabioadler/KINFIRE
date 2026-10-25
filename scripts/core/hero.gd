@@ -7,7 +7,7 @@ signal leveled_up(new_level: int)
 signal gold_changed(amount: int)
 signal xp_changed
 
-const MAX_LEVEL := 30
+const MAX_LEVEL := 60
 const SKILL_SLOTS := 6
 const BASE_MOVE_SPEED := 72.0
 
@@ -243,7 +243,7 @@ func roll_damage(mult: float) -> Array:
 # ------------------------------------------------------------ PROGRESSÃO
 
 func xp_to_next() -> int:
-	return int(80 * pow(level, 1.6))
+	return int(20 * pow(level, 1.5))
 
 
 func add_xp(amount: int) -> void:
@@ -253,7 +253,7 @@ func add_xp(amount: int) -> void:
 	while xp >= xp_to_next() and level < MAX_LEVEL:
 		xp -= xp_to_next()
 		level += 1
-		unspent_points += 2 if level % 4 == 0 else 1
+		unspent_points += 1 if level % 4 == 0 else 0
 		refresh_skill_bar()
 		leveled_up.emit(level)
 	xp_changed.emit()

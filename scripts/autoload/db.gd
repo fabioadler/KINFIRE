@@ -45,10 +45,10 @@ const BACKGROUNDS := {
 
 ## Dificuldades estilo Diablo 3
 const DIFFICULTIES := [
-	{"name": "Normal", "hp": 1.0, "dmg": 1.0, "loot": 0.0, "xp": 1.0, "color": Color(0.85, 0.85, 0.85)},
-	{"name": "Difícil", "hp": 1.6, "dmg": 1.35, "loot": 0.08, "xp": 1.25, "color": Color(0.5, 0.75, 1)},
-	{"name": "Pesadelo", "hp": 2.5, "dmg": 1.8, "loot": 0.16, "xp": 1.6, "color": Color(1, 0.85, 0.3)},
-	{"name": "Inferno", "hp": 4.0, "dmg": 2.5, "loot": 0.28, "xp": 2.0, "color": Color(1, 0.35, 0.15)},
+	{"name": "Normal", "hp": 1.0, "dmg": 1.0, "loot": 0.0, "xp": 1.0, "death_gold_loss": 0.10, "color": Color(0.85, 0.85, 0.85)},
+	{"name": "Difícil", "hp": 1.6, "dmg": 1.35, "loot": 0.08, "xp": 1.25, "death_gold_loss": 0.20, "color": Color(0.5, 0.75, 1)},
+	{"name": "Pesadelo", "hp": 2.5, "dmg": 1.8, "loot": 0.16, "xp": 1.6, "death_gold_loss": 0.30, "color": Color(1, 0.85, 0.3)},
+	{"name": "Inferno", "hp": 4.0, "dmg": 2.5, "loot": 0.28, "xp": 2.0, "death_gold_loss": 0.30, "color": Color(1, 0.35, 0.15)},
 ]
 
 const EQUIP_SLOTS := ["helm", "amulet", "weapon", "chest", "offhand", "ring", "boots"]

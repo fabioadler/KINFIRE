@@ -561,7 +561,7 @@ func _on_player_died() -> void:
 
 
 func respawn_player() -> void:
-	var lost := int(Game.hero.gold * 0.1)
+	var lost := int(Game.hero.gold * Game.hero.difficulty_data().death_gold_loss)
 	Game.hero.gold -= lost
 	Game.hero.gold_changed.emit(Game.hero.gold)
 	player.global_position = respawn_position()

@@ -35,8 +35,8 @@
 - [x] 0.1 `chore: restore .gitignore, .editorconfig, .gitattributes e icon.svg` — restaurados via `git checkout`; `.godot/` já ignorado; árvore limpa (restauração = estado do commit base, sem commit necessário)
 - [x] 0.2 `docs: adicionar REGRAS_DO_JOGO, MECANICAS e LORE canônicos` — copiados para `docs/`; auditoria dos `[VERIFICAR]` concluída (ver `REGRAS_DO_JOGO.md` §16): 8 itens confirmados, 4 divergências registradas
 - [x] 0.3 `docs: plano de progresso versionado` — este arquivo em `docs/PLANO.md` (fonte de verdade a partir de agora)
-- [ ] 0.4 `fix: alinhar fórmulas de progressão e morte às regras canônicas` — XP `20×nível^1.5`, nível máx 60, pontos +1 a cada 4 níveis, penalidade de morte por dificuldade (`REGRAS_DO_JOGO.md` §2/§5)
-- **Aceitação:** `git status` limpo (só `.godot/` ignorado); `godot --headless -- --smoke` passa; docs sem pendências `[VERIFICAR]`.
+- [x] 0.4 `fix: alinhar fórmulas de progressão e morte às regras canônicas` — XP `20×nível^1.5`, nível máx 60, pontos +1 a cada 4 níveis, penalidade de morte por dificuldade (`REGRAS_DO_JOGO.md` §2/§5); smoke test OK
+- **Aceitação:** `git status` limpo (só `.godot/` ignorado); `godot --headless -- --smoke` passa; docs sem pendências `[VERIFICAR]`. **✅ Fase concluída.**
 
 ### Fase 1 — Prólogo: O Aldeão (commits 4–9) — `status: PENDENTE`
 - [ ] 1.0 `feat: design tokens da UI moderna (tema dark-fantasy premium no UIKit)` — paleta, blur, raios, sombras, fonte Cinzel/Alegreya, estilos de hover/press/foco, sons de UI (spec: `MECANICAS.md` §9). Fundação visual — todo painel novo já nasce moderno.
@@ -127,8 +127,8 @@
 
 | Fase | Status | Última atualização |
 |---|---|---|
-| 0. Higiene e Fundação | 🟨 Em andamento (0.1–0.3 prontos; 0.4 pendente) | 2026-10-25 |
-| 1. Prólogo | ⬜ Não iniciada | — |
+| 0. Higiene e Fundação | ✅ Pronta | 2026-10-25 |
+| 1. Prólogo | 🟨 Em andamento (1.0 pronto) | 2026-10-25 |
 | 2. Diálogos/Territórios | ⬜ Não iniciada | — |
 | 3. Raridade/Loot | ⬜ Não iniciada | — |
 | 4. Quests | ⬜ Não iniciada | — |
@@ -140,4 +140,5 @@
 ### Registro de commits
 | Data | Commit | Fase | Notas |
 |---|---|---|---|
-| 2026-10-25 | (pendente) | 0.2+0.3 | `docs:` REGRAS/MECANICAS/LORE/PLANO em `docs/`; auditoria `[VERIFICAR]` resolvida (8 confirmados, 4 divergências → 0.4) |
+| 2026-10-25 | 021fcf7 | 0.2+0.3 | `docs:` REGRAS/MECANICAS/LORE/PLANO em `docs/`; auditoria `[VERIFICAR]` resolvida (8 confirmados, 4 divergências → 0.4) |
+| 2026-10-25 | (pendente) | 0.4 | `fix:` XP `20×lvl^1.5`, nível máx 60, pontos a cada 4 níveis, morte por dificuldade — smoke OK |
