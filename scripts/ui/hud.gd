@@ -362,10 +362,10 @@ func _update_target() -> void:
 		_target_bar.value = e.hp
 	else:
 		_target_box.visible = false
-	# Rótulo de objetos interativos
+	# Rótulo de objetos interativos (duck-typed: Interactable OU Npc)
 	var it := world.get_interactable_at(mouse)
-	if it and it is Interactable:
-		_hover_label.text = (it as Interactable).display_name()
+	if it and it.has_method("display_name"):
+		_hover_label.text = it.display_name()
 		_hover_label.visible = true
 		_hover_label.reset_size()
 		_hover_label.position = _root.get_local_mouse_position() + Vector2(-_hover_label.size.x * 0.5, -36)

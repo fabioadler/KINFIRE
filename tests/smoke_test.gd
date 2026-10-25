@@ -379,6 +379,72 @@ func _test_overworld() -> void:
 	var ow: Overworld = get_tree().get_first_node_in_group("world")
 	assert(ow != null)
 	print("[smoke] mundo aberto: chunks=%d inimigos=%d" % [ow.chunks.size(), get_tree().get_nodes_in_group("enemies").size()])
+	# 2.3: NPCs conversáveis — ignorância decai, NPCs lembram (flags), reputação por raça
+	Game.ignorance = 10
+	var marn: Npc = null
+	var bree: Npc = null
+	for n in get_tree().get_nodes_in_group("npcs"):
+		if n is Npc:
+			if n.data.id == &"marn_vigia":
+				marn = n
+			elif n.data.id == &"bree_cozinheira":
+				bree = n
+	assert(marn != null and bree != null)
+	assert(marn.display_name() == "Marn — Vigia do Acampamento")
+	# hover duck-typed: o mundo encontra o NPC como interactable
+	assert(ow.get_interactable_at(marn.global_position + Vector2(0, -8)) == marn)
+	marn.interact(ow.player)
+	var box: DialogueBox = ow.hud._dialogue_box
+	assert(box != null and box.engine.current.id == &"inicio")
+	# primeira conversa: só "(Cumprimentar)" (flag não setada)
+	assert(box.engine.visible_choices().size() == 1)
+	box.engine.advance()  # 1 página: advance arma as escolhas
+	box.engine.choose(0)
+	assert(box.engine.current.id == &"apresentacao" and bool(Game.flags.get("marn_apresentado", false)))
+	box.engine.advance()
+	box.engine.advance()
+	assert(box.engine.visible_choices().size() == 1)  # (Continuar)
+	box.engine.choose(0)
+	assert(box.engine.current.id == &"menu")
+	# ignorância 10: lugar, territórios (leigo), promessa, partir — patrulla fica oculta
+	var vc := box.engine.visible_choices()
+	assert(vc.size() == 4)
+	box.engine.advance()  # menu 1 página -> escolhas
+	box.engine.choose(2)  # "O acampamento está seguro comigo."
+	assert(bool(Game.flags.get("marn_promessa", false)))
+	assert(int(Game.reputation.get(&"humano", 0)) == 1)
+	assert(box.engine.current.id == &"promessa")
+	box.engine.advance()
+	box.engine.choose(1)  # (Partir)
+	await _wait(1.2)
+	assert(ow.hud._dialogue_box == null)
+	# segunda conversa: Marn lembra — "(Falar de novo)"; promessa já feita some do menu
+	marn.interact(ow.player)
+	box = ow.hud._dialogue_box
+	assert(box.engine.visible_choices().size() == 1 and box.engine.visible_choices()[0].text == "(Falar de novo)")
+	box.engine.advance()  # 1 página -> escolhas
+	box.engine.choose(0)
+	assert(box.engine.current.id == &"menu" and box.engine.visible_choices().size() == 3)
+	box.engine.advance()  # menu 1 página -> escolhas
+	box.engine.choose(1)  # "O que são 'territórios'?" (leigo) -> ignorância decai
+	assert(Game.ignorance == 9 and box.engine.current.id == &"territorios")
+	box.engine.stop()
+	await _wait(1.2)
+	assert(ow.hud._dialogue_box == null)
+	# Bree: sopa de cortesia (uma única vez, flag-gated)
+	bree.interact(ow.player)
+	box = ow.hud._dialogue_box
+	assert(box.engine.visible_choices().size() == 2)  # sopa + cumprimentar
+	box.engine.advance()  # inicio: página 1 -> 2
+	box.engine.advance()  # página 2 -> escolhas armadas
+	box.engine.choose(0)
+	assert(bool(Game.flags.get("bree_sopa", false)) and box.engine.current.id == &"sopa")
+	box.engine.advance()
+	box.engine.advance()
+	box.engine.choose(1)  # (Partir)
+	await _wait(1.2)
+	assert(ow.hud._dialogue_box == null)
+	print("[smoke]   npcs conversam (ignorancia %d, rep humano %d)" % [Game.ignorance, int(Game.reputation.get(&"humano", 0))])
 	await _shot("07_mundo_acampamento")
 	h.gold = 5000
 	ow.hud.open_merchant()

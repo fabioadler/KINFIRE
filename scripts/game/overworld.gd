@@ -83,7 +83,7 @@ func _awakening() -> void:
 
 
 func _spawn_content() -> void:
-	# Acampamento inicial (área segura): fogueira, mercador e tendas
+	# Acampamento inicial (área segura): fogueira, mercador, tendas e gente (2.3)
 	var fire := Interactable.create(self, Interactable.Kind.CAMPFIRE, Vector2(TILE * 0.5, TILE * 0.5))
 	fire.label = "Acampamento"
 	_register_waypoint("Acampamento", fire.global_position)
@@ -92,6 +92,10 @@ func _spawn_content() -> void:
 	Interactable.create(self, Interactable.Kind.MERCHANT, Vector2(TILE * 4.5, TILE * -1.5))
 	for t in [Vector2i(-5, -4), Vector2i(3, -5), Vector2i(-2, 4)]:
 		_place_tent(t)
+	# NPCs conversáveis (tarefa 2.3): Marn vigia o círculo da fogueira,
+	# Bree cozinha perto da tenda oeste
+	Npc.create(self, DB.npc(&"marn_vigia"), fire.global_position + Vector2(34, 8))
+	Npc.create(self, DB.npc(&"bree_cozinheira"), fire.global_position + Vector2(-38, 16))
 
 
 func _place_tent(c: Vector2i) -> void:

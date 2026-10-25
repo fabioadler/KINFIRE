@@ -135,6 +135,8 @@ var racial_breath: SkillData
 var villager_class: ClassData
 ## Diálogos carregados sob demanda: id -> DialogueData (data/dialogues/*.tres)
 var dialogues := {}
+## NPCs carregados sob demanda: id -> NpcData (data/npcs/*.tres)
+var npcs := {}
 var _tile_cache := {}
 var _sheet_image: Image
 var _dt2_image: Image
@@ -328,6 +330,13 @@ func dialogue(id: StringName) -> DialogueData:
 	if not dialogues.has(id):
 		dialogues[id] = load("res://data/dialogues/%s.tres" % id)
 	return dialogues[id]
+
+
+## NPC por id, carregado sob demanda de data/npcs/<id>.tres
+func npc(id: StringName) -> NpcData:
+	if not npcs.has(id):
+		npcs[id] = load("res://data/npcs/%s.tres" % id)
+	return npcs[id]
 
 
 func get_skill(cls: ClassData, id: StringName) -> SkillData:
