@@ -1006,6 +1006,38 @@ func _test_overworld() -> void:
 			ato2_ok44 = false
 	assert(ato2_ok44, "Ato 2 inteiro concluido")
 	print("[smoke]   cadeia ato2 ok (8 pazes: REACH pares, KILL dos que lucram, concilio; autoflow por prereq)")
+	# 4.5: Ato 3 — A Verdade (LORE §XIII): religar as 7 Chamas + o final.
+	# Cada Chama = confronto com a versao corrompida do seu Guardiao
+	# (nao chefe — tragedia jogavel; narrativa nas descriptions).
+	assert(Game.quest_log.is_active(&"ato3_1"), "ato3_1 auto-inicia por prereq ato2_8 (autoflow)")
+	var chama45 := func(v1: StringName, n1: int, v2: StringName, n2: int, qid: StringName) -> void:
+		assert(Game.quest_log.is_active(qid), "%s deveria estar ativa" % qid)
+		for k45 in n1:
+			Game.quest_log.notify_kill(v1)
+		for k45 in n2:
+			Game.quest_log.notify_kill(v2)
+		Game.quest_log.notify_talk(&"capital_humano_lider")
+		assert(Game.quest_log.is_completed(qid), "%s deveria concluir" % qid)
+	chama45.call(&"putrefato", 4, &"aranha_gigante", 5, &"ato3_1")      # Raiz (Sylvaris)
+	chama45.call(&"escorpiao", 6, &"chort", 3, &"ato3_2")              # Areia
+	chama45.call(&"zumbi_gelido", 7, &"zumbi_gelido", 0, &"ato3_3")    # Gelo
+	chama45.call(&"lodo", 5, &"lesma_acida", 4, &"ato3_4")            # Pantano (Vaelora)
+	chama45.call(&"caranguejo_infernal", 6, &"diabrete", 4, &"ato3_5")  # Brasa (Kragoth)
+	chama45.call(&"morcego", 6, &"chort", 3, &"ato3_6")                # Vento
+	chama45.call(&"fantasma", 6, &"cavaleiro_renegado", 4, &"ato3_7")  # Sombra (Xal'atath)
+	# O Fogo dos Laços (FINAL): Maldrach, a Ausencia que Anda + a Escolha Real
+	assert(Game.quest_log.is_active(&"ato3_8"), "quest final ativa")
+	assert(DB.quest(&"ato3_8").is_final(), "ato3_8 e a quest final (is_final)")
+	Game.quest_log.notify_kill(&"azkhar")
+	Game.quest_log.notify_talk(&"cinzento_acampamento")
+	assert(Game.quest_log.is_completed(&"ato3_8"), "quest final conclui")
+	var main_ativas45 := false
+	for qid45 in Game.quests.keys():
+		var q45: QuestData = DB.quest(qid45)
+		if q45 != null and q45.is_main() and Game.quest_log.is_active(qid45):
+			main_ativas45 = true
+	assert(not main_ativas45, "historia principal encerra sem quests ativas")
+	print("[smoke]   cadeia ato3 ok (7 Chamas + final O Fogo dos Lacos; prereq ato2_8; is_final)")
 	await _shot("07_mundo_acampamento")
 	h.gold = 5000
 	ow.hud.open_merchant()
