@@ -103,6 +103,9 @@ func _spawn_content() -> void:
 	# Bree cozinha perto da tenda oeste
 	Npc.create(self, DB.npc(&"marn_vigia"), fire.global_position + Vector2(34, 8))
 	Npc.create(self, DB.npc(&"bree_cozinheira"), fire.global_position + Vector2(-38, 16))
+	# 2.5: líder racial + gente comum da capital do jogador (persistentes,
+	# como Marn/Bree — o acampamento não descarrega)
+	TerritoryNpcs.populate(self, Game.hero.race.id, fire.global_position)
 
 
 func _place_tent(c: Vector2i) -> void:
@@ -430,8 +433,17 @@ func _spawn_chunk_content(k: Vector2i, data: Dictionary) -> void:
 	rng.seed = hash(Vector3i(k.x, k.y, Game.world_seed))
 	var center_cell := k * CHUNK + Vector2i(CHUNK / 2, CHUNK / 2)
 	var lvl := territories.region_level(center_cell) if territories != null else clampi(1 + int(OverworldGen.danger(center_cell) * 0.9), 1, 60)
-	# Seguro: acampamento/capital do jogador OU perímetro de qualquer capital (2.4)
+	# 2.5: alguma capital racial fica neste chunk?
+	var capital_race: StringName = &""
+	if territories != null:
+		for race in territories.capitals:
+			var cap_cell := Vector2i(roundi(territories.capitals[race].x), roundi(territories.capitals[race].y))
+			if _chunk_of(cap_cell) == k:
+				capital_race = race
+				break
+	# Seguro: acampamento/capital do jogador OU chunk de capital OU perímetro de qualquer capital (2.4)
 	var safe := Vector2(center_cell).length() < OverworldGen.SAFE_RADIUS + 20 \
+		or capital_race != &"" \
 		or (territories != null and territories.near_any_capital(center_cell))
 	var nodes: Array = data.nodes
 
@@ -450,6 +462,16 @@ func _spawn_chunk_content(k: Vector2i, data: Dictionary) -> void:
 			var f := Interactable.create(self, Interactable.Kind.CAMPFIRE, p)
 			f.label = "Fogueira — %s" % OverworldGen.BIOMES[og.biome_at(world_to_cell(p))].name
 			nodes.append(f)
+	# 2.5: capital racial neste chunk — Fogueira Principal (waypoint) + líder
+	# + gente comum. A capital do jogador já é o acampamento (em _spawn_content).
+	if capital_race != &"" and Game.hero != null and capital_race != Game.hero.race.id:
+		var ct: TerritoryData = DB.territory(capital_race)
+		var cap_cell := Vector2i(roundi(territories.capitals[capital_race].x), roundi(territories.capitals[capital_race].y))
+		var center := cell_to_world(cap_cell)
+		var f := Interactable.create(self, Interactable.Kind.CAMPFIRE, center)
+		f.label = ct.capital_name
+		nodes.append(f)
+		TerritoryNpcs.populate(self, capital_race, center, nodes)
 	if safe:
 		return
 	# Baús e santuários (lembrados no save para não reaparecer)

@@ -477,6 +477,55 @@ func _test_overworld() -> void:
 	# level_at integra o modificador do território
 	assert(ow.level_at(ow.player.global_position) == 1)  # capital: nível 1
 	print("[smoke]   territorios ok (%d capitais, gap >= %d)" % [terr.capitals.size(), Territories.CAPITAL_MIN_GAP])
+	# 2.5: NPCs por território — líder + gente comum com ganho-de-vida (LORE §X)
+	var leader: Npc = null
+	var comuns := 0
+	for n in get_tree().get_nodes_in_group("npcs"):
+		if not n is Npc:
+			continue
+		if n.data.dialogue_id == &"capital_humano_lider":
+			leader = n
+		elif n.data.dialogue_id in [&"capital_humano_comum0", &"capital_humano_comum1", &"capital_humano_comum2"]:
+			comuns += 1
+	assert(leader != null and comuns == 3)
+	assert(leader.display_name() == "Guildmaster Eleanor Vane — Líder de Porto Franco")
+	leader.interact(ow.player)
+	box = ow.hud._dialogue_box
+	assert(box.engine.current.id == &"inicio")
+	box.engine.advance()  # 1 página -> escolhas
+	box.engine.choose(0)  # (Apresentar-se)
+	assert(box.engine.current.id == &"apresentacao" and bool(Game.flags.get("capital_humano_apresentado", false)))
+	box.engine.advance()  # apresentação: página 2
+	box.engine.advance()  # -> escolhas
+	box.engine.choose(0)  # (Continuar) -> menu
+	assert(box.engine.current.id == &"menu" and box.engine.visible_choices().size() == 5)
+	box.engine.advance()  # menu: 1 página -> escolhas
+	box.engine.choose(3)  # (Oferecer ajuda ao território)
+	assert(bool(Game.flags.get("capital_humano_promessa", false)))
+	assert(int(Game.reputation.get(&"humano", 0)) == 2)  # 1 (Marn) + 1 (líder)
+	assert(box.engine.current.id == &"promessa")
+	box.engine.stop()
+	await _wait(1.2)
+	assert(ow.hud._dialogue_box == null)
+	# território não-jogador: o template gera diálogo coeso a partir do TerritoryData
+	TerritoryNpcs.populate(ow, &"drow", ow.player.global_position + Vector2(140, -60))
+	var drow: Npc = null
+	for n in get_tree().get_nodes_in_group("npcs"):
+		if n is Npc and n.data.dialogue_id == &"capital_drow_comum0":
+			drow = n
+	assert(drow != null)
+	drow.interact(ow.player)
+	box = ow.hud._dialogue_box
+	assert(box.engine.current.id == &"inicio")
+	box.engine.advance()  # 1 página -> escolhas
+	assert(box.engine.visible_choices().size() == 3)  # trabalho + lugar (leigo) + partir
+	box.engine.choose(0)  # "No que você trabalha?"
+	assert(box.engine.current.id == &"trabalho")
+	assert(box.engine.current.page(0).contains("venenos, seda de aranha-gigante"))  # economia do TerritoryData drow
+	box.engine.stop()
+	await _wait(1.2)
+	assert(ow.hud._dialogue_box == null)
+	print("[smoke]   capital povoada (lider + %d comuns, rep humano %d, ignorancia %d)" % [comuns, int(Game.reputation.get(&"humano", 0)), Game.ignorance])
 	await _shot("07_mundo_acampamento")
 	h.gold = 5000
 	ow.hud.open_merchant()
