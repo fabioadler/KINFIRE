@@ -1,7 +1,11 @@
 extends Control
-## Criação de personagem estilo Baldur's Gate: raça, classe, aparência, nome,
-## atributos por compra de pontos (D&D 5e), antecedente, dificuldade e modo Hardcore.
+## Criação de personagem em WIZARD sequencial (REGRAS §15, MECANICAS §11):
+## raça → classe → atributos (com antecedente e dificuldade) → nome.
+## Nenhum passo pode ser pulado; todos são obrigatórios.
+## No fluxo do prólogo (Game.phase == PHASE_PROLOGUE), confirmar chama
+## Game.finish_prologue() — o herói acorda no acampamento da raça escolhida.
 
+const STEPS := ["Raça", "Classe", "Atributos", "Nome & Aparência"]
 const POINT_BUY_TOTAL := 27
 const COST := {8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9}
 const TINTS := [
@@ -30,6 +34,7 @@ var background := "soldado"
 var difficulty := 0
 var hardcore := false
 var _running := false
+var _step := 0
 
 var _race_buttons := {}
 var _class_buttons := {}
@@ -45,7 +50,10 @@ var _bg_desc: Label
 var _diff_desc: Label
 var _sex_btn: Button
 var _start_btn: Button
+var _back_btn: Button
+var _step_label: Label
 var _swatches: Array[Button] = []
+var _pages: Array[Control] = []
 
 
 func _ready() -> void:
@@ -68,43 +76,59 @@ func _ready() -> void:
 	root.add_theme_constant_override("separation", 8)
 	margin.add_child(root)
 	root.add_child(UIKit.title("Criação de Personagem", 30))
+	if Game.phase == Game.PHASE_PROLOGUE:
+		# Veio do espelho do prólogo: o vazio devolve não o que você era…
+		var sub := UIKit.label("O espelho não devolve o que você era — devolve o que você escolhe ser.", 15, UIKit.TEXT_DIM)
+		sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		root.add_child(sub)
+
+	_step_label = UIKit.label("", 17, UIKit.GOLD, true)
+	_step_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	root.add_child(_step_label)
 
 	var cols := HBoxContainer.new()
 	cols.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	cols.add_theme_constant_override("separation", 12)
 	root.add_child(cols)
-	cols.add_child(_build_left())
-	cols.add_child(_build_center())
-	cols.add_child(_build_right())
+	# Coluna esquerda: uma página por passo (só a atual é visível)
+	for i in 4:
+		var page := _build_page(i)
+		page.visible = false
+		cols.add_child(page)
+		_pages.append(page)
+	# Coluna direita: prévia persistente (aparência + informações)
+	cols.add_child(_build_side_panel())
 
-	var bottom := HBoxContainer.new()
-	bottom.add_theme_constant_override("separation", 12)
-	root.add_child(bottom)
-	bottom.add_child(UIKit.button("Voltar", func(): Game.change_scene(Game.MAIN_MENU), 160))
-	bottom.add_child(UIKit.button("Aleatório", _randomize, 160))
-	var sp := Control.new()
-	sp.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	bottom.add_child(sp)
-	_start_btn = UIKit.button("Iniciar Aventura", _on_start, 240)
-	_start_btn.add_theme_font_size_override("font_size", 20)
-	bottom.add_child(_start_btn)
+	root.add_child(_build_nav_bar())
 
 	_apply_recommended()
-	_refresh()
+	_go_step(0)
 
 
-# ------------------------------------------------------------------ COLUNA ESQUERDA
+# ------------------------------------------------------------------ PÁGINAS (passo a passo)
 
-func _build_left() -> Control:
-	var tabs := TabContainer.new()
-	tabs.custom_minimum_size = Vector2(250, 0)
+func _build_page(i: int) -> Control:
+	var scroll := ScrollContainer.new()
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	match i:
+		0: scroll.add_child(_build_race_list())
+		1: scroll.add_child(_build_class_list())
+		2: scroll.add_child(_build_attributes())
+		3: scroll.add_child(_build_name_page())
+	return scroll
 
-	var race_scroll := _scroll("Raça (%d)" % DB.races.size())
-	tabs.add_child(race_scroll)
+
+func _build_race_list() -> Control:
+	var v := VBoxContainer.new()
+	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	v.add_child(_page_intro("Escolha o povo que corre nas suas veias. Cada raça muda atributos, aparência e um traço único."))
 	var rg := GridContainer.new()
-	rg.columns = 1
+	rg.columns = 2
+	rg.add_theme_constant_override("h_separation", 8)
+	rg.add_theme_constant_override("v_separation", 6)
 	rg.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	race_scroll.add_child(rg)
+	v.add_child(rg)
 	for r in DB.races:
 		var b := _choice_button(r.display_name, DB.dt2_texture(r.sprite_m + "_idle_anim_f0"))
 		b.pressed.connect(func():
@@ -112,18 +136,23 @@ func _build_left() -> Control:
 			if sex == "f" and r.sprite_f == r.sprite_m:
 				sex = "m"
 			free_bonus.clear()
-			_name_edit.text = _random_name()
 			_refresh()
 		)
 		rg.add_child(b)
 		_race_buttons[r.id] = b
+	return v
 
-	var class_scroll := _scroll("Classe (%d)" % DB.classes.size())
-	tabs.add_child(class_scroll)
+
+func _build_class_list() -> Control:
+	var v := VBoxContainer.new()
+	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	v.add_child(_page_intro("Escolha o que suas mãos aprenderão a fazer. A classe define vida, recurso e habilidades."))
 	var cg := GridContainer.new()
-	cg.columns = 1
+	cg.columns = 2
+	cg.add_theme_constant_override("h_separation", 8)
+	cg.add_theme_constant_override("v_separation", 6)
 	cg.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	class_scroll.add_child(cg)
+	v.add_child(cg)
 	for c in DB.classes:
 		var b := _choice_button(c.display_name, DB.icon(c.icon))
 		b.pressed.connect(func():
@@ -133,57 +162,153 @@ func _build_left() -> Control:
 		)
 		cg.add_child(b)
 		_class_buttons[c.id] = b
-	return tabs
+	return v
 
 
-func _scroll(title_text: String) -> ScrollContainer:
-	var s := ScrollContainer.new()
-	s.name = title_text
-	s.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	return s
+func _build_attributes() -> Control:
+	var attr := VBoxContainer.new()
+	attr.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	attr.add_child(_page_intro("Distribua os 27 pontos (compra D&D 5e: 8–15). Depois, escolha antecedente e dificuldade."))
+	_points_label = UIKit.label("", 15, UIKit.GOLD, true)
+	_points_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	attr.add_child(_points_label)
+	var hdr := HBoxContainer.new()
+	attr.add_child(hdr)
+	for t in [["", 118], ["Base", 80], ["Bônus", 42], ["Total", 44], ["Mod", 34]]:
+		var l := UIKit.label(t[0], 12, UIKit.TEXT_DIM)
+		l.custom_minimum_size.x = t[1]
+		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		hdr.add_child(l)
+	for a in DB.ABILITIES:
+		var r := HBoxContainer.new()
+		attr.add_child(r)
+		var n := UIKit.label(DB.ABILITY_NAMES[a], 14, UIKit.TEXT, true)
+		n.custom_minimum_size.x = 118
+		n.tooltip_text = DB.ABILITY_DESC[a]
+		n.mouse_filter = Control.MOUSE_FILTER_PASS
+		r.add_child(n)
+		var minus := _small_button("−", func(): _change(a, -1))
+		r.add_child(minus)
+		var base := UIKit.label("", 15, Color.WHITE, true)
+		base.custom_minimum_size.x = 26
+		base.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		r.add_child(base)
+		var plus := _small_button("+", func(): _change(a, 1))
+		r.add_child(plus)
+		var bonus := UIKit.label("", 14, Color(0.5, 1, 0.5))
+		bonus.custom_minimum_size.x = 42
+		bonus.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		r.add_child(bonus)
+		var total := UIKit.label("", 17, UIKit.GOLD, true)
+		total.custom_minimum_size.x = 44
+		total.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		r.add_child(total)
+		var m := UIKit.label("", 14, UIKit.TEXT_DIM)
+		m.custom_minimum_size.x = 34
+		m.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		r.add_child(m)
+		_ability_rows[a] = {"base": base, "bonus": bonus, "total": total, "mod": m, "minus": minus, "plus": plus, "name": n}
+	var btns := HBoxContainer.new()
+	btns.alignment = BoxContainer.ALIGNMENT_CENTER
+	attr.add_child(btns)
+	btns.add_child(UIKit.button("Recomendado", func():
+		_apply_recommended()
+		_refresh()
+	))
+	btns.add_child(UIKit.button("Zerar", func():
+		for k in scores:
+			scores[k] = 8
+		_refresh()
+	))
+	_free_box = VBoxContainer.new()
+	attr.add_child(_free_box)
+	attr.add_child(UIKit.separator())
+
+	attr.add_child(UIKit.label("Antecedente", 17, UIKit.GOLD, true))
+	var bg_opt := OptionButton.new()
+	bg_opt.focus_mode = Control.FOCUS_NONE
+	var keys := DB.BACKGROUNDS.keys()
+	for k in keys:
+		bg_opt.add_item(DB.BACKGROUNDS[k].name)
+	bg_opt.item_selected.connect(func(i: int):
+		background = keys[i]
+		_refresh()
+	)
+	attr.add_child(bg_opt)
+	_bg_desc = UIKit.label("", 14, UIKit.TEXT_DIM)
+	_bg_desc.autowrap_mode = TextServer.AUTOWRAP_WORD
+	attr.add_child(_bg_desc)
+	attr.add_child(UIKit.separator())
+	attr.add_child(UIKit.label("Dificuldade", 17, UIKit.GOLD, true))
+	var diff_opt := OptionButton.new()
+	diff_opt.focus_mode = Control.FOCUS_NONE
+	for d in DB.DIFFICULTIES:
+		diff_opt.add_item(d.name)
+	diff_opt.item_selected.connect(func(i: int):
+		difficulty = i
+		_refresh()
+	)
+	attr.add_child(diff_opt)
+	_diff_desc = UIKit.label("", 14, UIKit.TEXT_DIM)
+	_diff_desc.autowrap_mode = TextServer.AUTOWRAP_WORD
+	attr.add_child(_diff_desc)
+	var hc := CheckButton.new()
+	hc.text = "Modo Hardcore (morte permanente)"
+	hc.focus_mode = Control.FOCUS_NONE
+	hc.toggled.connect(func(on: bool):
+		hardcore = on
+		Sfx.play(&"click")
+	)
+	attr.add_child(hc)
+	attr.add_child(UIKit.separator())
+	_stats_preview = UIKit.rich("", false)
+	_stats_preview.custom_minimum_size = Vector2(0, 110)
+	attr.add_child(_stats_preview)
+	return attr
 
 
-func _choice_button(text: String, icon: Texture2D) -> Button:
-	var b := Button.new()
-	b.text = text
-	b.toggle_mode = true
-	b.focus_mode = Control.FOCUS_NONE
-	b.custom_minimum_size = Vector2(0, 34)
-	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	b.alignment = HORIZONTAL_ALIGNMENT_LEFT
-	b.add_theme_font_size_override("font_size", 15)
-	b.clip_text = true
-	if icon:
-		b.icon = icon
-		b.add_theme_constant_override("icon_max_width", 22)
-	b.pressed.connect(func(): Sfx.play(&"click", -6.0))
-	return b
-
-
-# ------------------------------------------------------------------ CENTRO
-
-func _build_center() -> Control:
-	var p := PanelContainer.new()
-	p.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+func _build_name_page() -> Control:
 	var v := VBoxContainer.new()
-	v.add_theme_constant_override("separation", 6)
-	p.add_child(v)
-
+	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	v.add_child(_page_intro("Por fim, o nome. No Véu, o que não tem nome não pode ser lembrado — nem salvo."))
 	var name_row := HBoxContainer.new()
 	name_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	v.add_child(name_row)
 	_name_edit = LineEdit.new()
 	_name_edit.placeholder_text = "Nome do herói"
 	_name_edit.max_length = 18
-	_name_edit.custom_minimum_size = Vector2(240, 38)
+	_name_edit.custom_minimum_size = Vector2(300, 42)
 	_name_edit.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_name_edit.text_changed.connect(func(_t): _refresh())
 	name_row.add_child(_name_edit)
 	var dice := Button.new()
 	dice.text = "🎲"
 	dice.tooltip_text = "Nome aleatório"
-	dice.custom_minimum_size = Vector2(42, 38)
-	dice.pressed.connect(func(): _name_edit.text = _random_name())
+	dice.custom_minimum_size = Vector2(46, 42)
+	dice.pressed.connect(func():
+		_name_edit.text = _random_name()
+		_refresh()
+	)
 	name_row.add_child(dice)
+	v.add_child(UIKit.label("(use os tons de pele e o sexo no painel ao lado)", 13, UIKit.TEXT_DIM))
+	return v
+
+
+func _page_intro(text: String) -> Label:
+	var l := UIKit.label(text, 15, UIKit.TEXT_DIM)
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD
+	l.custom_minimum_size.x = 460
+	return l
+
+
+# ------------------------------------------------------------------ PAINEL LATERAL (prévia persistente)
+
+func _build_side_panel() -> Control:
+	var p := PanelContainer.new()
+	p.custom_minimum_size = Vector2(380, 0)
+	var v := VBoxContainer.new()
+	v.add_theme_constant_override("separation", 6)
+	p.add_child(v)
 
 	var stage := Panel.new()
 	stage.custom_minimum_size = Vector2(0, 210)
@@ -255,129 +380,76 @@ func _build_center() -> Control:
 	return p
 
 
-func _floor_strip() -> Texture2D:
-	var img := Image.create(64, 64, false, Image.FORMAT_RGBA8)
-	var sheet := DB.DT2_SHEET.get_image()
-	if sheet.is_compressed():
-		sheet.decompress()
-	sheet.convert(Image.FORMAT_RGBA8)
-	for x in 4:
-		for y in 4:
-			var n := "floor_1" if randf() > 0.25 else "floor_%d" % randi_range(2, 8)
-			img.blit_rect(sheet, DB.dt2_rect(n), Vector2i(x * 16, y * 16))
-	return ImageTexture.create_from_image(img)
+func _build_nav_bar() -> Control:
+	var bottom := HBoxContainer.new()
+	bottom.add_theme_constant_override("separation", 12)
+	_back_btn = UIKit.button("◀ Voltar", _on_back, 160)
+	bottom.add_child(_back_btn)
+	var sp := Control.new()
+	sp.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bottom.add_child(sp)
+	bottom.add_child(UIKit.button("Aleatório", _randomize, 160))
+	var sp2 := Control.new()
+	sp2.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bottom.add_child(sp2)
+	_start_btn = UIKit.button("Continuar ▶", _on_next, 240)
+	_start_btn.add_theme_font_size_override("font_size", 20)
+	bottom.add_child(_start_btn)
+	return bottom
 
 
-# ------------------------------------------------------------------ DIREITA
+# ------------------------------------------------------------------ NAVEGAÇÃO
 
-func _build_right() -> Control:
-	var tabs := TabContainer.new()
-	tabs.custom_minimum_size = Vector2(350, 0)
+func _go_step(s: int) -> void:
+	_step = clampi(s, 0, 3)
+	for i in _pages.size():
+		_pages[i].visible = i == _step
+	_step_label.text = "Passo %d de 4 — %s" % [_step + 1, STEPS[_step]]
+	_refresh()
 
-	var attr := VBoxContainer.new()
-	attr.name = "Atributos"
-	attr.add_theme_constant_override("separation", 4)
-	tabs.add_child(attr)
-	_points_label = UIKit.label("", 15, UIKit.GOLD, true)
-	_points_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	attr.add_child(_points_label)
-	var hdr := HBoxContainer.new()
-	attr.add_child(hdr)
-	for t in [["", 118], ["Base", 80], ["Bônus", 42], ["Total", 44], ["Mod", 34]]:
-		var l := UIKit.label(t[0], 12, UIKit.TEXT_DIM)
-		l.custom_minimum_size.x = t[1]
-		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		hdr.add_child(l)
-	for a in DB.ABILITIES:
-		var r := HBoxContainer.new()
-		attr.add_child(r)
-		var n := UIKit.label(DB.ABILITY_NAMES[a], 14, UIKit.TEXT, true)
-		n.custom_minimum_size.x = 118
-		n.tooltip_text = DB.ABILITY_DESC[a]
-		n.mouse_filter = Control.MOUSE_FILTER_PASS
-		r.add_child(n)
-		var minus := _small_button("−", func(): _change(a, -1))
-		r.add_child(minus)
-		var base := UIKit.label("", 15, Color.WHITE, true)
-		base.custom_minimum_size.x = 26
-		base.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		r.add_child(base)
-		var plus := _small_button("+", func(): _change(a, 1))
-		r.add_child(plus)
-		var bonus := UIKit.label("", 14, Color(0.5, 1, 0.5))
-		bonus.custom_minimum_size.x = 42
-		bonus.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		r.add_child(bonus)
-		var total := UIKit.label("", 17, UIKit.GOLD, true)
-		total.custom_minimum_size.x = 44
-		total.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		r.add_child(total)
-		var m := UIKit.label("", 14, UIKit.TEXT_DIM)
-		m.custom_minimum_size.x = 34
-		m.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		r.add_child(m)
-		_ability_rows[a] = {"base": base, "bonus": bonus, "total": total, "mod": m, "minus": minus, "plus": plus, "name": n}
-	var btns := HBoxContainer.new()
-	btns.alignment = BoxContainer.ALIGNMENT_CENTER
-	attr.add_child(btns)
-	btns.add_child(UIKit.button("Recomendado", func():
-		_apply_recommended()
-		_refresh()
-	))
-	btns.add_child(UIKit.button("Zerar", func():
-		for k in scores:
-			scores[k] = 8
-		_refresh()
-	))
-	_free_box = VBoxContainer.new()
-	attr.add_child(_free_box)
-	attr.add_child(UIKit.separator())
-	_stats_preview = UIKit.rich()
-	attr.add_child(_stats_preview)
 
-	var origin := VBoxContainer.new()
-	origin.name = "Origem"
-	origin.add_theme_constant_override("separation", 8)
-	tabs.add_child(origin)
-	origin.add_child(UIKit.label("Antecedente", 17, UIKit.GOLD, true))
-	var bg_opt := OptionButton.new()
-	bg_opt.focus_mode = Control.FOCUS_NONE
-	var keys := DB.BACKGROUNDS.keys()
-	for k in keys:
-		bg_opt.add_item(DB.BACKGROUNDS[k].name)
-	bg_opt.item_selected.connect(func(i: int):
-		background = keys[i]
-		_refresh()
-	)
-	origin.add_child(bg_opt)
-	_bg_desc = UIKit.label("", 14, UIKit.TEXT_DIM)
-	_bg_desc.autowrap_mode = TextServer.AUTOWRAP_WORD
-	origin.add_child(_bg_desc)
-	origin.add_child(UIKit.separator())
-	origin.add_child(UIKit.label("Dificuldade", 17, UIKit.GOLD, true))
-	var diff_opt := OptionButton.new()
-	diff_opt.focus_mode = Control.FOCUS_NONE
-	for d in DB.DIFFICULTIES:
-		diff_opt.add_item(d.name)
-	diff_opt.item_selected.connect(func(i: int):
-		difficulty = i
-		_refresh()
-	)
-	origin.add_child(diff_opt)
-	_diff_desc = UIKit.label("", 14, UIKit.TEXT_DIM)
-	_diff_desc.autowrap_mode = TextServer.AUTOWRAP_WORD
-	origin.add_child(_diff_desc)
-	var hc := CheckButton.new()
-	hc.text = "Modo Hardcore (morte permanente)"
-	hc.focus_mode = Control.FOCUS_NONE
-	hc.toggled.connect(func(on: bool):
-		hardcore = on
-		Sfx.play(&"click")
-	)
-	origin.add_child(hc)
-	origin.add_child(UIKit.separator())
-	origin.add_child(UIKit.rich("[color=#999999]Compra de pontos (D&D 5e): cada atributo começa em 8 e vai até 15. Valores altos custam mais. O [color=#e8c060]atributo primário[/color] da classe aumenta seu dano.[/color]"))
-	return tabs
+func _on_next() -> void:
+	if _step < 3:
+		Sfx.play(&"ui_open", -6.0)
+		_go_step(_step + 1)
+	else:
+		_on_start()
+
+
+func _on_back() -> void:
+	Sfx.play(&"ui_close", -6.0)
+	if _step > 0:
+		_go_step(_step - 1)
+	else:
+		Game.change_scene(Game.MAIN_MENU)
+
+
+func _can_continue() -> bool:
+	match _step:
+		0: return race != null
+		1: return cls != null
+		2: return POINT_BUY_TOTAL - _spent() == 0
+		3: return _name_edit.text.strip_edges() != ""
+	return false
+
+
+# ------------------------------------------------------------------ WIDGETS BASE
+
+func _choice_button(text: String, icon: Texture2D) -> Button:
+	var b := Button.new()
+	b.text = text
+	b.toggle_mode = true
+	b.focus_mode = Control.FOCUS_NONE
+	b.custom_minimum_size = Vector2(0, 34)
+	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	b.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	b.add_theme_font_size_override("font_size", 15)
+	b.clip_text = true
+	if icon:
+		b.icon = icon
+		b.add_theme_constant_override("icon_max_width", 22)
+	b.pressed.connect(func(): Sfx.play(&"click", -6.0))
+	return b
 
 
 func _small_button(text: String, cb: Callable) -> Button:
@@ -389,6 +461,19 @@ func _small_button(text: String, cb: Callable) -> Button:
 	b.pressed.connect(cb)
 	b.pressed.connect(func(): Sfx.play(&"click", -10.0))
 	return b
+
+
+func _floor_strip() -> Texture2D:
+	var img := Image.create(64, 64, false, Image.FORMAT_RGBA8)
+	var sheet := DB.DT2_SHEET.get_image()
+	if sheet.is_compressed():
+		sheet.decompress()
+	sheet.convert(Image.FORMAT_RGBA8)
+	for x in 4:
+		for y in 4:
+			var n := "floor_1" if randf() > 0.25 else "floor_%d" % randi_range(2, 8)
+			img.blit_rect(sheet, DB.dt2_rect(n), Vector2i(x * 16, y * 16))
+	return ImageTexture.create_from_image(img)
 
 
 # ------------------------------------------------------------------ LÓGICA
@@ -436,7 +521,8 @@ func _randomize() -> void:
 	tint_idx = randi() % TINTS.size()
 	free_bonus.clear()
 	_apply_recommended()
-	_name_edit.text = _random_name()
+	if _name_edit:
+		_name_edit.text = _random_name()
 	Sfx.play(&"magic", -6.0)
 	_refresh()
 
@@ -485,6 +571,8 @@ func _make_hero() -> Hero:
 	return Hero.create(n, race, cls, sex, TINTS[tint_idx], scores, free_bonus, background, difficulty, hardcore)
 
 
+# ------------------------------------------------------------------ ATUALIZAÇÃO
+
 func _refresh() -> void:
 	for id in _race_buttons:
 		_race_buttons[id].button_pressed = id == race.id
@@ -492,8 +580,6 @@ func _refresh() -> void:
 		_class_buttons[id].button_pressed = id == cls.id
 	for i in _swatches.size():
 		_swatches[i].button_pressed = i == tint_idx
-	if _name_edit.text == "":
-		_name_edit.text = _random_name()
 	var base := race.sprite_f if sex == "f" else race.sprite_m
 	_preview.set_sprite(base, _current_tint())
 	var w := DB.create_item(cls.starting_weapon, 1, 0)
@@ -509,21 +595,60 @@ func _refresh() -> void:
 	_diff_desc.text = "Vida dos monstros ×%.1f, dano ×%.2f. Itens melhores (+%d%%) e +%d%% de experiência." % [d.hp, d.dmg, roundi(d.loot * 100), roundi((d.xp - 1.0) * 100)]
 	_diff_desc.add_theme_color_override("font_color", d.color)
 
+	# Botão de navegação: habilitação e rótulo por passo
+	_start_btn.text = "Iniciar Aventura" if _step == 3 else "Continuar ▶"
+	_start_btn.disabled = not _can_continue()
+	_back_btn.visible = _step > 0 or Game.phase != Game.PHASE_PROLOGUE
+
+	# Painel lateral contextual por passo
+	match _step:
+		0: _info.text = _race_info_text()
+		1: _info.text = _class_info_text()
+		2: _info.text = _attr_info_text()
+		3: _info.text = _summary_text()
+
+
+func _bonus_text() -> String:
 	var bonus_txt := ""
 	for k in race.ability_bonus:
 		var v: int = race.ability_bonus[k]
 		bonus_txt += "%s%d %s  " % ["+" if v > 0 else "", v, DB.ABILITY_SHORT[k]]
+	return bonus_txt
+
+
+func _skills_text() -> String:
 	var skills_txt := ""
 	for s in cls.skills:
 		skills_txt += "[img=18x18]%s[/img] %s [color=#888888](nv %d)[/color]   " % [_icon_path(s.icon), s.display_name, s.unlock_level]
-	var weapons := PackedStringArray()
-	for c in cls.allowed_weapons:
-		weapons.append(DB.CATEGORY_NAMES.get(c, c))
+	return skills_txt
+
+
+func _race_info_text() -> String:
+	return "[font_size=19][color=#e8c060]%s[/color][/font_size]  [color=#80ff80]%s[/color]\n%s\n[color=#e8c060]%s:[/color] %s" % [
+		race.display_name, _bonus_text(), race.description, race.trait_name, race.trait_description]
+
+
+func _class_info_text() -> String:
 	var res_hex := cls.resource_color.to_html(false)
-	_info.text = "[font_size=19][color=#e8c060]%s[/color][/font_size]  [color=#80ff80]%s[/color]\n%s\n[color=#e8c060]%s:[/color] %s\n\n[font_size=19][color=#e8c060]%s[/color][/font_size]  [color=#999999]%s[/color]\n%s\n[color=#cccccc]Dado de Vida: d%d  •  Primário: %s  •  Recurso: [color=#%s]%s[/color]  •  Armas: %s[/color]\n\n%s" % [
-		race.display_name, bonus_txt, race.description, race.trait_name, race.trait_description,
-		cls.display_name, cls.role, cls.description, cls.hit_die, DB.ABILITY_NAMES[cls.primary_ability], res_hex, cls.resource_label,
-		", ".join(weapons), skills_txt]
+	return "[font_size=19][color=#e8c060]%s[/color][/font_size]  [color=#999999]%s[/color]\n%s\n[color=#cccccc]Dado de Vida: d%d  •  Primário: %s  •  Recurso: [color=#%s]%s[/color][/color]\n\n%s" % [
+		cls.display_name, cls.role, cls.description, cls.hit_die, DB.ABILITY_NAMES[cls.primary_ability],
+		res_hex, cls.resource_label, _skills_text()]
+
+
+func _attr_info_text() -> String:
+	var left := POINT_BUY_TOTAL - _spent()
+	var tip := "[color=#80ff80]Todos os pontos gastos — pode continuar.[/color]" if left == 0 else \
+		"[color=#ff9070]Distribua todos os %d pontos restantes para continuar.[/color]" % left
+	return "[color=#e8c060]Atributos[/color]\n%s\n\n[color=#999999]Compra de pontos (D&D 5e): cada atributo começa em 8 e vai até 15. Valores altos custam mais. O [color=#e8c060]atributo primário[/color] da classe aumenta seu dano.[/color]" % tip
+
+
+func _summary_text() -> String:
+	var h := _make_hero()
+	var res_hex := cls.resource_color.to_html(false)
+	return "[font_size=19][color=#e8c060]%s[/color][/font_size]  [color=#80ff80]%s[/color]  •  [font_size=19][color=#e8c060]%s[/color][/font_size]\n[color=#e8c060]%s:[/color] %s\n\n[color=#cccccc]Vida: %d  •  %s: %d  •  Dano: %.1f  •  Armadura: %d  •  Crítico: %.1f%%[/color]\n\n%s" % [
+		race.display_name, _bonus_text(), cls.display_name, race.trait_name, race.trait_description,
+		h.max_hp(), cls.resource_label, h.max_resource(), h.dps_estimate(), h.armor(), h.crit_chance() * 100,
+		_skills_text()]
 
 
 func _icon_path(icon_name: String) -> String:
@@ -565,8 +690,16 @@ func _cell(label_text: String, value: String) -> String:
 	return "[cell][color=#aaaaaa]%s   [/color][/cell][cell][color=#ffffff]%s[/color][/cell]" % [label_text, value]
 
 
+# ------------------------------------------------------------------ CONFIRMAR
+
 func _on_start() -> void:
+	if not _can_continue():
+		return
 	var h := _make_hero()
-	Game.delete_save()
 	_start_btn.disabled = true
-	Game.new_game(h)
+	if Game.phase == Game.PHASE_PROLOGUE:
+		# Fim do prólogo: acorda no acampamento da raça escolhida (REGRAS §13)
+		Game.finish_prologue(h)
+	else:
+		Game.delete_save()
+		Game.new_game(h)

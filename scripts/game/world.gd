@@ -138,6 +138,11 @@ func _on_campfire_lit(_fire: Interactable) -> void:
 	hud.open_waypoints()
 
 
+## Olhar-se no espelho (hook — sobrescrito pelo Prologue)
+func _on_mirror(_mirror: Interactable) -> void:
+	hud.show_message("Só o escuro olha de volta.", Color(0.68, 0.64, 0.82))
+
+
 func _apply_brightness() -> void:
 	var b: float = Game.settings.brightness
 	var c := Color(0.34, 0.3, 0.34).darkened(clampf((Game.depth - 1) * 0.04, 0.0, 0.3))

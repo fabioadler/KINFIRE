@@ -23,6 +23,7 @@ const TRAINING := Rect2i(42, 26, 12, 11)   ## campo de treino (leste)
 const TRAINING_PATH := Rect2i(40, 30, 3, 2) ## passagem clareira ↔ campo
 
 const START_CELL := Vector2i(24, 36)       ## onde o aldeão acorda (dentro da casa)
+const MIRROR_CELL := Vector2i(26, 34)      ## espelho antigo (parede norte da casa)
 const CAMPFIRE_CELL := Vector2i(28, 32)    ## fogueira central da vila
 const SCARECROW_CELL := Vector2i(47, 31)   ## espantalho de treino
 const CHEST_CELLS := [Vector2i(44, 28), Vector2i(50, 34), Vector2i(52, 27)]
@@ -54,6 +55,7 @@ var _moved := 0.0
 var _last_player_pos := Vector2.ZERO
 var _cinzento: Cinzento
 var _espantalho: Enemy
+var _mirror_used := false
 var _gate_wall: StaticBody2D
 var _gate_fog: Array[Polygon2D] = []
 var _gate_t := 0.0
@@ -104,6 +106,8 @@ func _carve_rect(r: Rect2i) -> void:
 
 
 func _spawn_content() -> void:
+	# Espelho antigo da casa — vazio, sem reflexo (o Véu roubou; LORE §9)
+	Interactable.create(self, Interactable.Kind.MIRROR, cell_to_world(MIRROR_CELL))
 	# Fogueira central da vila
 	Interactable.create(self, Interactable.Kind.CAMPFIRE, cell_to_world(CAMPFIRE_CELL))
 	# Espantalho de treino (passivo — nunca agride)
@@ -254,6 +258,34 @@ func _on_hero_leveled_up(new_level: int) -> void:
 		_level1_seen = true
 		_cinzento.appear_at(cell_to_world(Vector2i(25, 36)))
 		_whisper("Você não é mais quem era quando acordou. Volte à casa — o espelho espera.")
+
+
+## Olhar-se no espelho: antes do nível 1, só o vazio; depois, a Reminiscência
+## se dobra para dentro de si mesma e devolve não o que você era —
+## mas o que você escolhe ser (REGRAS §13, MECANICAS §11).
+func _on_mirror(_mirror: Interactable) -> void:
+	if _mirror_used:
+		return
+	if Game.hero.level < 1:
+		_whisper("Vidro vazio, como você. A névoa ainda tem algo a ensinar antes disto.")
+		return
+	if tut_step != TutStep.DONE:
+		_whisper("O espelho espera. Termine o que a névoa pediu.")
+		return
+	_mirror_used = true
+	_cinzento.appear_at(player.global_position + Vector2(-24, -10))
+	_whisper("...")
+	_whisper("Vidro vazio. O Véu levou o reflexo — e guardou, em troca, uma escolha.")
+	_whisper("Quem?")
+	Sfx.play(&"levelup", -6.0)
+	# A memória se dobra para dentro de si mesma
+	await get_tree().create_timer(2.4, true, false, true).timeout
+	if not is_inside_tree() or player == null or player.is_dead():
+		return
+	var tw := create_tween()
+	tw.tween_property(canvas_modulate, "color", Color(0, 0, 0, 1), 1.2)
+	await tw.finished
+	Game.change_scene(Game.CHARACTER_CREATION)
 
 
 # ------------------------------------------------------------------ MUNDO

@@ -255,10 +255,11 @@ func _process(delta: float) -> void:
 
 
 func _on_new_game() -> void:
+	# Todo novo jogo começa no prólogo: o aldeão e o espelho (REGRAS §13)
 	if Game.has_save():
-		_confirm("Iniciar um novo jogo apagará o personagem salvo. Continuar?", func(): Game.change_scene(Game.CHARACTER_CREATION))
+		_confirm("Iniciar um novo jogo apagará o personagem salvo. Continuar?", func(): Game.new_prologue())
 	else:
-		Game.change_scene(Game.CHARACTER_CREATION)
+		Game.new_prologue()
 
 
 func _on_options() -> void:

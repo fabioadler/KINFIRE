@@ -3,7 +3,7 @@ extends Node2D
 ## Objeto no mundo: baú, santuário, escadaria, espinhos, fogueira (viagem rápida),
 ## mercador, entrada e saída de masmorra.
 
-enum Kind { CHEST, SHRINE, STAIRS, SPIKES, CAMPFIRE, MERCHANT, DUNGEON_ENTRANCE, DUNGEON_EXIT }
+enum Kind { CHEST, SHRINE, STAIRS, SPIKES, CAMPFIRE, MERCHANT, DUNGEON_ENTRANCE, DUNGEON_EXIT, MIRROR }
 
 const SHRINES := [
 	{"name": "Santuário do Poder", "stat": "damage", "amount": 0.5, "color": Color(1, 0.35, 0.2)},
@@ -96,6 +96,12 @@ func _ready() -> void:
 			_sprite.texture = DB.dt2_texture("floor_ladder")
 			_sprite.position = Vector2.ZERO
 			_light = Fx.make_light(Color(0.5, 0.9, 1.0), 1.4, 1.2)
+		Kind.MIRROR:
+			# Vazio escuro sem reflexo (o Véu roubou o reflexo — LORE §9)
+			_sprite.texture = DB.dt2_texture("hole")
+			_sprite.scale = Vector2(1.25, 1.5)
+			_sprite.position = Vector2(0, -10)
+			_light = Fx.make_light(Color(0.55, 0.52, 0.72), 1.1, 0.8)
 	if _light:
 		_light.position = Vector2(0, -6)
 		add_child(_light)
@@ -118,6 +124,7 @@ func display_name() -> String:
 		Kind.MERCHANT: return "Mercador Bartolomeu"
 		Kind.DUNGEON_ENTRANCE: return "%s — Nível %d" % [label, dungeon_level]
 		Kind.DUNGEON_EXIT: return "Voltar ao mundo aberto"
+		Kind.MIRROR: return "Espelho Antigo"
 	return ""
 
 
@@ -168,6 +175,9 @@ func interact(player: Player) -> void:
 		Kind.DUNGEON_EXIT:
 			Sfx.play(&"door")
 			Game.exit_dungeon()
+		Kind.MIRROR:
+			Sfx.play(&"magic", -10.0)
+			world._on_mirror(self)
 
 
 func _persist() -> void:
@@ -195,6 +205,10 @@ func _process(delta: float) -> void:
 			_light.energy = 1.2 + sin(_t * 9.0) * 0.12 + sin(_t * 23.0) * 0.08
 		Kind.DUNGEON_ENTRANCE, Kind.DUNGEON_EXIT:
 			_light.energy = 1.0 + sin(_t * 2.5) * 0.3
+		Kind.MIRROR:
+			# O vazio "respira" — luz fria que não reflete nada
+			_light.energy = 1.0 + sin(_t * 1.3) * 0.2 + sin(_t * 4.7) * 0.08
+			_sprite.modulate = Color(0.9, 0.88, 1.0) if sin(_t * 0.7) > 0 else Color(0.8, 0.78, 0.95)
 		Kind.SPIKES:
 			# Ciclo: escondido 1.6s, subindo, ativo 0.6s, descendo
 			var c := fmod(_t, 2.6)

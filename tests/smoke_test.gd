@@ -246,6 +246,36 @@ func _test_prologue() -> void:
 	Game.save_game()
 	assert(Game.load_game())
 	assert(Game.phase == Game.PHASE_PROLOGUE and Game.hero.level == 1)
+	# Espelho: nível 1 + tutorial completo → cutscene → criação (MECANICAS §11)
+	var mirror: Interactable = null
+	for n in get_tree().get_nodes_in_group("interactables"):
+		if n is Interactable and n.kind == Interactable.Kind.MIRROR:
+			mirror = n
+			break
+	assert(mirror != null)
+	mirror.interact(pro.player)
+	await _wait(5.0)
+	var cc := get_tree().current_scene
+	assert(cc != null and cc.has_method("_on_start") and cc.has_method("_on_next"))
+	assert(Game.phase == Game.PHASE_PROLOGUE)
+	print("[smoke]   espelho -> criacao de personagem")
+	# Wizard sequencial: raça → classe → atributos (27 pts) → nome — todos obrigatórios
+	cc._randomize()
+	assert(cc._step == 0 and cc._can_continue())
+	cc._on_next()
+	assert(cc._step == 1 and cc._can_continue())
+	cc._on_next()
+	assert(cc._step == 2 and cc._can_continue())
+	cc._on_next()
+	assert(cc._step == 3 and cc._can_continue())
+	cc._on_next()  # passo final = _on_start → finish_prologue
+	await _wait(3.0)
+	assert(Game.phase == Game.PHASE_CREATED)
+	assert(Game.ignorance == 10)
+	assert(Game.hero.level == 1 and Game.hero.cls.id != &"aldeao")
+	var ow := get_tree().get_first_node_in_group("world")
+	assert(ow != null and ow.has_method("travel_to"))
+	print("[smoke]   wizard concluido — %s %s acorda no acampamento" % [Game.hero.race.display_name, Game.hero.cls.display_name])
 	print("[smoke] prologo ok")
 
 
