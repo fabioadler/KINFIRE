@@ -6,6 +6,9 @@ const SETTINGS_PATH := "user://kinfire_settings.cfg"
 const VERSION := "0.3"
 const SAVE_VERSION := 4
 
+## 7.7: qualidade mudou nas opções (glow/sombras reagem em runtime)
+signal quality_changed
+
 const MAIN_MENU := "res://scenes/menus/main_menu.tscn"
 const CHARACTER_CREATION := "res://scenes/menus/character_creation.tscn"
 const WORLD := "res://scenes/game/world.tscn"
@@ -100,6 +103,12 @@ var settings := {
 	"show_fps": false,
 	# 7.2: sombras dinâmicas 2D — 0=Desligadas, 1=Suaves (PCF5), 2=Nítidas (PCF13)
 	"shadows": 1,
+	# 7.7: FSR 2.2 / MSAA / presets (§14.6)
+	"fsr_mode": 2,         # 0=Desligado, 1=Qualidade, 2=Equilibrado, 3=Desempenho
+	"msaa": 1,             # 0=Desligado, 1=2x, 2=4x
+	"texture_filter": 0,   # 0=Nearest (pixel-art), 1=Linear
+	"particle_amount": 1,  # 0=50%, 1=75%, 2=100%
+	"glow": true,          # preset Baixo desliga (§14.6)
 	# Jogabilidade
 	"damage_numbers": true,
 	"shake_intensity": 1.0,
@@ -151,6 +160,11 @@ func _notification(what: int) -> void:
 
 func aggro_mult() -> float:
 	return 1.0 if hero == null else 1.0 + hero.difficulty * 0.1
+
+
+## 7.7: multiplicador de partículas (§14.6) — presets 50%/75%/100%
+func particle_mult() -> float:
+	return [0.5, 0.75, 1.0][clampi(int(settings.particle_amount), 0, 2)]
 
 
 # ------------------------------------------------------------------ CENAS
@@ -408,6 +422,23 @@ func apply_settings() -> void:
 	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("SFX"), linear_to_db(settings.sfx_volume))
 	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("Ambience"), linear_to_db(settings.ambience_volume))
 	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("UI"), linear_to_db(settings.ui_volume))
+	# 7.7: FSR 2.2 (§14.6) — Desligado/Qualidade(0.77)/Equilibrado(0.67)/Desempenho(0.5)
+	# aplicado no viewport raiz via API nativa (fsr_sharpness + scaling_3d)
+	var vp := get_viewport()
+	var fsr_mode := int(settings.fsr_mode)
+	var fsr_scales := [1.0, 0.77, 0.67, 0.5]
+	if fsr_mode == 0:
+		vp.scaling_3d_mode = Viewport.SCALING_3D_MODE_BILINEAR
+	else:
+		vp.scaling_3d_mode = Viewport.SCALING_3D_MODE_FSR2
+		vp.fsr_sharpness = 0.4
+	vp.scaling_3d_scale = fsr_scales[clampi(fsr_mode, 0, 3)]
+	# 7.7: MSAA 2×/4× (§14.6) — 0=Off, 2=2×, 4=4×
+	var msaa_modes: Array = [Viewport.MSAA_DISABLED, Viewport.MSAA_2X, Viewport.MSAA_4X]
+	vp.msaa_2d = msaa_modes[clampi(int(settings.msaa), 0, 2)]
+	# 7.7: filtro de textura — nearest preserva pixel-art (§14.6)
+	ProjectSettings.set("rendering/textures/canvas_textures/default_texture_filter",
+		clampi(int(settings.texture_filter), 0, 1))
 	if DisplayServer.get_name() != "headless":
 		var mode := DisplayServer.WINDOW_MODE_FULLSCREEN if settings.fullscreen else DisplayServer.WINDOW_MODE_WINDOWED
 		if DisplayServer.window_get_mode() != mode:
@@ -424,6 +455,7 @@ func apply_settings() -> void:
 	if _fps_label:
 		_fps_label.visible = settings.show_fps
 	_apply_bindings()
+	quality_changed.emit()
 
 
 func save_settings() -> void:
@@ -438,6 +470,7 @@ func reset_settings_section(keys: Array) -> void:
 	var defaults := {
 		"master_volume": 0.8, "music_volume": 0.6, "sfx_volume": 0.8, "ambience_volume": 0.7, "ui_volume": 0.8, "mute_unfocused": true,
 		"fullscreen": false, "vsync": true, "max_fps": 1, "window_size": 0, "ui_scale": 1.0, "brightness": 1.0, "show_fps": false, "shadows": 1,
+		"fsr_mode": 2, "msaa": 1, "texture_filter": 0, "particle_amount": 1, "glow": true,
 		"damage_numbers": true, "shake_intensity": 1.0, "camera_zoom": 3.0, "always_show_health": false, "always_show_loot": true,
 		"click_to_move": true, "monster_density": 1.0, "minimap_opacity": 0.85, "auto_save": true, "bindings": {},
 	}

@@ -61,7 +61,7 @@ func _make_emitter(kind: StringName) -> void:
 	var p := GPUParticles2D.new()
 	p.name = kind
 	p.texture = _make_texture(kind)
-	p.amount = 26 if kind != &"rain" else 220
+	p.amount = int(maxf(1.0, (26 if kind != &"rain" else 220) * Game.particle_mult()))
 	p.lifetime = 6.0 if kind != &"rain" else 1.1
 	p.preprocess = 4.0
 	p.visibility_rect = Rect2(-VIEW_MARGIN, -VIEW_MARGIN,

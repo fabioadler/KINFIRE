@@ -185,6 +185,15 @@ func _setup_post() -> void:
 	_atmos_layer.add_child(_atmos)
 	# masmorra: vinheta mais fechada e fria (o Overworld sobrepõe pelo bioma)
 	_apply_atmos({"tint": Color(0.9, 0.88, 1.0), "amount": 0.1, "desat": 0.05, "vig": 0.32})
+	# 7.7: presets de qualidade (§14.6) — glow liga/desliga em runtime
+	_apply_glow()
+	Game.quality_changed.connect(_apply_glow)
+
+
+## 7.7: glow do preset — Baixo desliga o bloom (§14.6), Médio/Alto mantêm
+func _apply_glow() -> void:
+	if _world_env != null and _world_env.environment != null:
+		_world_env.environment.glow_enabled = bool(Game.settings.get("glow", true))
 
 
 ## Preset de vinheta/temperatura: {tint, amount, desat, vig, vig_color}.

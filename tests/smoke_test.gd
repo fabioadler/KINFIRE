@@ -1784,6 +1784,61 @@ func _test_overworld() -> void:
 	assert(ow.weather.flash_count() == fc76 + 1, "relâmpago conta o flash")
 	# restore: o _update_atmos real no próximo tick traz o bioma verdadeiro de volta
 	print("[smoke]   clima ok (chuva deterministica, emissor por bioma, vagalumes noturnos, nevoa parallax, relampago)")
+	# 7.7: FSR 2.2 + MSAA + presets de qualidade de vídeo (§14.6)
+	for k77 in ["fsr_mode", "msaa", "texture_filter", "particle_amount", "glow"]:
+		assert(Game.settings.has(k77), "setting de vídeo 7.7 existe: " + k77)
+	assert(int(Game.settings.fsr_mode) == 2 and int(Game.settings.msaa) == 1 and Game.settings.glow,
+		"defaults de vídeo 7.7: FSR Equilibrado, MSAA 2×, glow ligado")
+	assert(Game.settings.texture_filter == 0, "filtro default = nearest (pixel-art nítida)")
+	assert(Game.particle_mult() == 0.75, "partículas 75% no default")
+	Game.settings.particle_amount = 0
+	assert(Game.particle_mult() == 0.5, "partículas 50% no modo econômico")
+	Game.settings.particle_amount = 2
+	assert(Game.particle_mult() == 1.0, "partículas 100% no modo alto")
+	Game.settings.particle_amount = 1
+	# FSR reflete no viewport raiz (§14.6) — API nativa scaling_3d
+	var vp77 := get_viewport()
+	Game.settings.fsr_mode = 3
+	Game.apply_settings()
+	assert(is_equal_approx(vp77.scaling_3d_scale, 0.5), "FSR Desempenho = 0.5 no viewport")
+	Game.settings.fsr_mode = 0
+	Game.apply_settings()
+	assert(vp77.scaling_3d_mode == Viewport.SCALING_3D_MODE_BILINEAR and is_equal_approx(vp77.scaling_3d_scale, 1.0),
+		"FSR desligado = bilinear 1.0 (nativo)")
+	Game.settings.fsr_mode = 2
+	Game.apply_settings()
+	assert(vp77.scaling_3d_mode == Viewport.SCALING_3D_MODE_FSR2 and is_equal_approx(vp77.scaling_3d_scale, 0.67),
+		"FSR Equilibrado = FSR2 a 0.67")
+	assert(vp77.msaa_2d == Viewport.MSAA_2X, "MSAA 2× aplicado no viewport")
+	# presets aplicam a combinação certa (§14.6) e o glow reage em runtime
+	var presets77: Array = [
+		{"shadows": 0, "fsr_mode": 3, "msaa": 0, "glow": false, "particle_amount": 0},
+		{"shadows": 1, "fsr_mode": 2, "msaa": 1, "glow": true, "particle_amount": 1},
+		{"shadows": 2, "fsr_mode": 1, "msaa": 2, "glow": true, "particle_amount": 2},
+	]
+	for p77 in presets77:
+		for k77: String in p77:
+			Game.settings[k77] = p77[k77]
+		Game.apply_settings()   # roda sem erro com cada preset
+		assert(bool(ow._world_env.environment.glow_enabled) == bool(p77["glow"]), "glow reage ao preset em runtime")
+		assert(vp77.msaa_2d == [Viewport.MSAA_DISABLED, Viewport.MSAA_2X, Viewport.MSAA_4X][int(p77["msaa"])],
+			"MSAA do preset aplicado")
+		assert(Game.particle_mult() == [0.5, 0.75, 1.0][int(p77["particle_amount"])],
+			"partículas do preset aplicadas")
+	assert(ow._world_env.environment.glow_enabled, "preset Alto deixa o glow ligado")
+	# volta ao default (Equilibrado) para o resto do smoke — e o glow volta junto
+	Game.settings.shadows = 1
+	Game.settings.fsr_mode = 2
+	Game.settings.msaa = 1
+	Game.settings.glow = false
+	Game.apply_settings()
+	assert(not ow._world_env.environment.glow_enabled, "desligar o glow na opção desliga o bloom")
+	Game.settings.glow = true
+	Game.apply_settings()
+	assert(ow._world_env.environment.glow_enabled, "religar o glow na opção religa o bloom")
+	Game.settings.particle_amount = 1
+	Game.apply_settings()
+	print("[smoke]   video ok (FSR 2.2 no viewport, MSAA 2x/4x, filtro nearest, particulas 50/75/100%, presets Baixo/Medio/Alto, glow reativo)")
 	await _shot("07_mundo_acampamento")
 	h.gold = 5000
 	ow.hud.open_merchant()

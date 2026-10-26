@@ -48,7 +48,14 @@ func _build(tab: int) -> void:
 	_slider(video, "Brilho da Masmorra", "brightness", 0.6, 1.8, 0.05, true)
 	_check(video, "Mostrar FPS", "show_fps")
 	_option(video, "Sombras", "shadows", ["Desligadas", "Suaves (PCF5)", "Nítidas (PCF13)"])
-	_reset_button(video, ["fullscreen", "window_size", "vsync", "max_fps", "ui_scale", "brightness", "show_fps", "shadows"])
+	# 7.7: FSR 2.2 / MSAA / presets de qualidade (§14.6)
+	_preset_option(video)
+	_option(video, "FSR 2.2 (ampliação)", "fsr_mode", ["Desligado", "Qualidade", "Equilibrado", "Desempenho"])
+	_option(video, "MSAA", "msaa", ["Desligado", "2×", "4×"])
+	_option(video, "Filtro de Textura", "texture_filter", ["Nítido (pixel-art)", "Suave (linear)"])
+	_option(video, "Partículas", "particle_amount", ["50%", "75%", "100%"])
+	_check(video, "Brilho/Glow (bloom de luzes, loot raro e vagalumes)", "glow")
+	_reset_button(video, ["fullscreen", "window_size", "vsync", "max_fps", "ui_scale", "brightness", "show_fps", "shadows", "fsr_mode", "msaa", "texture_filter", "particle_amount", "glow"])
 
 	var game := _page("Jogabilidade")
 	_check(game, "Números de Dano", "damage_numbers")
@@ -161,6 +168,43 @@ func _option(parent: Control, text: String, key: String, items: Array) -> void:
 		Game.settings[key] = i
 		Game.apply_settings()
 		Sfx.play(&"click")
+	)
+	row.add_child(o)
+	parent.add_child(row)
+
+
+## 7.7: Preset de Qualidade (§14.6) — aplica uma combinação de settings de
+## uma vez (Baixo/Médio/Alto) e reconstrói o painel para os controles
+## individuais refletirem o novo estado.
+func _preset_option(parent: Control) -> void:
+	var row := HBoxContainer.new()
+	var l := UIKit.label("Preset de Qualidade", 15)
+	l.custom_minimum_size.x = 270
+	row.add_child(l)
+	var o := OptionButton.new()
+	o.focus_mode = Control.FOCUS_NONE
+	for it in ["Personalizado", "Baixo (desempenho)", "Médio (recomendado)", "Alto (visual)"]:
+		o.add_item(it)
+	o.selected = 0
+	o.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	o.item_selected.connect(func(i: int):
+		var presets := {
+			1: {"shadows": 0, "fsr_mode": 3, "msaa": 0, "glow": false, "particle_amount": 0},
+			2: {"shadows": 1, "fsr_mode": 2, "msaa": 1, "glow": true, "particle_amount": 1},
+			3: {"shadows": 2, "fsr_mode": 1, "msaa": 2, "glow": true, "particle_amount": 2},
+		}
+		if not presets.has(i):
+			return
+		for k: String in presets[i]:
+			Game.settings[k] = presets[i][k]
+		Game.save_settings()
+		Game.apply_settings()
+		Sfx.play(&"click")
+		var tab := _tabs.current_tab
+		for c in get_children():
+			remove_child(c)
+			c.queue_free()
+		_build(tab)
 	)
 	row.add_child(o)
 	parent.add_child(row)
