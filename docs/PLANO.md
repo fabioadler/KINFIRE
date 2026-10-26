@@ -80,10 +80,10 @@
 - [x] 5.5 `feat: UI de comercio unificada (comprar/vender/leilao) com tooltips de preço` — `TradePanel` (`scripts/ui/trade_panel.gd`): abas Comprar (estoque do dia do VendorData com `Market.buy_price`, slots vendidos marcados)/Vender (inventário com `Market.sell_price`)/Leilão (só na Guilda de Porto Franco — humano, REGRAS §9); abre pelo diálogo do líder: choice "(Negociar com %s)" com efeito `comercio` → `Game.trade_requested` → `HUD.open_trade`; tooltips com a decomposição do preço (base × demanda × especialidade × reputação) para o jogador ler a economia; feedback de ouro insuficiente/inventário cheio/contra-lance rival; smoke: abre na aba Comprar, compra consome slot/ouro e aquece demanda, venda soma ouro/esfria demanda, sem leilão fora de Porto Franco, efeito `comercio` emite sinal, aba leilão em Porto Franco
 - **Aceitação:** dá para lucrar comprando num território e vendendo noutro (rotas comerciais emergentes); fórmulas conferem com `REGRAS_DO_JOGO.md` §10.
 
-### Fase 6 — UI/UX Moderna (commits 30–35) — `status: PENDENTE (CLI ausente — ver D1)`
+### Fase 6 — UI/UX Moderna (commits 30–35) — `status: EM ANDAMENTO (6.6 opcional — CLI ausente, ver D1)`
 > Especificação visual completa em `MECANICAS.md` §9. Tokens já aplicados desde a tarefa 1.0; aqui aplicamos em todo o jogo.
-- [ ] 6.1 `feat: HUD moderna` — barras de vida/recurso elegantes com segmentos, skill bar com cooldown radial e badge de tecla, anel de XP no emblema de nível, chips de ouro/essência, strip de buffs com anéis de tempo, tracker de quest lateral recolhível, minimapa redondo, barras de inimigo coloridas por raridade
-- [ ] 6.2 `feat: interface do player moderna` — painel unificado com abas (Personagem/Inventário/Habilidades/Quests), tooltips ricos, comparador ▲▼ vs equipado, drag & drop, brilho por raridade, atalhos consistentes
+- [x] 6.1 `feat: HUD moderna` — VitalsBar (barras de vida/recurso segmentadas com marcas a cada 25%, gradiente interno, brilho na ponta cheia, flash + tremor ao tomar dano), SkillSlot com cooldown radial (varredura em cone + segundos) e badge de tecla, LevelBadge (emblema de nível com anel de XP dourado), chips de ouro/essência no canto inferior esquerdo, strip de buffs com BuffChips (anel de tempo restante + segundos, expira com fade), tracker de quest recolhível (cabeçalho clicável ▸/▾), minimapa redondo (máscara circular via shader + borda dourada), barra do alvo colorida por raridade + coroa ♛ para campeão+ — MECANICAS §9.2
+- [x] 6.2 `feat: interface do player moderna` — UnifiedPanel: os painéis Personagem/Inventário/Habilidades/Missões viram abas de uma janela única centralizada; I/C/K/J abrem direto na aba (mesma tecla fecha, outra teca troca — §9.3); aba ativa com underline dourado; tooltips ricos, comparador, drag & drop e brilho por raridade já vinham dos painéis originais (Fase 0/3)
 - [ ] 6.3 `feat: menu principal moderno` — shader de névoa + partículas de brasa no logo, cards de menu com hover, créditos e opções redesenhados na nova linguagem
 - [ ] 6.4 `feat: onboarding visual do prologo` — dicas contextuais, setas-guia, destaque de elementos de UI
 - [ ] 6.5 `refactor: micro-interacoes em todos os paineis` — hover lift + glow, press scale, tweens de abrir/fechar (0.18s), foco de teclado visível, sons hover/click
@@ -133,7 +133,7 @@
 | 3. Raridade/Loot | ✅ Concluída | 2026-10-25 |
 | 4. Quests | ✅ Concluída | 2026-10-25 |
 | 5. Economia | ✅ Concluída | 2026-10-26 |
-| 6. UI/UX | ⬜ Não iniciada | — |
+| 6. UI/UX | 🔄 Em andamento | 2026-10-26 |
 | 7. Luz/Sombra/Som/Vento | ⬜ Não iniciada | — |
 | 8. Polimento | ⬜ Não iniciada | — |
 
@@ -170,4 +170,5 @@
 | 2026-10-25 | 2c5966f | 5.2 | `feat:` `Market` — preços dinâmicos por oferta/demanda: demanda ∈ [0.6, 1.5] por categoria/território, ±3% por item comprado/vendido, recuperação 5%/dia rumo ao natural (produtor 0.7 / escasso 1.3), dia de mercado vira às 06:00 (REGRAS §14), compra ×0.45 no produtor e venda ×1.25 no escasso → rotas comerciais lucrativas; `Game.market` persistido no save |
 | 2026-10-25 | 4bd1a9b | 5.3 | `feat:` desconto por reputação — tiers Estranho/Conhecido/Respeitado/Honrado/Laço (0/5/10/15/20%), `Market.tier_name()`; `rep_discount` resolve pela reputação com o TERRITÓRIO do vendor (não a raça do herói); fluxo quests → `Game.reputation` (clamp 0–4) → preço no buy_price |
 | 2026-10-25 | ca2f769 | 5.4 | `feat:` `Auction` — casa de leilões da Guilda (Porto Franco): 6 slots/dia Raro+ rotativos e determinísticos, lance inicial valor×1.2, rivais simulados contra-lançam +10% (1–3 por slot), cobrança só na vitória, 1 slot especial em essência (valor/20), relíquia de chefe rara (Lendário +3 níveis); estado `Game.auction` no save |
-| 2026-10-26 | (pendente) | 5.5 | `feat:` `TradePanel` — UI de comércio unificada: abas Comprar/Vender/Leilão (leilão só na Guilda de Porto Franco), tooltips com decomposição do preço, abre pelo diálogo do líder via efeito `comercio` → `Game.trade_requested` → `HUD.open_trade`; feed de reputação/demanda no rodapé |
+| 2026-10-26 | 9fd0951 | 5.5 | `feat:` `TradePanel` — UI de comércio unificada: abas Comprar/Vender/Leilão (leilão só na Guilda de Porto Franco), tooltips com decomposição do preço, abre pelo diálogo do líder via efeito `comercio` → `Game.trade_requested` → `HUD.open_trade`; feed de reputação/demanda no rodapé |
+| 2026-10-26 | (pendente) | 6.1+6.2 | `feat:` HUD moderna + painel do jogador unificado — `VitalsBar` (barras segmentadas com flash de dano), `LevelBadge` (anel de XP), `BuffChip` (anel de tempo), cooldown radial na skill bar, chips de ouro/essência, minimapa redondo (máscara circular), tracker de quests recolhível, barra do alvo por raridade + coroa ♛; `UnifiedPanel` com abas Personagem/Inventário/Habilidades/Missões — I/C/K/J abrem direto na aba (commit único: o 6.2 já estava entrelaçado no hud.gd quando o 6.1 validou) |

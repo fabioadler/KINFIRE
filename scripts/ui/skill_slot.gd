@@ -70,6 +70,17 @@ func _make_custom_tooltip(_for_text: String) -> Object:
 	return r
 
 
+## Setor radial do cooldown (Fase 6.1, §9.2: "varredura em cone") — pontos
+## do polígono que cobre a fração restante, a partir do topo, horário.
+static func _radial_points(center: Vector2, radius: float, frac: float) -> PackedVector2Array:
+	var pts := PackedVector2Array([center])
+	var n := 32
+	for i in n + 1:
+		var ang := -PI * 0.5 + TAU * frac * float(i) / float(n)
+		pts.append(center + Vector2(cos(ang), sin(ang)) * radius)
+	return pts
+
+
 func _draw() -> void:
 	var rect := Rect2(Vector2.ZERO, size)
 	draw_rect(rect, Color(0.03, 0.02, 0.02))
@@ -99,7 +110,8 @@ func _draw() -> void:
 			if not player.can_afford(s):
 				draw_rect(rect, Color(0.1, 0.1, 0.5, 0.45))
 	if frac > 0.0:
-		draw_rect(Rect2(0, size.y * (1.0 - frac), size.x, size.y * frac), Color(0, 0, 0, 0.7))
+		# varredura radial (cone que seca no sentido horário)
+		draw_colored_polygon(_radial_points(size * 0.5, size.length() * 0.75, frac), Color(0, 0, 0, 0.66))
 		var f := UIKit.FONT_TITLE
 		var txt := str(ceili(remaining))
 		draw_string_outline(f, Vector2(0, size.y * 0.5 + 8), txt, HORIZONTAL_ALIGNMENT_CENTER, size.x, 20, 4, Color.BLACK)

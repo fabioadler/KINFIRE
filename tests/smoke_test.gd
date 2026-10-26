@@ -120,10 +120,11 @@ func _run() -> void:
 		if i == 0:
 			await _shot("05_paineis")
 			_report_wide(hud.skills, 0)
-			hud.toggle_skills()
+			hud.toggle_skills()       # fecha a janela unificada
+			hud.toggle_inventory()    # reabre direto na aba Inventário
 			await _wait(0.2)
 			await _shot("05b_inventario")
-			hud.toggle_skills()
+			hud.toggle_inventory()    # fecha
 			if OS.get_environment("SMOKE_QUICK") != "":
 				get_tree().quit()
 		if not h.inventory.items.is_empty():
@@ -1312,6 +1313,55 @@ func _test_overworld() -> void:
 	await _wait(0.3)
 	Game.market = {}
 	print("[smoke]   comercio ok (abas comprar/vender/leilao pelo dialogo do lider, tooltips de preco, efeito comercio→HUD)")
+	# 6.1: HUD moderna (MECANICAS §9.2) — barras segmentadas, anel de XP,
+	# chips de moeda, minimapa redondo, cooldown radial, tracker recolhível
+	assert(ow.hud._hp_bar is VitalsBar and ow.hud._res_bar is VitalsBar, "barras de vida/recurso segmentadas")
+	assert(absf(ow.hud._hp_bar.value - clampf(ow.player.hp / ow.player.max_hp, 0, 1)) < 0.02,
+		"barra de vida reflete o player")
+	ow.hud._hp_bar.flash_damage()  # flash de dano não explode
+	assert(ow.hud._badge is LevelBadge and ow.hud._badge.level == h.level, "emblema de nível")
+	assert(absf(ow.hud._badge.xp_frac - clampf(float(h.xp) / float(h.xp_to_next()), 0, 1)) < 0.01,
+		"anel de XP preenche com a experiência")
+	assert(ow.hud._gold_chip is PanelContainer and ow.hud._gold.text.contains("●"), "chips de ouro/essência")
+	assert(ow.hud._quest_title is Button, "tracker com cabeçalho clicável")
+	ow.hud.toggle_tracker()
+	assert(ow.hud._tracker_collapsed and not ow.hud._quest_body.visible, "tracker recolhe")
+	ow.hud.toggle_tracker()
+	assert(not ow.hud._tracker_collapsed and ow.hud._quest_body.visible, "tracker expande")
+	var poly61 := SkillSlot._radial_points(Vector2(26, 26), 30.0, 0.5)
+	assert(poly61.size() == 34 and poly61[0] == Vector2(26, 26), "recarga radial (varredura em cone)")
+	var mm61: Minimap = ow.hud._root.get_node("Minimap")
+	assert(mm61.material is ShaderMaterial, "minimapa com máscara circular")
+	var bc61 := BuffChip.new()
+	assert(bc61.custom_minimum_size == Vector2(44, 44), "chip de buff com anel de tempo")
+	var enemies61: Array = get_tree().get_nodes_in_group("enemies")
+	if not enemies61.is_empty():
+		var e61: Enemy = enemies61[0]
+		ow.hud.show_target(e61)
+		assert(ow.hud._target_fill.bg_color == Enemy.RARITY_COLORS[e61.rarity],
+			"barra do alvo colorida pela raridade")
+		if e61.rarity >= Enemy.Rarity.ELITE:
+			assert(ow.hud._target_name.text.begins_with("♛ "), "coroa para campeão+")
+	await _shot("10_hud_moderna")
+	print("[smoke]   hud moderna ok (barras segmentadas, anel XP, chips, minimapa redondo, cooldown radial, tracker recolhivel)")
+	# 6.2: painel do jogador unificado com abas (MECANICAS §9.3)
+	assert(ow.hud._unified is UnifiedPanel and ow.hud._unified.panels.size() == 4,
+		"janela única com 4 abas")
+	ow.hud.toggle_inventory()
+	assert(ow.hud._unified.is_open() and ow.hud._unified.current == 1,
+		"I abre direto na aba Inventário")
+	await _wait(0.2)
+	await _shot("11_painel_unificado")
+	ow.hud.toggle_character()
+	assert(ow.hud._unified.current == 0 and ow.hud.character.visible and not ow.hud.inventory.visible,
+		"C troca para Personagem (mesma janela)")
+	ow.hud.toggle_skills()
+	assert(ow.hud._unified.current == 2 and ow.hud.skills.visible, "K troca para Habilidades")
+	ow.hud.toggle_quests()
+	assert(ow.hud._unified.current == 3 and ow.hud.questlog.visible, "J troca para Missões")
+	ow.hud.toggle_quests()
+	assert(not ow.hud._unified.is_open(), "mesma tecla fecha a janela")
+	print("[smoke]   painel unificado ok (Personagem/Inventario/Habilidades/Missoes na mesma janela, I/C/K/J)")
 	await _shot("07_mundo_acampamento")
 	h.gold = 5000
 	ow.hud.open_merchant()

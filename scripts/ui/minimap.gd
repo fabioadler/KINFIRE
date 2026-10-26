@@ -5,6 +5,7 @@ extends Control
 
 const SCALE := 3.0
 const RADIUS := 32      ## células desenhadas em cada direção
+const CIRCLE_MASK := preload("res://shaders/circle_mask.gdshader")
 var world: World
 var _img: Image
 var _tex: ImageTexture
@@ -17,6 +18,10 @@ func _init(p_world: World) -> void:
 	custom_minimum_size = Vector2(190, 190)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	clip_contents = true
+	# Fase 6.1: máscara circular + borda dourada (§9.2)
+	var mat := ShaderMaterial.new()
+	mat.shader = CIRCLE_MASK
+	material = mat
 
 
 func _process(delta: float) -> void:
@@ -74,4 +79,5 @@ func _draw() -> void:
 	for m in world.minions_near(world.player.global_position, 160.0):
 		draw_circle(to_map.call(m.global_position), 1.6, Color(0.4, 1, 0.6))
 	draw_circle(size * 0.5, 3.0, Color(0.3, 1.0, 0.3))
-	draw_rect(Rect2(Vector2.ZERO, size), UIKit.GOLD_DIM, false, 2.0)
+	# Fase 6.1: borda dourada circular (a máscara do shader corta os cantos)
+	draw_arc(size * 0.5, size.x * 0.5 - 2.0, 0, TAU, 64, UIKit.GOLD, 2.0, true)
