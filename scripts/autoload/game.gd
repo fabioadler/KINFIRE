@@ -41,6 +41,9 @@ const ACTIONS := {
 	"pause": ["Menu / Pausa", [KEY_ESCAPE]],
 }
 
+## Fase 5.5: um diálogo emitiu efeito `comercio` — o HUD abre o TradePanel
+signal trade_requested(race: StringName)
+
 var hero: Hero
 var depth: int = 1
 ## Fase do jogador (PHASE_PROLOGUE | PHASE_CREATED) — REGRAS §15, MECANICAS §12

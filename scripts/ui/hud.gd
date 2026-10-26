@@ -68,6 +68,9 @@ func _build() -> void:
 
 	_build_bottom_bar()
 	_build_top()
+	# Fase 5.5: o diálogo do líder pode liberar a negociação (efeito `comercio`)
+	if not Game.trade_requested.is_connected(_on_trade_requested):
+		Game.trade_requested.connect(_on_trade_requested)
 
 	_messages = VBoxContainer.new()
 	_messages.set_anchors_preset(Control.PRESET_CENTER_TOP)
@@ -582,6 +585,28 @@ func _open_popup(title_text: String, width: float) -> VBoxContainer:
 	_popup.position = Vector2((vs.x - width) * 0.5, vs.y * 0.18)
 	Sfx.play(&"ui_open")
 	return w.body
+
+
+## Fase 5.5: comércio unificado (Comprar/Vender/Leilão) — o diálogo do
+## líder da capital abre via efeito `comercio` (Game.trade_requested)
+func _on_trade_requested(p_race: StringName) -> void:
+	open_trade(p_race)
+
+
+func open_trade(p_race: StringName) -> TradePanel:
+	if hero == null:
+		return null
+	close_popup()
+	var t := TradePanel.new()
+	_root.add_child(t)
+	_popup = t
+	t.set_meta("anchor", world.player.global_position)
+	t.closed.connect(func():
+		if _popup == t:
+			_popup = null
+	)
+	t.open(p_race, maxi(hero.level, world.level()))
+	return t
 
 
 ## Mercador: compra itens misteriosos (aposta estilo Diablo) e vende o lixo

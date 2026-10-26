@@ -498,9 +498,9 @@ func _test_overworld() -> void:
 	box.engine.advance()  # apresentação: página 2
 	box.engine.advance()  # -> escolhas
 	box.engine.choose(0)  # (Continuar) -> menu
-	assert(box.engine.current.id == &"menu" and box.engine.visible_choices().size() == 5)
+	assert(box.engine.current.id == &"menu" and box.engine.visible_choices().size() == 6)  # + (Negociar) da 5.5
 	box.engine.advance()  # menu: 1 página -> escolhas
-	box.engine.choose(3)  # (Oferecer ajuda ao território)
+	box.engine.choose(4)  # (Oferecer ajuda ao território)
 	assert(bool(Game.flags.get("capital_humano_promessa", false)))
 	assert(int(Game.reputation.get(&"humano", 0)) == 2)  # 1 (Marn) + 1 (líder)
 	assert(box.engine.current.id == &"promessa")
@@ -1264,6 +1264,54 @@ func _test_overworld() -> void:
 	h.gold = gold54
 	Game.auction = {}
 	print("[smoke]   leilao ok (6 slots Raro+ rotativos por dia, 1 em essencia, rivais +10% por contra-lance, deterministico)")
+	# 5.5: UI de comércio unificada — abas Comprar/Vender/Leilão
+	Game.market = {}
+	var tp55: TradePanel = ow.hud.open_trade(&"anao_montanha")
+	await _wait(0.2)
+	assert(tp55._tab == TradePanel.TAB_BUY, "abre na aba Comprar")
+	assert(tp55._content.get_child_count() >= 7, "introdução + estoque do dia listado")
+	var stock55: Array = DB.vendor(&"anao_montanha").stock_for(Market.market_day(), tp55.region_level)
+	var cat55: StringName = Market.category_of(stock55[0]["base"])
+	var dem55 := Market.demand(&"anao_montanha", cat55)
+	var gold55 := h.gold
+	tp55.do_buy(0)
+	assert(h.gold < gold55 and Market.is_sold(&"anao_montanha", 0), "compra via UI desconta e consome o slot")
+	assert(Market.demand(&"anao_montanha", cat55) > dem55, "compra aquece a demanda (preço dinâmico na UI)")
+	tp55._show_tab(TradePanel.TAB_SELL)
+	var it55 := DB.create_item(&"sword", 5, 0)
+	assert(h.inventory.add(it55), "espaço para vender")
+	var gold55b := h.gold
+	tp55.do_sell(it55)
+	assert(h.gold > gold55b and not h.inventory.items.has(it55), "venda via UI soma ouro e remove o item")
+	tp55._show_tab(TradePanel.TAB_AUCTION)
+	assert(tp55._tab == TradePanel.TAB_BUY, "sem leilão fora de Porto Franco")
+	tp55.close()
+	await _wait(0.3)
+	# efeito `comercio` no diálogo do líder abre a janela (Fase 5.5)
+	TerritoryNpcs._ensure_dialogues(&"anao_montanha", DB.territory(&"anao_montanha"))
+	var lider55: DialogueData = DB.dialogue(&"capital_anao_montanha_lider")
+	var tem55 := false
+	for n55 in lider55.nodes:
+		for c55 in n55.choices:
+			if String(c55.effects).contains("comercio anao_montanha"):
+				tem55 = true
+	assert(tem55, "diálogo do líder oferece Negociar (efeito comercio)")
+	var abriu55 := {}
+	var latch55 := func(r55: StringName): abriu55["race"] = r55
+	Game.trade_requested.connect(latch55)
+	DialogueEngine.apply_effects("comercio humano")
+	Game.trade_requested.disconnect(latch55)
+	assert(StringName(abriu55.get("race", &"")) == &"humano", "efeito comercio emite Game.trade_requested")
+	# Porto Franco: aba de leilão presente
+	var tp56: TradePanel = ow.hud.open_trade(&"humano")
+	await _wait(0.2)
+	tp56._show_tab(TradePanel.TAB_AUCTION)
+	assert(tp56._tab == TradePanel.TAB_AUCTION, "Porto Franco negocia com a Guilda (leilão)")
+	await _shot("09_comercio_leilao")
+	tp56.close()
+	await _wait(0.3)
+	Game.market = {}
+	print("[smoke]   comercio ok (abas comprar/vender/leilao pelo dialogo do lider, tooltips de preco, efeito comercio→HUD)")
 	await _shot("07_mundo_acampamento")
 	h.gold = 5000
 	ow.hud.open_merchant()

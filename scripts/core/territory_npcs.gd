@@ -132,6 +132,7 @@ static func _leader_dialogue(race: StringName, t: TerritoryData) -> DialogueData
 				_choice("Como o território sobrevive?", &"economia"),
 				_choice("(Perguntar sobre a Chama apagada)", &"chama"),
 				_choice("O povo está bem?", &"povo"),
+				_choice("(Negociar com %s)" % t.capital_name, &"", "", "comercio %s" % race),
 				_choice("(Oferecer ajuda ao território)", &"promessa",
 					"!flag capital_%s_promessa" % race,
 					"flag capital_%s_promessa\nrep %s +1" % [race, race]),
