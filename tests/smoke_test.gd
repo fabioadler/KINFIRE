@@ -1118,6 +1118,58 @@ func _test_overworld() -> void:
 				spec51 += 1
 	assert(float(spec51) / total51 > 0.35, "especialidades dominam o estoque local (foi %.0f%%)" % (100.0 * spec51 / total51))
 	print("[smoke]   vendors ok (14 territorios, estoque rotativo diario deterministico, especialidades regionais, preco REGRAS §8)")
+	# 5.2: preços dinâmicos por oferta/demanda (REGRAS §10)
+	Game.market = {}
+	assert(Market.demand(&"anao_montanha", &"sword") == 1.0, "demanda inicia neutra")
+	Market.on_sell(&"anao_montanha", &"sword", 5)
+	assert(is_equal_approx(Market.demand(&"anao_montanha", &"sword"), 0.85), "vender 5 derruba 15%")
+	Market.on_buy(&"anao_montanha", &"sword", -1, 1)
+	assert(is_equal_approx(Market.demand(&"anao_montanha", &"sword"), 0.88), "comprar 1 eleva 3%")
+	Market.on_sell(&"anao_montanha", &"sword", 100)
+	assert(Market.demand(&"anao_montanha", &"sword") == Market.DEMAND_MIN, "clamp no piso 0.6 (inundado)")
+	Market.on_buy(&"anao_montanha", &"sword", -1, 100)
+	assert(Market.demand(&"anao_montanha", &"sword") == Market.DEMAND_MAX, "clamp no teto 1.5 (escasso)")
+	Market.on_buy(&"anao_montanha", &"sword", 0)
+	assert(Market.is_sold(&"anao_montanha", 0), "slot do estoque consumido")
+	Market.new_day()
+	assert(not Market.is_sold(&"anao_montanha", 0), "virada do dia re-estoca (sold limpo)")
+	# recuperação: bow (escasso na Forja) saturado 1.5 → 4 dias = 1.3 exato
+	Game.market = {}
+	Market.on_buy(&"anao_montanha", &"bow", -1, 17)
+	for d52 in 4:
+		Market.new_day()
+	assert(is_equal_approx(Market.demand(&"anao_montanha", &"bow"), 1.3),
+		"escasso recupera 5%%/dia ao natural 1.3")
+	# sword (produzido na Forja) inundado 0.6 → 2 dias = 0.7 exato
+	Market.on_sell(&"anao_montanha", &"sword", 14)
+	for d52 in 2:
+		Market.new_day()
+	assert(is_equal_approx(Market.demand(&"anao_montanha", &"sword"), 0.7),
+		"produzido recupera ao natural 0.7")
+	# rota comercial: produtor barato → escasso caro (MECANICAS §10)
+	Game.market = {}
+	var espada52 := {"base": &"sword", "level": 10, "rarity": 0, "price": 35}
+	var item52 := DB.create_item(&"sword", 10, 0)
+	var compra52 := Market.buy_price(&"anao_montanha", espada52)
+	var venda52 := Market.sell_price(&"elfo_floresta", item52)
+	assert(compra52 == 16, "Forja: 35×1.0×0.45 = 16 (foi %d)" % compra52)
+	assert(venda52 == 18, "elfo_floresta: 35×0.40×1.25 = 18 (foi %d)" % venda52)
+	assert(venda52 > compra52, "rota produtor→escasso lucra +%d" % (venda52 - compra52))
+	Market.on_sell(&"anao_montanha", &"sword", 14)      # produtor inundado
+	Market.on_buy(&"elfo_floresta", &"sword", -1, 10)   # comprador aquecido
+	assert(Market.buy_price(&"anao_montanha", espada52) == 9
+		and Market.sell_price(&"elfo_floresta", item52) == 23,
+		"assentado: compra 9 < venda 23")
+	assert(Market.rep_discount(4) == 0.20, "plumbing reputação: tier 4 = 20%")
+	# dia de mercado vira às 06:00 (REGRAS §14)
+	var wt52 := Game.world_time
+	Game.world_time = 0.9
+	assert(Market.market_day() == 0, "antes das 06:00 e dia anterior")
+	Game.world_time = 1.3
+	assert(Market.market_day() == 1, "vira as 06:00 do dia seguinte")
+	Game.world_time = wt52
+	Game.market = {}
+	print("[smoke]   mercado dinamico ok (demanda ±3%/item, clamps 0.6/1.5, recuperacao 5%/dia ao natural, rotas produtor→escasso, dia vira as 06:00)")
 	await _shot("07_mundo_acampamento")
 	h.gold = 5000
 	ow.hud.open_merchant()

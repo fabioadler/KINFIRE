@@ -28,6 +28,7 @@ var _tiles := {}              ## "x,y,mod" -> [coords, alt]
 var _src: TileSetAtlasSource
 var _ground_src: TileSetAtlasSource
 var _time := 0.3
+var _last_day := -1
 
 
 func _setup_map() -> void:
@@ -232,6 +233,13 @@ func _process(delta: float) -> void:
 	_time += delta / DAY_LENGTH
 	Game.world_time = _time
 	_update_daylight()
+	# Fase 5.2: virada do dia às 06:00 — vendors re-estocam e a demanda
+	# recupera 5% rumo ao nível natural (REGRAS §10/§14)
+	var mday := Market.market_day()
+	if mday != _last_day:
+		if _last_day >= 0:
+			Market.new_day()
+		_last_day = mday
 	if player == null:
 		return
 	# Fase 4: mudança de território alimenta objetivos REACH das quests

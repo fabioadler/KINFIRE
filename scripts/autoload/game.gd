@@ -60,6 +60,8 @@ var quest_log := QuestLog.new()
 var flags := {}
 ## Fragmentos da Verdade coletados (Fase 4 — 8 destravam o Final Dourado)
 var fragmentos: Array = []
+## Economia por território (Fase 5.2): {raça: {"demand": {cat: float}, "sold": [índices]}}
+var market: Dictionary = {}
 ## Mundo aberto
 var world_seed: int = 0
 var world_time: float = 0.3
@@ -171,6 +173,7 @@ func new_game(h: Hero) -> void:
 	quest_log.tracked = &""
 	flags = {}
 	fragmentos = []
+	market = {}
 	save_game()
 	change_scene(OVERWORLD)
 
@@ -193,6 +196,7 @@ func new_prologue() -> void:
 	quest_log.tracked = &""
 	flags = {}
 	fragmentos = []
+	market = {}
 	save_game()
 	change_scene(PROLOGUE)
 
@@ -288,6 +292,7 @@ func save_game() -> void:
 		"version": SAVE_VERSION, "depth": depth, "hero": hero.to_dict(),
 		"phase": phase, "ignorance": ignorance, "reputation": reputation,
 		"quests": quests, "flags": flags, "fragmentos": fragmentos,
+		"market": market,
 		"world_seed": world_seed, "world_time": world_time, "in_dungeon": in_dungeon,
 		"overworld_pos": _vec(overworld_pos), "respawn_pos": _vec(respawn_pos),
 		"waypoints": waypoints, "world_opened": world_opened,
@@ -317,6 +322,7 @@ func load_game() -> bool:
 	quest_log.tracked = &""
 	flags = data.get("flags", {})
 	fragmentos = data.get("fragmentos", [])
+	market = data.get("market", {})
 	world_seed = int(data.get("world_seed", randi()))
 	world_time = float(data.get("world_time", 0.3))
 	in_dungeon = bool(data.get("in_dungeon", false))
