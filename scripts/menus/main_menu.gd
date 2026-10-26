@@ -13,6 +13,7 @@ const PARADE_MONSTERS := ["goblin", "skelet", "orc_warrior", "imp", "chort", "ti
 
 var _buttons: VBoxContainer
 var _embers: CPUParticles2D
+var _logo_embers: CPUParticles2D
 var _logo: TextureRect
 var _fog: ColorRect
 var _strip: TextureRect
@@ -66,11 +67,7 @@ func _ready() -> void:
 	_embers.initial_velocity_max = 60.0
 	_embers.scale_amount_min = 1.5
 	_embers.scale_amount_max = 4.0
-	var ramp := Gradient.new()
-	ramp.set_color(0, Color(1, 0.6, 0.15, 0.0))
-	ramp.add_point(0.2, Color(1, 0.5, 0.1, 0.9))
-	ramp.set_color(ramp.get_point_count() - 1, Color(0.8, 0.1, 0.0, 0.0))
-	_embers.color_ramp = ramp
+	_embers.color_ramp = _ember_ramp()
 	add_child(_embers)
 
 	var vignette := ColorRect.new()
@@ -98,6 +95,20 @@ func _ready() -> void:
 	lm.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
 	_logo.material = lm
 	center.add_child(_logo)
+	# 6.3: brasas que sobem do próprio logo — o Kinfire que ainda arde
+	_logo_embers = CPUParticles2D.new()
+	_logo_embers.amount = 24
+	_logo_embers.lifetime = 2.2
+	_logo_embers.preprocess = 2.2
+	_logo_embers.direction = Vector2.UP
+	_logo_embers.spread = 35.0
+	_logo_embers.gravity = Vector2(0, -30)
+	_logo_embers.initial_velocity_min = 12.0
+	_logo_embers.initial_velocity_max = 36.0
+	_logo_embers.scale_amount_min = 1.0
+	_logo_embers.scale_amount_max = 2.5
+	_logo_embers.color_ramp = _ember_ramp()
+	_logo.add_child(_logo_embers)
 
 	var hb := HBoxContainer.new()
 	hb.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -204,11 +215,23 @@ void fragment() {
 	return s
 
 
+## Gradiente das brasas: nasce laranja translúcido, acende no pico e
+## morre vermelho apagado — a mesma rampa do rodapé e do logo (§9.1:
+## "brasa viva" do tema dark fantasy premium).
+func _ember_ramp() -> Gradient:
+	var ramp := Gradient.new()
+	ramp.set_color(0, Color(1, 0.6, 0.15, 0))
+	ramp.add_point(0.2, Color(1, 0.5, 0.1, 0.9))
+	ramp.set_color(ramp.get_point_count() - 1, Color(0.8, 0.1, 0, 0))
+	return ramp
+
+
 func _layout() -> void:
 	var vs := get_viewport_rect().size
 	_embers.position = Vector2(vs.x * 0.5, vs.y + 10)
 	_embers.emission_rect_extents = Vector2(vs.x * 0.5, 10)
 	_logo.custom_minimum_size.y = clampf(vs.y * 0.4, 200, 460)
+	_place_logo_embers.call_deferred()
 	_strip.size = Vector2(vs.x / 3.0 + 16, 48)
 	_strip.position = Vector2(0, vs.y - 48 * 3)
 	_byline.reset_size()
@@ -216,6 +239,13 @@ func _layout() -> void:
 	if _summary_panel:
 		_summary_panel.reset_size()
 		_summary_panel.position = Vector2(vs.x - _summary_panel.size.x - 16, vs.y * 0.42)
+
+
+## Emissor de brasas no centro do logo (deferred: espera os containers
+## reposicionarem o TextureRect antes de ler o seu size)
+func _place_logo_embers() -> void:
+	if _logo_embers and _logo:
+		_logo_embers.position = _logo.size * 0.5
 
 
 func _spawn_walker(progress := 0.0) -> void:

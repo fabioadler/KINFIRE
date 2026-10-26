@@ -43,6 +43,12 @@ func _run() -> void:
 	await _wait(2.5)
 	await _shot("01_menu")
 	var menu := get_tree().current_scene
+	# 6.3: menu moderno — névoa, brasas do rodapé e brasas subindo do logo
+	assert(menu._logo_embers is CPUParticles2D, "brasas no logo")
+	assert(menu._logo_embers.amount > 0, "emissor de brasas ativo")
+	assert(menu._embers.color_ramp != null, "ramp de brasas no rodape")
+	assert(menu._fog.material is ShaderMaterial, "shader de nevoa")
+	print("[smoke]   menu moderno ok (logo com brasas proprias)")
 	menu._on_credits()
 	await _wait(1.5)
 	await _shot("01b_creditos")
