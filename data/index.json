@@ -102,5 +102,21 @@
     "misterio_6",
     "misterio_7",
     "misterio_8"
+  ],
+  "vendors": [
+    "humano",
+    "alto_elfo",
+    "elfo_floresta",
+    "drow",
+    "anao_montanha",
+    "anao_colinas",
+    "halfling",
+    "meio_orc",
+    "tiefling",
+    "draconato",
+    "gnomo",
+    "meio_elfo",
+    "tabaxi",
+    "golias"
   ]
 }

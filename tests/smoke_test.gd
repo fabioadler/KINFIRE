@@ -1092,6 +1092,32 @@ func _test_overworld() -> void:
 	assert(Game.quest_log.fragments() == 8, "8 Fragmentos da Verdade coletados")
 	assert(Game.quest_log.golden_ending_unlocked(), "Final Dourado destravado (REGRAS §12)")
 	print("[smoke]   misterios ok (8 cadeias ocultas por prereqs, 1 fragmento cada, Final Dourado destravado)")
+	# 5.1: VendorData — estoque rotativo diário + especialidades regionais
+	assert(DB.vendor_ids().size() == 14, "14 fornecedores (um por territorio)")
+	var v51: VendorData = DB.vendor(&"anao_montanha")
+	assert(v51 != null and v51.specialties.has(&"axe"), "Forja-Coracao produz machados")
+	assert(DB.vendor(&"humano") != null and DB.vendor(&"humano").specialties.is_empty(),
+		"Porto Franco e generalista (comercio inter-territorios)")
+	var s_a51: Array = v51.stock_for(3, 10)
+	assert(s_a51 == v51.stock_for(3, 10), "mesmo dia = mesmo estoque (deterministico por id+dia)")
+	assert(v51.stock_for(4, 10) != s_a51, "virada do dia re-estoca (REGRAS §14: 06:00)")
+	var valido51 := true
+	for e51 in s_a51:
+		if not DB.BASES.has(e51["base"]) or e51["level"] < 1 \
+				or e51["price"] != VendorData._base_value(e51["level"], e51["rarity"]):
+			valido51 = false
+	assert(valido51, "entradas validas (base existe, nivel >= 1, preco REGRAS §8)")
+	# especialidades: ~45% dos slots vem das categorias produzidas (vs taxa base
+	# ~2/12 no resto do pool); agregando 30 dias o sinal e inequivoco
+	var spec51 := 0
+	var total51 := 0
+	for d51 in 30:
+		for e51 in v51.stock_for(d51, 10):
+			total51 += 1
+			if DB.BASES[e51["base"]].get("cat", &"") in v51.specialties:
+				spec51 += 1
+	assert(float(spec51) / total51 > 0.35, "especialidades dominam o estoque local (foi %.0f%%)" % (100.0 * spec51 / total51))
+	print("[smoke]   vendors ok (14 territorios, estoque rotativo diario deterministico, especialidades regionais, preco REGRAS §8)")
 	await _shot("07_mundo_acampamento")
 	h.gold = 5000
 	ow.hud.open_merchant()

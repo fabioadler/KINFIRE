@@ -141,6 +141,8 @@ var dialogues := {}
 var npcs := {}
 ## Quests (Fase 4): id -> QuestData (data/quests/*.tres, lista no index.json)
 var quests := {}
+## Vendors (Fase 5): id -> VendorData (data/vendors/*.tres, lista no index.json)
+var vendors := {}
 var _tile_cache := {}
 var _sheet_image: Image
 var _dt2_image: Image
@@ -168,6 +170,13 @@ func _ready() -> void:
 			quests[StringName(qid)] = qres
 		else:
 			push_error("Quest não encontrada: data/quests/%s.tres" % qid)
+	# Fase 5: vendors (data/vendors/*.tres)
+	for vid in idx.get("vendors", []):
+		var vres: VendorData = load("res://data/vendors/%s.tres" % vid)
+		if vres:
+			vendors[StringName(vid)] = vres
+		else:
+			push_error("Vendor não encontrado: data/vendors/%s.tres" % vid)
 
 
 func _load_dir(dir: String, order: Array) -> Array:
@@ -427,6 +436,16 @@ func quest(id: StringName) -> QuestData:
 ## Todas as quests registradas (ids)
 func quest_ids() -> Array:
 	return quests.keys()
+
+
+## Vendor por id (Fase 5); null se não existe
+func vendor(id: StringName) -> VendorData:
+	return vendors.get(id) as VendorData
+
+
+## Todos os fornecedores registrados (ids)
+func vendor_ids() -> Array:
+	return vendors.keys()
 
 
 func get_skill(cls: ClassData, id: StringName) -> SkillData:
