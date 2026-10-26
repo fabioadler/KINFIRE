@@ -79,11 +79,11 @@ static func new_day() -> void:
 
 
 ## Preço de compra (player -> vendor) de uma entrada do estoque
-static func buy_price(race: StringName, entry: Dictionary, reputation := 0) -> int:
+static func buy_price(race: StringName, entry: Dictionary, reputation := -1) -> int:
 	var cat := category_of(entry["base"])
 	var v: VendorData = DB.vendor(race)
 	var factor := PRODUCER_BUY if (v != null and cat in v.specialties) else 1.0
-	return int(round(float(entry["price"]) * demand(race, cat) * factor * (1.0 - rep_discount(reputation))))
+	return int(round(float(entry["price"]) * demand(race, cat) * factor * (1.0 - rep_discount(reputation, race))))
 
 
 ## Preço de venda (vendor -> player) de um item do inventário
@@ -95,12 +95,23 @@ static func sell_price(race: StringName, item: Item) -> int:
 		* demand(race, cat) * factor))
 
 
-## Desconto por reputação (5.3, REGRAS §10): 0/5/10/15/20% por tier 0–4
-static func rep_discount(reputation := -1) -> float:
-	var rep := clampi(reputation, 0, 4)
-	if reputation < 0 and Game.hero != null:
+## Desconto por reputação (REGRAS §10, MECANICAS §10): 0/5/10/15/20% por tier
+## 0–4. Sem `reputation` explícito, usa a reputação do herói COM O
+## TERRITÓRIO do vendor (não a raça do herói — cada território lembra).
+static func rep_discount(reputation := -1, race := &"") -> float:
+	var rep := 0
+	if reputation >= 0:
+		rep = clampi(reputation, 0, 4)
+	elif race != &"":
+		rep = clampi(int(Game.reputation.get(race, 0)), 0, 4)
+	elif Game.hero != null:
 		rep = clampi(int(Game.reputation.get(Game.hero.race.id, 0)), 0, 4)
 	return 0.05 * rep
+
+
+## Nome do tier de reputação (MECANICAS §10) — exibido na UI de comércio
+static func tier_name(rep: int) -> String:
+	return ["Estranho", "Conhecido", "Respeitado", "Honrado", "Laço"][clampi(rep, 0, 4)]
 
 
 ## Slot do estoque já vendido no dia?

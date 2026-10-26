@@ -1170,6 +1170,32 @@ func _test_overworld() -> void:
 	Game.world_time = wt52
 	Game.market = {}
 	print("[smoke]   mercado dinamico ok (demanda ±3%/item, clamps 0.6/1.5, recuperacao 5%/dia ao natural, rotas produtor→escasso, dia vira as 06:00)")
+	# 5.3: desconto por reputação (0/5/10/15/20% por tier — MECANICAS §10)
+	var tiers53 := ["Estranho", "Conhecido", "Respeitado", "Honrado", "Laço"]
+	for rep53 in 5:
+		assert(Market.tier_name(rep53) == tiers53[rep53], "tier %d = %s" % [rep53, tiers53[rep53]])
+		assert(Market.rep_discount(rep53) == 0.05 * rep53, "desconto %d%% no tier %d" % [5 * rep53, rep53])
+	# arco lvl10 (35 ouro, escasso na Forja = sem fator produtor): preços por tier
+	var arco53 := {"base": &"bow", "level": 10, "rarity": 0, "price": 35}
+	var esperado53 := [35, 33, 32, 30, 28]
+	for rep53 in 5:
+		assert(Market.buy_price(&"anao_montanha", arco53, rep53) == esperado53[rep53],
+			"tier %d paga %d (foi %d)" % [rep53, esperado53[rep53], Market.buy_price(&"anao_montanha", arco53, rep53)])
+	# sem rep explícito usa a reputação COM O TERRITÓRIO do vendor (não a raça
+	# do herói): Forja tier 3 = 15% off; reputação com outro povo não valem lá
+	var rep_backup53 := Game.reputation.duplicate()
+	Game.market = {}
+	Game.reputation = {}
+	Game.reputation[&"anao_montanha"] = 3
+	assert(Market.buy_price(&"anao_montanha", arco53) == 30,
+		"reputação com a Forja (tier 3) derruba o preço para 30")
+	Game.reputation = {}
+	Game.reputation[&"humano"] = 4
+	assert(Market.buy_price(&"anao_montanha", arco53) == 35,
+		"reputação com Porto Franco não vale na Forja (35)")
+	Game.reputation = rep_backup53
+	Game.market = {}
+	print("[smoke]   reputacao ok (tiers Estranho→Laco, desconto 0/5/10/15/20%, reputação e por territorio do vendor)")
 	await _shot("07_mundo_acampamento")
 	h.gold = 5000
 	ow.hud.open_merchant()
