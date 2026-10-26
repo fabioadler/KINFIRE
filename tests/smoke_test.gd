@@ -23,6 +23,20 @@ func _wait(t: float) -> void:
 	await get_tree().create_timer(t, true, false, true).timeout
 
 
+## Fase 6.5: espera uma condição virar verdadeira com prazo em RELÓGIO DE
+## PAREDE (Time.get_ticks_msec). Os SceneTreeTimers do engine podem disparar
+## cedo em headless sob carga (delta idle inflado — medimos 0.35s pedidos
+## disparando em 25ms reais), então asserts que dependem de tempo decorrido
+## (fim de uma animação de pop_out, liberação de popup etc.) devem usar isto.
+func _wait_until(cond: Callable, timeout_ms := 3000) -> bool:
+	var t0 := Time.get_ticks_msec()
+	while not cond.call():
+		if Time.get_ticks_msec() - t0 > timeout_ms:
+			return false
+		await get_tree().create_timer(0.05, true, false, true).timeout
+	return true
+
+
 func _run() -> void:
 	print("[smoke] migracao v3 -> v4")
 	var v3_save := {"version": 3, "depth": 2, "hero": {"name": "Velho", "race": "humano", "class": "guerreiro", "level": 5},
@@ -1385,6 +1399,37 @@ func _test_overworld() -> void:
 	ow.hud.toggle_quests()
 	assert(not ow.hud._unified.is_open(), "mesma tecla fecha a janela")
 	print("[smoke]   painel unificado ok (Personagem/Inventario/Habilidades/Missoes na mesma janela, I/C/K/J)")
+	# 6.5: micro-interações — pop ao abrir/fechar; reabrir cancela o fechamento.
+	# Esperas por fim de animação usam _wait_until (relógio de parede): os
+	# timers do engine disparam cedo em headless sob carga.
+	ow.hud.toggle_inventory()
+	ow.hud.toggle_inventory()
+	assert(not ow.hud._unified.is_open() and ow.hud._unified.visible,
+		"fecha com pop_out (logica imediata, animacao em curso)")
+	var hidden65 := await _wait_until(func(): return not ow.hud._unified.visible)
+	assert(hidden65, "janela some ao fim do pop_out")
+	# reabrir no meio de um fechamento: mata o tween e cancela o callback
+	ow.hud.toggle_inventory()   # abre (pop_in)
+	ow.hud.toggle_inventory()   # fecha (pop_out em curso)…
+	ow.hud.toggle_inventory()   # …e reabre no MESMO frame, cancelando tudo
+	assert(ow.hud._unified.is_open(), "reabrir no meio do pop_out reabre a janela")
+	var shown65 := await _wait_until(func():
+		return ow.hud._unified.visible and absf(ow.hud._unified.modulate.a - 1.0) < 0.05)
+	assert(shown65, "reaberta plenamente visivel (tween de fechamento morto, sem callback zumbi)")
+	ow.hud.toggle_inventory()
+	assert(not ow.hud._unified.is_open() and ow.hud._unified.visible, "fecha de novo (animacao em curso)")
+	var hidden65b := await _wait_until(func(): return not ow.hud._unified.visible)
+	assert(hidden65b, "janela some ao fim do segundo pop_out")
+	# popups do mundo fecham com pop_out e libertam após a animação
+	ow.hud.open_merchant()
+	await _wait(0.1)
+	var pop65 := ow.hud._popup
+	ow.hud.close_popup()
+	assert(ow.hud._popup == null and is_instance_valid(pop65),
+		"close_popup solta a referencia e deixa o popup animar")
+	var freed65 := await _wait_until(func(): return not is_instance_valid(pop65))
+	assert(freed65, "popup libertado apos o pop_out")
+	print("[smoke]   micro-interacoes ok (pop_in/pop_out na janela unificada e nos popups, reabertura cancela o fechamento)")
 	await _shot("07_mundo_acampamento")
 	h.gold = 5000
 	ow.hud.open_merchant()

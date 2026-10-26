@@ -201,7 +201,7 @@ static func _lift(c: Control, target_scale: float, time: float = 0.12) -> void:
 
 
 ## Abre um painel com tween pop (0.18s back-ease) e fade — §9.3
-static func pop_in(panel: Control, final_scale: Vector2 = Vector2.ONE) -> void:
+static func pop_in(panel: Control, final_scale: Vector2 = Vector2.ONE) -> Tween:
 	panel.scale = final_scale * 0.92
 	panel.modulate.a = 0.0
 	var tw := panel.create_tween()
@@ -209,10 +209,13 @@ static func pop_in(panel: Control, final_scale: Vector2 = Vector2.ONE) -> void:
 	tw.tween_property(panel, "scale", final_scale, TWEEN_FAST)\
 		.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tw.tween_property(panel, "modulate:a", 1.0, TWEEN_FAST * 0.8)
+	return tw
 
 
-## Fecha um painel com fade + leve redução; on_done ao terminar
-static func pop_out(panel: Control, on_done: Callable = Callable()) -> void:
+## Fecha um painel com fade + leve redução; on_done ao terminar.
+## Retorna o Tween para o chamador poder interrompê-lo (6.5: abrir no
+## meio de um fechamento deve cancelar o callback de esconder).
+static func pop_out(panel: Control, on_done: Callable = Callable()) -> Tween:
 	var tw := panel.create_tween()
 	tw.set_parallel(true)
 	tw.tween_property(panel, "modulate:a", 0.0, TWEEN_FAST * 0.8)
@@ -220,6 +223,7 @@ static func pop_out(panel: Control, on_done: Callable = Callable()) -> void:
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
 	if on_done.is_valid():
 		tw.chain().tween_callback(on_done)
+	return tw
 
 
 static func rich(text: String = "", fit: bool = true) -> RichTextLabel:

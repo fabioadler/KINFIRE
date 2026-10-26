@@ -353,11 +353,15 @@ func _unhandled_input(event: InputEvent) -> void:
 			close_popup()
 			get_viewport().set_input_as_handled()
 			return
-		if inventory.visible or character.visible or skills.visible or questlog.visible:
-			inventory.visible = false
-			character.visible = false
-			skills.visible = false
-			questlog.visible = false
+		if _unified.is_open():
+			# 6.2/6.5: ESC fecha a janela unificada inteira (com pop_out),
+			# devolvendo item segurado pela aba Inventário
+			if _unified.current == 1 and inventory.held:
+				if not hero.inventory.add(inventory.held):
+					inventory.drop_held_to_world()
+				inventory.held = null
+			inventory.hide_tooltip()
+			_unified.close()
 			Sfx.play(&"ui_close")
 		elif _death_layer == null:
 			toggle_pause()
@@ -575,7 +579,13 @@ func _on_quest_completed(id: StringName) -> void:
 
 func close_popup() -> void:
 	if _popup and is_instance_valid(_popup):
-		_popup.queue_free()
+		# 6.5: fecha com pop_out e liberta quando a animação termina
+		var p := _popup
+		p.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		UIKit.pop_out(p, func():
+			if is_instance_valid(p):
+				p.queue_free()
+		)
 	_popup = null
 
 
@@ -604,6 +614,9 @@ func _open_popup(title_text: String, width: float) -> VBoxContainer:
 	_popup.reset_size()
 	var vs := _root.get_viewport_rect().size
 	_popup.position = Vector2((vs.x - width) * 0.5, vs.y * 0.18)
+	# 6.5: abre com pop (fade + back-ease); pivot central para escalar do meio
+	_popup.pivot_offset = _popup.size * 0.5
+	UIKit.pop_in(_popup)
 	Sfx.play(&"ui_open")
 	return w.body
 

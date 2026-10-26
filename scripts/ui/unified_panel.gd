@@ -13,6 +13,8 @@ var current := -1
 var _tabs: HBoxContainer
 var _tab_buttons: Array[Button] = []
 var _body: Control
+## 6.5: tween de pop em curso (abrir no meio de um fechamento cancela o callback)
+var _pop: Tween
 
 
 func _init() -> void:
@@ -46,23 +48,46 @@ func add_page(title: String, panel: Control) -> void:
 func open_tab(idx: int) -> void:
 	if idx < 0 or idx >= panels.size():
 		return
+	# 6.5: "abrindo de fato" = janela fechada OU reaberta no meio do pop_out
+	# (trocar de aba não re-anima)
+	var opening := not visible or current < 0
 	current = idx
 	for i in panels.size():
 		var p: Control = panels[i]["panel"]
 		p.visible = (i == idx)
 	visible = true
+	if opening:
+		_kill_pop()
+		pivot_offset = size * 0.5
+		modulate.a = 1.0
+		scale = Vector2.ONE
+		_pop = UIKit.pop_in(self)
 	_refresh_tabs()
 
 
 func close() -> void:
 	current = -1
-	visible = false
 	for i in panels.size():
 		(panels[i]["panel"] as Control).visible = false
+	# 6.5: fecha com pop_out — a janela some quando a animação termina;
+	# reabrir no meio mata o tween e cancela o callback
+	_kill_pop()
+	_pop = UIKit.pop_out(self, func():
+		visible = false
+		modulate.a = 1.0
+		scale = Vector2.ONE
+	)
 
 
 func is_open() -> bool:
-	return visible
+	return current >= 0
+
+
+## 6.5: interrompe a animação de pop em curso
+func _kill_pop() -> void:
+	if _pop != null and _pop.is_valid():
+		_pop.kill()
+	_pop = null
 
 
 ## Comportamento das teclas I/C/K/J: fechado abre na aba; aberto na mesma
