@@ -74,7 +74,8 @@ func _ready() -> void:
 			_sprite.position = Vector2.ZERO
 		Kind.CAMPFIRE:
 			_sprite.texture = ow_texture(Vector2i(14, 8))
-			_light = Fx.make_light(Color(1, 0.6, 0.25), 2.2, 1.3)
+			# 7.2: fogueira oscila viva e projeta sombras reais (§14.2)
+			_light = Fx.make_light(Color(1, 0.6, 0.25), 2.2, 1.3, LightFx.Flicker.FIRE, true)
 		Kind.MERCHANT:
 			_sprite.visible = false
 			_anim = AnimatedSprite2D.new()

@@ -45,7 +45,8 @@ func _build(tab: int) -> void:
 	_slider(video, "Escala da Interface", "ui_scale", 0.75, 1.5, 0.05, true)
 	_slider(video, "Brilho da Masmorra", "brightness", 0.6, 1.8, 0.05, true)
 	_check(video, "Mostrar FPS", "show_fps")
-	_reset_button(video, ["fullscreen", "window_size", "vsync", "max_fps", "ui_scale", "brightness", "show_fps"])
+	_option(video, "Sombras", "shadows", ["Desligadas", "Suaves (PCF5)", "Nítidas (PCF13)"])
+	_reset_button(video, ["fullscreen", "window_size", "vsync", "max_fps", "ui_scale", "brightness", "show_fps", "shadows"])
 
 	var game := _page("Jogabilidade")
 	_check(game, "Números de Dano", "damage_numbers")

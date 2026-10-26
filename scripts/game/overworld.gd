@@ -30,6 +30,8 @@ var _ground_src: TileSetAtlasSource
 var _time := 0.3
 var _last_day := -1
 var _last_hour := -1
+## Fase 7.2: lanterna do herói — acende no crepúsculo, sempre com sombra (§14.2)
+var _lantern: PointLight2D
 
 # 7.1: color grading por keyframes (MECANICAS §14.1) — [fração do dia, tom]
 # 0.0 = meia-noite, 0.5 = meio-dia; interpolado suavemente (sem saltos)
@@ -232,6 +234,16 @@ func _update_daylight() -> void:
 	canvas_modulate.color = Color(c.r * b, c.g * b, c.b * b, 1.0)
 	if player:
 		player.light.energy = lerpf(1.6, 0.12, day)
+		# 7.2: lanterna do herói — acende sozinha no crepúsculo (§14.2),
+		# quente e curta (~90px), única luz que sempre projeta sombra;
+		# sem tremulação: a energia segue o ciclo do dia (_update_daylight)
+		if _lantern == null:
+			_lantern = Fx.make_light(Color(1.0, 0.78, 0.45), 0.7, 0.0,
+				LightFx.Flicker.NONE, true)
+			player.add_child(_lantern)
+			_lantern.position = Vector2(0, -4)
+		# crepúsculo: 0.3 (dia pleno) -> 0.0 (noite): suaviza o acender
+		_lantern.energy = lerpf(1.1, 0.0, clampf(day / 0.3, 0.0, 1.0))
 
 
 ## 7.1: tom do mundo interpolado entre keyframes do dia (§14.1)
@@ -323,6 +335,9 @@ func _build_tileset() -> void:
 	ts.add_physics_layer()
 	ts.set_physics_layer_collision_layer(0, 1)
 	ts.set_physics_layer_collision_mask(0, 0)
+	# 7.2: camada de oclusão — árvores, rochas e muros de capital projetam
+	# sombras reais nas luzes com shadow_enabled (MECANICAS §14.2)
+	ts.add_occlusion_layer()
 	_src = TileSetAtlasSource.new()
 	_src.texture = SHEET
 	_src.texture_region_size = Vector2i(TILE, TILE)
@@ -347,6 +362,11 @@ func _alt(coords: Vector2i, mod: Color, solid: bool, is_top := false) -> int:
 		td.add_collision_polygon(0)
 		var r := 6.0 if not is_top else 8.0
 		td.set_collision_polygon_points(0, 0, PackedVector2Array([Vector2(-r, -r), Vector2(r, -r), Vector2(r, r), Vector2(-r, r)]))
+		# 7.2: oclusor de sombra do sólido (copas de árvore não bloqueiam
+		# a luz — só troncos/rochas/muros, daí o recorte menor sem is_top
+		var occ := OccluderPolygon2D.new()
+		occ.polygon = PackedVector2Array([Vector2(-r, -r), Vector2(r, -r), Vector2(r, r), Vector2(-r, r)])
+		td.set_occluder(0, occ)
 	if is_top:
 		# A copa da árvore ordena junto com o tronco (célula de baixo)
 		td.y_sort_origin = TILE

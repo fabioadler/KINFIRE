@@ -1466,6 +1466,92 @@ func _test_overworld() -> void:
 	assert(amanheceu71 and not ow._is_night(), "dormir avanca ate 06:00 (0.25)")
 	assert(absf(ow.player.hp - ow.player.max_hp) < 0.5, "dormir cura toda a vida")
 	print("[smoke]   relogio/ciclo ok (chip HH:MM + arco, keyframes de cor, hour_changed na vela, dormir cura e avanca)")
+	# 7.2: sombras dinâmicas 2D (MECANICAS §14.2) — oclusão por tile,
+	# tremulação por fonte, orçamento de 8 sombras e lanterna do herói
+	var ts72: TileSet = ow.wall_layer.tile_set
+	assert(ts72.get_occlusion_layers_count() == 1, "tileset do mundo tem camada de oclusao")
+	var alt72 := ow._alt(Vector2i(11, 14), Color(1.0, 0.7, 0.5), true)
+	assert(ow._src.get_tile_data(Vector2i(11, 14), alt72).get_occluder(0) != null,
+		"tile solido (tronco/rocha/muro) projeta sombra")
+	var alt72b := ow._alt(Vector2i(28, 10), Color.WHITE, false)
+	assert(ow._src.get_tile_data(Vector2i(28, 10), alt72b).get_occluder(0) == null,
+		"chao/prop livre nao bloqueia a luz")
+	var alt72c := ow._alt(Vector2i(28, 10), Color.WHITE, false, true)
+	assert(ow._src.get_tile_data(Vector2i(28, 10), alt72c).get_occluder(0) == null,
+		"copa de arvore nao bloqueia a luz (so o tronco)")
+	# fogueira do acampamento: tremulação FIRE registrada (§14.2)
+	var fire72: Interactable = null
+	for n72 in get_tree().get_nodes_in_group("interactables"):
+		if n72 is Interactable and (n72 as Interactable).kind == Interactable.Kind.CAMPFIRE \
+				and (n72 as Interactable)._light != null:
+			fire72 = n72
+			break
+	assert(fire72 != null, "fogueira do acampamento com luz viva")
+	assert(LightFx.flicker_of(fire72._light) == LightFx.Flicker.FIRE, "fogueira oscila (FIRE)")
+	# orçamento: no máx. 8 luzes com sombra; além de 720px degrada
+	var center72 := Vector2(1000000, 1000000)
+	var test72: Array[PointLight2D] = []
+	for i72 in 12:
+		var l72 := Fx.make_light(Color.WHITE, 0.5, 1.0, LightFx.Flicker.NONE, true)
+		ow.add_child(l72)
+		l72.global_position = center72 + Vector2(i72 * 60.0, 0)
+		test72.append(l72)
+	LightFx.update(center72, 1.0)
+	var on72 := 0
+	for l72 in test72:
+		if l72.shadow_enabled:
+			on72 += 1
+	assert(on72 == LightFx.SHADOW_BUDGET, "orcamento concede sombra a apenas %d luzes" % LightFx.SHADOW_BUDGET)
+	assert(test72[0].shadow_enabled and test72[7].shadow_enabled and not test72[8].shadow_enabled,
+		"as 8 MAIS PROXIMAS ganham sombra, o resto degrada")
+	assert(test72[0].shadow_filter == PointLight2D.SHADOW_FILTER_PCF5, "preset Medio = PCF5")
+	var far72 := Fx.make_light(Color.WHITE, 0.5, 1.0, LightFx.Flicker.NONE, true)
+	ow.add_child(far72)
+	far72.global_position = center72 + Vector2(750.0, 0)
+	LightFx.update(center72, 1.0)
+	assert(not far72.shadow_enabled, "luz alem de 720px do centro fica sem sombra")
+	# presets: Alto = PCF13; Desligadas = nenhuma sombra
+	Game.settings.shadows = 2
+	LightFx.update(center72, 1.0)
+	assert(test72[0].shadow_filter == PointLight2D.SHADOW_FILTER_PCF13, "preset Alto = PCF13")
+	Game.settings.shadows = 0
+	LightFx.update(center72, 1.0)
+	var any72 := false
+	for l72 in test72:
+		any72 = any72 or l72.shadow_enabled
+	assert(not any72, "preset Desligadas desliga TODAS as sombras")
+	Game.settings.shadows = 1
+	# tremulação viva: energia muda com o tempo e fica na faixa da fonte
+	var fl72 := Fx.make_light(Color(1, 0.6, 0.25), 2.2, 1.3, LightFx.Flicker.FIRE, true)
+	ow.add_child(fl72)
+	fl72.global_position = center72
+	LightFx.update(center72, 10.0)
+	var e72 := fl72.energy
+	LightFx.update(center72, 10.37)
+	assert(not is_equal_approx(fl72.energy, e72), "tremulacao FIRE muda a energia ao vivo")
+	assert(absf(fl72.energy - 1.3) <= 1.3 * 0.14, "tremulacao FIRE fica em ±13% da base")
+	assert(LightFx._flicker(LightFx.Flicker.LAVA, 1.0, 0.0) != LightFx._flicker(LightFx.Flicker.LAVA, 2.0, 0.0),
+		"lava pulsa (lenta)")
+	assert(LightFx._flicker(LightFx.Flicker.TORCH, 1.0, 0.0) != LightFx._flicker(LightFx.Flicker.TORCH, 2.0, 0.0),
+		"tocha crepita (rapida)")
+	# lanterna do herói: acesa de noite, apagada de dia, sempre com sombra
+	var t72 := ow._time
+	ow._time = float(int(t72)) + 0.95
+	ow._update_daylight()
+	assert(ow._lantern != null and ow._lantern.energy > 0.9, "22:48: lanterna do herói acesa")
+	ow._time = float(int(t72)) + 0.5
+	ow._update_daylight()
+	assert(ow._lantern.energy < 0.01, "meio-dia: lanterna apagada")
+	ow._time = t72
+	ow._update_daylight()
+	LightFx.update(ow.player.global_position, 1.0)
+	assert(ow._lantern.shadow_enabled, "lanterna colada no herói sempre tem sombra")
+	# limpeza: luzes de teste saem do mundo (o registry filtra inválidos)
+	for l72 in test72:
+		l72.queue_free()
+	far72.queue_free()
+	fl72.queue_free()
+	print("[smoke]   sombras ok (oclusao por tile, fogueira FIRE, orcamento 8/720px, presets PCF5/PCF13, lanterna)")
 	await _shot("07_mundo_acampamento")
 	h.gold = 5000
 	ow.hud.open_merchant()
@@ -1512,6 +1598,14 @@ func _test_overworld() -> void:
 		await _wait(2.5)
 		var dw: World = get_tree().get_first_node_in_group("world")
 		assert(not dw is Overworld)
+		# 7.2: camada de oclusão da masmorra — paredes bloqueiam luz, chão não
+		var dts72: TileSet = dw.wall_layer.tile_set
+		assert(dts72.get_occlusion_layers_count() == 1, "masmorra tem camada de oclusao")
+		var dsrc72 := dts72.get_source(0) as TileSetAtlasSource
+		assert(dsrc72.get_tile_data(dw._tile_index["wall_mid"], 0).get_occluder(0) != null,
+			"paredes da masmorra projetam sombra")
+		assert(dsrc72.get_tile_data(dw._tile_index["floor_1"], 0).get_occluder(0) == null,
+			"chao da masmorra nao bloqueia a luz")
 		await _shot("09_masmorra")
 		for n in get_tree().get_nodes_in_group("interactables"):
 			if n is Interactable and n.kind == Interactable.Kind.DUNGEON_EXIT:

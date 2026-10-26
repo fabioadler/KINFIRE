@@ -154,6 +154,9 @@ func _process(delta: float) -> void:
 	if _shake > 0.0 and player:
 		_shake = maxf(_shake - delta * 18.0, 0.0)
 		player.camera.offset = Vector2(randf_range(-1, 1), randf_range(-1, 1)) * _shake * float(Game.settings.shake_intensity)
+	# 7.2: tremulação das luzes + orçamento de sombra em torno do herói
+	if player:
+		LightFx.update(player.global_position, Time.get_ticks_msec() * 0.001)
 	_explore_timer -= delta
 	if _explore_timer <= 0.0 and player:
 		_explore_timer = 0.15
@@ -194,6 +197,9 @@ func _build_tiles() -> void:
 	ts.add_physics_layer()
 	ts.set_physics_layer_collision_layer(0, 1)
 	ts.set_physics_layer_collision_mask(0, 0)
+	# 7.2: camada de oclusão — cada tile sólido projeta sombra nas luzes
+	# com shadow_enabled (paredes de masmorra, árvores, lápides, muros — §14.2)
+	ts.add_occlusion_layer()
 	var src := TileSetAtlasSource.new()
 	src.texture = ImageTexture.create_from_image(img)
 	src.texture_region_size = Vector2i(TILE, TILE)
@@ -206,6 +212,10 @@ func _build_tiles() -> void:
 			var td := src.get_tile_data(coords, 0)
 			td.add_collision_polygon(0)
 			td.set_collision_polygon_points(0, 0, square)
+			# 7.2: oclusor de sombra cobrindo o tile inteiro
+			var occ := OccluderPolygon2D.new()
+			occ.polygon = square
+			td.set_occluder(0, occ)
 	# Alternativa espelhada do topo da parede (borda inferior das salas)
 	var top: Vector2i = _tile_index["wall_top_mid"]
 	var flipped := src.create_alternative_tile(top)
@@ -213,6 +223,9 @@ func _build_tiles() -> void:
 	ftd.flip_v = true
 	ftd.add_collision_polygon(0)
 	ftd.set_collision_polygon_points(0, 0, square)
+	var focc := OccluderPolygon2D.new()
+	focc.polygon = square
+	ftd.set_occluder(0, focc)
 	floor_layer.tile_set = ts
 	wall_layer.tile_set = ts
 

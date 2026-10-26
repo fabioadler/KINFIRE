@@ -21,12 +21,16 @@ static func light_texture() -> GradientTexture2D:
 	return _light_tex
 
 
-static func make_light(color: Color, scale: float, energy: float = 1.0) -> PointLight2D:
+static func make_light(color: Color, scale: float, energy: float = 1.0,
+		flicker := LightFx.Flicker.NONE, shadow := false) -> PointLight2D:
 	var l := PointLight2D.new()
 	l.texture = light_texture()
 	l.color = color
 	l.texture_scale = scale
 	l.energy = energy
+	# 7.2: tremulação por fonte + candidatura ao orçamento de sombra (§14.2)
+	if flicker != LightFx.Flicker.NONE or shadow:
+		LightFx.register(l, flicker, shadow)
 	return l
 
 
