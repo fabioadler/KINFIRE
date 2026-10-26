@@ -32,6 +32,8 @@ var _last_day := -1
 var _last_hour := -1
 ## Fase 7.2: lanterna do herói — acende no crepúsculo, sempre com sombra (§14.2)
 var _lantern: PointLight2D
+## 7.3: timer da atualização de atmosfera por bioma
+var _atmos_timer := 0.0
 
 # 7.1: color grading por keyframes (MECANICAS §14.1) — [fração do dia, tom]
 # 0.0 = meia-noite, 0.5 = meio-dia; interpolado suavemente (sem saltos)
@@ -45,6 +47,20 @@ const DAY_KEYFRAMES := [
 	[0.875, Color(0.26, 0.29, 0.48)], # 21:00 noite
 	[1.0, Color(0.22, 0.26, 0.45)],  # 24:00 = 00:00 (fecha o ciclo)
 ]
+
+## Fase 7.3 (MECANICAS §14.3): vinheta + temperatura por bioma —
+## Tundra fria-azul, Areias quente, Pântano esverdeado, Terras Corrompidas
+## dessaturadas com vinheta roxa (LORE §16: "luz sem laço" desbota o mundo)
+const BIOME_ATMOS := {
+	&"planicie": {"tint": Color(1.0, 0.98, 0.94), "amount": 0.06, "desat": 0.0, "vig": 0.22},
+	&"floresta": {"tint": Color(0.94, 1.0, 0.92), "amount": 0.10, "desat": 0.0, "vig": 0.26},
+	&"deserto": {"tint": Color(1.0, 0.92, 0.78), "amount": 0.14, "desat": 0.0, "vig": 0.24},
+	&"tundra": {"tint": Color(0.82, 0.90, 1.0), "amount": 0.16, "desat": 0.0, "vig": 0.28},
+	&"pantano": {"tint": Color(0.88, 1.0, 0.85), "amount": 0.14, "desat": 0.05, "vig": 0.3},
+	&"vulcanico": {"tint": Color(1.0, 0.85, 0.75), "amount": 0.16, "desat": 0.05, "vig": 0.3},
+	&"corrompido": {"tint": Color(0.9, 0.85, 1.0), "amount": 0.14, "desat": 0.28, "vig": 0.34,
+		"vig_color": Color(0.06, 0.0, 0.1)},
+}
 
 
 func _setup_map() -> void:
@@ -246,6 +262,14 @@ func _update_daylight() -> void:
 		_lantern.energy = lerpf(1.1, 0.0, clampf(day / 0.3, 0.0, 1.0))
 
 
+## 7.3: aplica o preset de vinheta/temperatura do bioma sob os pés do
+## herói (MECANICAS §14.3) — chamado pelo _process a cada 0.5s
+func _update_atmos() -> void:
+	if player == null:
+		return
+	_apply_atmos(BIOME_ATMOS.get(og.biome_at(world_to_cell(player.global_position)), {}))
+
+
 ## 7.1: tom do mundo interpolado entre keyframes do dia (§14.1)
 func _day_color(h: float) -> Color:
 	for i in DAY_KEYFRAMES.size() - 1:
@@ -275,6 +299,11 @@ func _process(delta: float) -> void:
 					Color(0.55, 0.68, 1.0), 3.0)
 		_last_hour = hour
 	_update_daylight()
+	# 7.3: vinheta/temperatura do bioma sob os pés do herói (§14.3)
+	_atmos_timer -= delta
+	if _atmos_timer <= 0.0:
+		_atmos_timer = 0.5
+		_update_atmos()
 	# Fase 5.2: virada do dia às 06:00 — vendors re-estocam e a demanda
 	# recupera 5% rumo ao nível natural (REGRAS §10/§14)
 	var mday := Market.market_day()

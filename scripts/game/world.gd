@@ -43,6 +43,12 @@ var _minion_frame := -1
 var _minion_list: Array[Minion] = []
 var _shake := 0.0
 var _explore_timer := 0.0
+## Fase 7.3 (§14.3): bloom (HDR 2D) + camada de vinheta/temperatura
+var _world_env: WorldEnvironment
+var _atmos_layer: CanvasLayer
+var _atmos: ColorRect
+## Último preset aplicado (inspeção/smoke — headless não lê uniforms de shader)
+var _atmos_preset: Dictionary = {}
 
 
 func _ready() -> void:
@@ -52,6 +58,7 @@ func _ready() -> void:
 		Game.hero = Hero.create("Aventureiro", DB.races[0], DB.classes[0], "m", Color.WHITE, {"str": 15, "dex": 13, "con": 14, "int": 8, "wis": 10, "cha": 12})
 	_setup_map()
 	_apply_brightness()
+	_setup_post()
 
 	hud = HUD.new()
 	add_child(hud)
@@ -142,6 +149,52 @@ func _on_campfire_lit(_fire: Interactable) -> void:
 ## Olhar-se no espelho (hook — sobrescrito pelo Prologue)
 func _on_mirror(_mirror: Interactable) -> void:
 	hud.show_message("Só o escuro olha de volta.", Color(0.68, 0.64, 0.82))
+
+
+## Fase 7.3 (MECANICAS §14.3): pós-processo do mundo — bloom/glow via
+## WorldEnvironment sobre HDR 2D (fogueiras, lava, orbes, feixes de loot Raro+
+## e auras de Campeão/Lendário têm energia >1 e florescem) e camada de
+## vinheta/temperatura entre o mundo (base) e a HUD (layer 10).
+func _setup_post() -> void:
+	var env := Environment.new()
+	env.glow_enabled = true
+	env.glow_intensity = 0.55
+	env.glow_strength = 1.0
+	env.glow_bloom = 0.1
+	env.glow_hdr_threshold = 1.05      # só o que passa de 1.0 (luzes) brilha
+	env.glow_blend_mode = Environment.GLOW_BLEND_MODE_ADDITIVE
+	env.set("glow_levels/3", 1.0)
+	env.set("glow_levels/4", 0.8)
+	env.set("glow_levels/5", 0.4)
+	_world_env = WorldEnvironment.new()
+	_world_env.environment = env
+	add_child(_world_env)
+	_atmos_layer = CanvasLayer.new()
+	_atmos_layer.layer = 2
+	add_child(_atmos_layer)
+	_atmos = ColorRect.new()
+	_atmos.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_atmos.set_anchors_preset(Control.PRESET_FULL_RECT)
+	var m := ShaderMaterial.new()
+	m.shader = preload("res://shaders/atmosphere.gdshader")
+	_atmos.material = m
+	_atmos_layer.add_child(_atmos)
+	# masmorra: vinheta mais fechada e fria (o Overworld sobrepõe pelo bioma)
+	_apply_atmos({"tint": Color(0.9, 0.88, 1.0), "amount": 0.1, "desat": 0.05, "vig": 0.32})
+
+
+## Preset de vinheta/temperatura: {tint, amount, desat, vig, vig_color}.
+## O Overworld chama por bioma (BIOME_ATMOS); a masmorra usa o próprio.
+func _apply_atmos(a: Dictionary) -> void:
+	_atmos_preset = a.duplicate()
+	if _atmos == null:
+		return
+	var m := _atmos.material as ShaderMaterial
+	m.set_shader_parameter("tint", a.get("tint", Color.WHITE))
+	m.set_shader_parameter("tint_amount", a.get("amount", 0.0))
+	m.set_shader_parameter("desat", a.get("desat", 0.0))
+	m.set_shader_parameter("vignette", a.get("vig", 0.22))
+	m.set_shader_parameter("vignette_color", a.get("vig_color", Color(0.01, 0.0, 0.03)))
 
 
 func _apply_brightness() -> void:

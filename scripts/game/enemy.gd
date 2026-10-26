@@ -154,7 +154,8 @@ func _ready() -> void:
 		_shader.set_shader_parameter("outline_color", RARITY_COLORS[rarity])
 	# Aura pulsante: Campeão/Lendário se destacam à primeira vista (aceitação 3.1)
 	if rarity >= Rarity.CAMPEAO and not is_boss():
-		_aura = Fx.make_light(RARITY_COLORS[rarity], 1.4, 0.9)
+		# 7.3: energia >1 para a aura florescer no glow (HDR 2D, §14.3)
+		_aura = Fx.make_light(RARITY_COLORS[rarity], 1.4, 1.3)
 		_aura.position = Vector2(0, -10)
 		add_child(_aura)
 	# 3.4: Lendário anuncia o spawn com beam visível de longe (REGRAS §6);

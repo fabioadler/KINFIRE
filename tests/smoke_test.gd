@@ -1552,6 +1552,67 @@ func _test_overworld() -> void:
 	far72.queue_free()
 	fl72.queue_free()
 	print("[smoke]   sombras ok (oclusao por tile, fogueira FIRE, orcamento 8/720px, presets PCF5/PCF13, lanterna)")
+	# 7.3: materiais e pós-processo 2D (MECANICAS §14.3) — glow HDR, rim light
+	# nos sprites, vinheta e temperatura por bioma
+	# (headless não faz parse de uniforms — asserts usam _atmos_preset e o código
+	# do shader, não get_shader_parameter)
+	assert(ProjectSettings.get_setting("rendering/viewport/hdr_2d") == true, "HDR 2D ligado para o glow")
+	assert(ow._world_env != null and ow._world_env.environment.glow_enabled,
+		"WorldEnvironment com bloom/glow no mundo")
+	assert(ow._world_env.environment.glow_hdr_threshold > 1.0, "so luzes >1.0 florescem")
+	assert(ow._atmos is ColorRect and (ow._atmos.material as ShaderMaterial).shader != null,
+		"camada de vinheta com shader fullscreen")
+	assert(ow._atmos_layer.layer < ow.hud.layer, "vinheta fica entre o mundo e a HUD")
+	assert(ow._atmos.mouse_filter == Control.MOUSE_FILTER_IGNORE, "vinheta nao bloqueia o mouse")
+	# temperatura por bioma: tundra fria-azul, areias quentes, corrompidas roxas
+	ow._apply_atmos(ow.BIOME_ATMOS[&"tundra"])
+	var tt73: Color = ow._atmos_preset.get("tint")
+	assert(tt73.b > tt73.r, "tundra fria-azul")
+	ow._apply_atmos(ow.BIOME_ATMOS[&"deserto"])
+	tt73 = ow._atmos_preset.get("tint")
+	assert(tt73.r > tt73.b, "areias quentes")
+	ow._apply_atmos(ow.BIOME_ATMOS[&"corrompido"])
+	assert(float(ow._atmos_preset.get("desat", 0.0)) > 0.2, "terras corrompidas dessaturadas")
+	var vc73: Color = ow._atmos_preset.get("vig_color", Color.BLACK)
+	assert(vc73.b > vc73.r and vc73.b > vc73.g, "vinheta roxa nas corrompidas")
+	# atualização automática: teleporta à tundra e volta — a atmosfera segue
+	var camp73 := ow.player.global_position
+	var cell73 := _find_biome(ow, "tundra")
+	assert(cell73 != Vector2i(999999, 999999), "bioma tundra existe")
+	ow.player.global_position = ow.cell_to_world(cell73)
+	ow._update_atmos()
+	tt73 = ow._atmos_preset.get("tint")
+	assert(tt73.b > tt73.r, "teleporte à tundra aplica atmosfera fria")
+	ow.player.global_position = camp73
+	ow._update_atmos()
+	# rim light direcional: herói e inimigos carregam o hit_flash com light() (§14.3)
+	var sh73: Shader = (ow.player.body_sprite.material as ShaderMaterial).shader
+	assert(sh73 != null and String(sh73.code).contains("void light()")
+		and String(sh73.code).contains("rim_strength"),
+		"herói com rim light direcional")
+	var foe73: Enemy = null
+	for e73 in get_tree().get_nodes_in_group("enemies"):
+		var m73 := (e73 as Enemy).sprite.material as ShaderMaterial
+		if m73 != null and m73.shader != null and String(m73.shader.code).contains("rim_strength"):
+			foe73 = e73
+			break
+	assert(foe73 != null, "inimigos com rim light direcional")
+	# feixe de loot Raro+ e aura de Campeão florescem no glow (energia >1)
+	var drop73 := LootDrop.new()
+	drop73.kind = LootDrop.Kind.ITEM
+	drop73.item = DB.roll_item_of(6, Item.Rarity.RARE, h.cls)
+	drop73.position = ow.player.global_position + Vector2(2000, 0)
+	ow.entities.add_child(drop73)
+	assert(drop73._beam != null and drop73._beam.energy >= 1.2,
+		"feixe de loot Raro+ passa do threshold do glow")
+	drop73.queue_free()
+	var g73: EnemyData = DB.get_enemy(&"goblin")
+	var champ73: Enemy = ow.spawn_enemy(g73, ow.player.global_position + Vector2(2500, 0),
+		Enemy.Rarity.CAMPEAO, 5)
+	assert(champ73._aura != null and champ73._aura.energy >= 1.2,
+		"aura de Campeao+ floresce no glow (HDR 2D)")
+	assert(LightFx.flicker_of(champ73._aura) == -1, "aura nao tremula (constancia ameacadora)")
+	print("[smoke]   pos-processo ok (glow HDR 2D, rim light nos sprites, vinheta/temperatura por bioma)")
 	await _shot("07_mundo_acampamento")
 	h.gold = 5000
 	ow.hud.open_merchant()

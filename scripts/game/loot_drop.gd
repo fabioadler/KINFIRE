@@ -82,7 +82,8 @@ func _ready() -> void:
 		_label.reset_size()
 		_label.position = Vector2(-_label.size.x / 6.0, -24)
 		if item.rarity >= Item.Rarity.RARE:
-			_beam = Fx.make_light(item.rarity_color(), 0.5, 1.0)
+			# 7.3: energia >1 para florescer no glow (HDR 2D, §14.3)
+			_beam = Fx.make_light(item.rarity_color(), 0.5, 1.35)
 			_beam.position = Vector2(0, -6)
 			add_child(_beam)
 		Sfx.play(&"drop", -6.0)
