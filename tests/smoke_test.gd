@@ -198,10 +198,23 @@ func _test_prologue() -> void:
 	assert(Game.hero.level == 0 and Game.hero.cls.id == &"aldeao")
 	assert(pro._gate_wall != null)
 	print("[smoke]   prologo carregou — passo %d" % pro.tut_step)
+	# 6.4: onboarding visual — seta-guia aponta o objetivo do passo
+	assert(pro._guide is Polygon2D, "seta-guia criada")
+	assert(pro._guide_target() == Vector2.ZERO, "passo MOVE: livre, sem seta")
 	# Passo 1: mover
 	pro._moved = Prologue.MOVE_DIST
 	await _wait(0.3)
 	assert(pro.tut_step == Prologue.TutStep.ATTACK)
+	assert(pro._guide_target() == pro._espantalho.global_position, "seta aponta o espantalho")
+	# passo demorado -> dica contextual
+	pro._step_time = Prologue.HINT_DELAY + 0.1
+	await _wait(0.4)
+	assert(pro._hint_shown, "dica contextual após o atraso")
+	# destaque de HUD: passo EQUIP pulsa o botão I, POTION pulsa a poção
+	assert(pro.hud._bar_buttons.has("I") and pro.hud._bar_buttons.has("K"), "botões de barra registrados")
+	pro.hud.pulse_hint("I")
+	pro.hud.pulse_hint("Q")
+	await _wait(0.2)
 	# Passo 2: atacar — espantalho cai e solta a Espada de Treino
 	pro._espantalho.take_damage(999999.0, true, Vector2.ZERO, 0.0)
 	await _wait(0.5)
@@ -226,6 +239,7 @@ func _test_prologue() -> void:
 	pro.player.potion_cd = 0.1
 	await _wait(0.3)
 	assert(pro.tut_step == Prologue.TutStep.CAMPFIRE)
+	assert(pro._guide_target() == pro.cell_to_world(Prologue.CAMPFIRE_CELL), "seta aponta a fogueira")
 	# Passo 6: fogueira — portão de névoa abre e lobos surgem na floresta
 	var fire: Interactable = null
 	for n in get_tree().get_nodes_in_group("interactables"):
@@ -237,6 +251,9 @@ func _test_prologue() -> void:
 	await _wait(0.3)
 	assert(pro.tut_step == Prologue.TutStep.DONE)
 	print("[smoke]   tutorial completo — portao aberto")
+	# 6.4: fim do tutorial — a seta se recolhe
+	assert(not pro._guide.visible, "seta se esconde ao concluir o tutorial")
+	print("[smoke]   onboarding ok (seta-guia por passo, dica apos atraso, destaque na HUD)")
 	# As duas lutas: lobos dão XP para alcançar o nível 1
 	var wolves := 0
 	for e in pro.enemies_near(pro.player.global_position, 99999.0):

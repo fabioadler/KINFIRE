@@ -50,6 +50,18 @@ const CINZENTO_LINES := [
 	"Fogo é memória que aquece as mãos. Acenda — e o sonho vai guardar você.",
 ]
 
+# Fase 6.4: onboarding visual (MECANICAS §9) — seta-guia, dicas contextuais
+const GUIDE_MIN_DIST := 70.0   ## seta some quando o objetivo está perto
+const HINT_DELAY := 14.0       ## segundos no passo até a dica contextual
+const STEP_HINTS := {
+	TutStep.MOVE: "Use WASD ou clique no chão para andar.",
+	TutStep.ATTACK: "Clique esquerdo no espantalho para atacar.",
+	TutStep.COLLECT: "Aproxime-se do brilho da espada (ou clique no nome) para apanhá-la.",
+	TutStep.EQUIP: "Abra o inventário (I) e clique com o botão direito na espada para equipá-la.",
+	TutStep.POTION: "Aperte Q para beber a poção.",
+	TutStep.CAMPFIRE: "Clique na fogueira para acendê-la.",
+}
+
 var tut_step: TutStep = TutStep.MOVE
 var _moved := 0.0
 var _last_player_pos := Vector2.ZERO
@@ -60,6 +72,9 @@ var _gate_wall: StaticBody2D
 var _gate_fog: Array[Polygon2D] = []
 var _gate_t := 0.0
 var _level1_seen := false
+var _guide: Polygon2D
+var _step_time := 0.0
+var _hint_shown := false
 
 
 func _ready() -> void:
@@ -131,6 +146,7 @@ func _setup_tutorial() -> void:
 	_whisper("Levante-se, cinza. Este lugar já foi casa — e vai querer ser de novo.")
 	_whisper(CINZENTO_LINES[0])
 	_build_gate()
+	_setup_guide()
 	Game.hero.leveled_up.connect(_on_hero_leveled_up)
 
 
@@ -144,6 +160,12 @@ func _process(delta: float) -> void:
 		_gate_fog[i].modulate.a = 0.45 + sin(_gate_t * 2.2 + i * 1.7) * 0.12
 	if player == null or player.is_dead():
 		return
+	# 6.4: onboarding visual — seta-guia e dica contextual
+	_update_guide()
+	_step_time += delta
+	if not _hint_shown and _step_time > HINT_DELAY and tut_step in STEP_HINTS:
+		_hint_shown = true
+		hud.show_message("Dica: %s" % STEP_HINTS[tut_step], UIKit.TEXT_DIM, 5.5)
 	if tut_step == TutStep.MOVE:
 		_moved += player.global_position.distance_to(_last_player_pos)
 		if _moved >= MOVE_DIST:
@@ -180,6 +202,15 @@ func _advance() -> void:
 	tut_step += 1
 	tutorial_step_done.emit(tut_step)
 	Sfx.play(&"levelup", -8.0)
+	# 6.4: reinicia o relógio da dica contextual do passo novo
+	_step_time = 0.0
+	_hint_shown = false
+	# 6.4: destaque na HUD do controle que o passo pede (MECANICAS §9)
+	match tut_step:
+		TutStep.EQUIP:
+			hud.pulse_hint("I")
+		TutStep.POTION:
+			hud.pulse_hint("Q")
 	if tut_step == TutStep.DONE:
 		_open_gate()
 		return
@@ -206,6 +237,69 @@ func _on_campfire_lit(fire: Interactable) -> void:
 	hud.show_message("A brasa te reconhece. Você renascerá aqui.", Color(1, 0.7, 0.3))
 	if tut_step == TutStep.CAMPFIRE:
 		_advance()
+
+
+# ------------------------------------------------------- GUIA (Fase 6.4)
+
+## Seta que orbita o herói apontando o objetivo do passo do tutorial
+func _setup_guide() -> void:
+	_guide = Polygon2D.new()
+	_guide.polygon = PackedVector2Array([
+		Vector2(12, 0), Vector2(-6, 7), Vector2(-2, 0), Vector2(-6, -7)])
+	_guide.color = Color(1, 0.78, 0.35, 0.9)
+	_guide.z_index = 60
+	add_child(_guide)
+	_guide.visible = false
+
+
+## Objetivo do passo atual; Vector2.ZERO = sem seta (ação livre ou de UI)
+func _guide_target() -> Vector2:
+	match tut_step:
+		TutStep.ATTACK:
+			if _espantalho != null and is_instance_valid(_espantalho) and not _espantalho.is_dead():
+				return _espantalho.global_position
+			return cell_to_world(CINZENTO_ANCHORS[TutStep.ATTACK])
+		TutStep.COLLECT:
+			var drop := _nearest_sword_drop()
+			if drop != null:
+				return drop.global_position
+			return cell_to_world(CINZENTO_ANCHORS[TutStep.COLLECT])
+		TutStep.EQUIP:
+			return Vector2.ZERO  # ação de inventário — o botão I pulsa na HUD
+		TutStep.POTION:
+			return cell_to_world(CINZENTO_ANCHORS[TutStep.POTION])
+		TutStep.CAMPFIRE:
+			return cell_to_world(CAMPFIRE_CELL)
+	return Vector2.ZERO
+
+
+func _update_guide() -> void:
+	if _guide == null or player == null:
+		return
+	var target := _guide_target()
+	if target == Vector2.ZERO or tut_step == TutStep.DONE or _mirror_used:
+		_guide.visible = false
+		return
+	var d := player.global_position.distance_to(target)
+	_guide.visible = d > GUIDE_MIN_DIST
+	if not _guide.visible:
+		return
+	var dir := (target - player.global_position) / maxf(d, 1.0)
+	var bob := sin(_gate_t * 5.0) * 3.0
+	_guide.position = player.global_position + dir * (30.0 + bob)
+	_guide.rotation = dir.angle()
+
+
+func _nearest_sword_drop() -> LootDrop:
+	var best: LootDrop = null
+	var best_d := INF
+	for n in get_tree().get_nodes_in_group("interactables"):
+		if n is LootDrop and n.item != null and n.item.base_id == &"wood_sword":
+			var d := player.global_position.distance_to(n.global_position)
+			if d < best_d:
+				best_d = d
+				best = n
+	return best
 
 
 # ------------------------------------------------------------------ PORTÃO

@@ -31,6 +31,8 @@ var _hover_label: Label
 var _vignette: ColorRect
 var _held_icon: TextureRect
 var _points_hint: Button
+## Fase 6.4: letra -> botão da barra inferior (destaque de onboarding)
+var _bar_buttons := {}
 ## Fase 4.2: tracker lateral de quest (minimapa acima); Fase 6.1: recolhível
 var _quest_tracker: PanelContainer
 var _quest_title: Button
@@ -181,6 +183,7 @@ func _build_bottom_bar() -> void:
 		btn.custom_minimum_size = Vector2(34, 52)
 		btn.focus_mode = Control.FOCUS_NONE
 		btn.pressed.connect(b[1])
+		_bar_buttons[b[0]] = btn
 		h.add_child(btn)
 	h.add_child(_spacer(8))
 	# Fase 6.1: emblema de nível com anel de XP (MECANICAS §9.2)
@@ -453,6 +456,17 @@ func flash_slot(slot: int) -> void:
 
 func damage_vignette() -> void:
 	_vignette.color.a = 0.22
+
+
+## Fase 6.4: pulsa o controle da barra indicado ("I"/"C"/"K"/"J" ou "Q"
+## da poção) — o onboarding aponta onde olhar (MECANICAS §9).
+func pulse_hint(key: String) -> void:
+	var target: Control = _potion_slot if key == "Q" else _bar_buttons.get(key)
+	if target == null or not is_instance_valid(target):
+		return
+	var tw := create_tween().set_loops(5)
+	tw.tween_property(target, "modulate", Color(1, 0.8, 0.3), 0.35)
+	tw.tween_property(target, "modulate", Color.WHITE, 0.35)
 
 
 ## Fase 6.2: teclas I/C/K/J abrem o painel unificado na aba certa —
