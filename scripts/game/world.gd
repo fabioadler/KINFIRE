@@ -43,6 +43,8 @@ var _minion_frame := -1
 var _minion_list: Array[Minion] = []
 var _shake := 0.0
 var _explore_timer := 0.0
+## Fase 7.5 (§15): áudio adaptativo — tick de atualização
+var _audio_timer := 0.0
 ## Fase 7.3 (§14.3): bloom (HDR 2D) + camada de vinheta/temperatura
 var _world_env: WorldEnvironment
 var _atmos_layer: CanvasLayer
@@ -212,6 +214,13 @@ func _process(delta: float) -> void:
 	# 7.2: tremulação das luzes + orçamento de sombra em torno do herói
 	if player:
 		LightFx.update(player.global_position, Time.get_ticks_msec() * 0.001)
+	# 7.5: áudio adaptativo (MECANICAS §15) — ambiência por bioma, camadas de
+	# combate/noite/chefe/descanso, vento controla o bus Ambience, reverb de
+	# masmorra (Overworld sobrescreve super._process, então isto cobre ambos)
+	_audio_timer -= delta
+	if _audio_timer <= 0.0:
+		_audio_timer = 0.5
+		Audio.update_world(self)
 	_explore_timer -= delta
 	if _explore_timer <= 0.0 and player:
 		_explore_timer = 0.15
@@ -614,6 +623,8 @@ func spawn_enemy(data: EnemyData, pos: Vector2, rarity: int, lvl := -1, p_affixe
 		if hud:
 			hud.show_message("✦ %s surge nas redondezas..." % e.display_name,
 				Enemy.RARITY_COLORS[Enemy.Rarity.LENDARIO], 4.0)
+	# 7.5: sting adaptativo (MECANICAS §15.2) — Campeão avisa, Lendário assombra
+	Audio.sting(rarity)
 	return e
 
 

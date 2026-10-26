@@ -87,6 +87,8 @@ var settings := {
 	"master_volume": 0.8,
 	"music_volume": 0.6,
 	"sfx_volume": 0.8,
+	"ambience_volume": 0.7,
+	"ui_volume": 0.8,
 	"mute_unfocused": true,
 	# Vídeo
 	"fullscreen": false,
@@ -155,6 +157,9 @@ func aggro_mult() -> float:
 
 func change_scene(path: String) -> void:
 	get_tree().paused = false
+	# 7.5: áudio adaptativo pertence ao mundo — troca de cena silencia as
+	# camadas (o novo mundo/menu reassume o que precisa no primeiro _process)
+	Audio.stop_all()
 	var tw := create_tween()
 	_fade_rect.mouse_filter = Control.MOUSE_FILTER_STOP
 	tw.tween_property(_fade_rect, "color:a", 1.0, 0.35)
@@ -401,6 +406,8 @@ func apply_settings() -> void:
 	AudioServer.set_bus_volume_db(0, linear_to_db(settings.master_volume))
 	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("Music"), linear_to_db(settings.music_volume))
 	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("SFX"), linear_to_db(settings.sfx_volume))
+	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("Ambience"), linear_to_db(settings.ambience_volume))
+	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("UI"), linear_to_db(settings.ui_volume))
 	if DisplayServer.get_name() != "headless":
 		var mode := DisplayServer.WINDOW_MODE_FULLSCREEN if settings.fullscreen else DisplayServer.WINDOW_MODE_WINDOWED
 		if DisplayServer.window_get_mode() != mode:
@@ -429,7 +436,7 @@ func save_settings() -> void:
 
 func reset_settings_section(keys: Array) -> void:
 	var defaults := {
-		"master_volume": 0.8, "music_volume": 0.6, "sfx_volume": 0.8, "mute_unfocused": true,
+		"master_volume": 0.8, "music_volume": 0.6, "sfx_volume": 0.8, "ambience_volume": 0.7, "ui_volume": 0.8, "mute_unfocused": true,
 		"fullscreen": false, "vsync": true, "max_fps": 1, "window_size": 0, "ui_scale": 1.0, "brightness": 1.0, "show_fps": false, "shadows": 1,
 		"damage_numbers": true, "shake_intensity": 1.0, "camera_zoom": 3.0, "always_show_health": false, "always_show_loot": true,
 		"click_to_move": true, "monster_density": 1.0, "minimap_opacity": 0.85, "auto_save": true, "bindings": {},
@@ -450,7 +457,7 @@ func _load_settings() -> void:
 
 
 func _setup_audio_buses() -> void:
-	for bus_name in ["Music", "SFX"]:
+	for bus_name in ["Music", "SFX", "Ambience", "UI"]:
 		if AudioServer.get_bus_index(bus_name) == -1:
 			var idx := AudioServer.bus_count
 			AudioServer.add_bus(idx)

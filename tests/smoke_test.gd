@@ -1701,6 +1701,53 @@ func _test_overworld() -> void:
 	assert(gone74, "a calmaria morre com o campeao")
 	WindField.override = Vector2.ZERO
 	print("[smoke]   vento ok (coerencia, forecast, ±10% navegacao, flecha desvia, Ler o Vento reto, calmaria de campeao)")
+	# 7.5: áudio adaptativo (MECANICAS §15) — buses novos, ambiência por bioma,
+	# música base do mundo, vento no bus Ambience, sting, camada de combate e
+	# ducking de diálogo (o update_world tica a cada 0.5s no _process do World)
+	assert(AudioServer.get_bus_index("Ambience") >= 0, "bus Ambience existe")
+	assert(AudioServer.get_bus_index("UI") >= 0, "bus UI existe")
+	assert(Game.settings.has("ambience_volume") and Game.settings.has("ui_volume"),
+		"sliders de ambiência e interface existem nas settings")
+	# vento quase zero via override mínimo (§15.1: bus Ambience = setting + vento)
+	WindField.override = Vector2(0.01, 0.0)
+	await _wait(0.8)
+	assert(Audio.amb_gain_db() < -5.0, "calmaria quase total dá gain ≤ -5dB")
+	await _wait(0.8)  # um tick do update_world
+	assert(Audio.base_path().contains("mus_overworld"), "música base do mundo aberto")
+	assert(Audio.ambience_path().begins_with(Audio.AMB) and Audio.ambience_path().contains("amb_"),
+		"ambiência por bioma tocando")
+	# vento controla o bus Ambience (§15.1): ventania sobe, calmaria desce
+	WindField.override = Vector2(1.0, 0.0)
+	await _wait(0.8)
+	assert(Audio.amb_gain_db() > 2.0, "ventania sobe o gain da ambiência")
+	var champ75: Enemy = ow.spawn_enemy(g73, ow.player.global_position + Vector2(60, 0),
+		Enemy.Rarity.CAMPEAO, 5)
+	await _wait(0.8)
+	assert(Audio.amb_gain_db() < -5.0, "calmaria do campeão silencia a ambiência")
+	assert(WindField.has_calm(champ75.get_instance_id()), "sting e calmaria no mesmo spawn")
+	# sting por raridade (§15.2): Campeão/Lendário avisam; comum é mudo
+	assert(Audio.sting(Enemy.Rarity.CAMPEAO) and Audio.sting(Enemy.Rarity.LENDARIO))
+	assert(not Audio.sting(Enemy.Rarity.COMUM))
+	champ75.take_damage(999999.0, false, Vector2.INF, 0.0)
+	WindField.override = Vector2.ZERO
+	# camada de combate (§15.2): aggro perto aciona mus_combate; kill desliga
+	var foe75: Enemy = ow.spawn_enemy(g73, ow.player.global_position + Vector2(24, 0),
+		Enemy.Rarity.COMUM, 5)
+	await _wait(0.8)
+	assert(Audio.layer_path().contains("mus_combate"), "combate aciona a camada de música")
+	foe75.take_damage(999999.0, false, Vector2.INF, 0.0)
+	await _wait(0.8)
+	assert(not Audio.layer_path().contains("mus_combate"), "fim do combate solta a camada")
+	# ducking de diálogo (§15.1): música −6dB aberto, volume de volta fechado
+	var bus_m75 := AudioServer.get_bus_index("Music")
+	var vol75 := AudioServer.get_bus_volume_db(bus_m75)
+	var dlg75 := ow.hud.open_dialogue(DB.dialogue(&"marn_vigia"), "Marn")
+	await _wait(0.3)
+	assert(AudioServer.get_bus_volume_db(bus_m75) < vol75 - 5.0, "diálogo abaixa a música (−6dB)")
+	dlg75.engine.stop()
+	await _wait(0.8)
+	assert(absf(AudioServer.get_bus_volume_db(bus_m75) - vol75) < 0.5, "fechar o diálogo devolve o volume")
+	print("[smoke]   som adaptativo ok (buses Ambience/UI, base+ambiencia por bioma, vento no bus, sting, camada de combate, ducking de dialogo)")
 	await _shot("07_mundo_acampamento")
 	h.gold = 5000
 	ow.hud.open_merchant()
@@ -1756,12 +1803,16 @@ func _test_overworld() -> void:
 		assert(dsrc72.get_tile_data(dw._tile_index["floor_1"], 0).get_occluder(0) == null,
 			"chao da masmorra nao bloqueia a luz")
 		await _shot("09_masmorra")
+		# 7.5: masmorra = reverb fake no bus SFX/Ambience + ping (§15.3)
+		assert(Audio.has_reverb(), "masmorra liga o reverb fake")
+		assert(Audio.ambience_path().contains("amb_masmorra"), "ambiência de masmorra")
 		for n in get_tree().get_nodes_in_group("interactables"):
 			if n is Interactable and n.kind == Interactable.Kind.DUNGEON_EXIT:
 				n.interact(dw.player)
 				break
 		await _wait(2.5)
 		assert(get_tree().get_first_node_in_group("world") is Overworld)
+		assert(not Audio.has_reverb(), "voltar ao mundo desliga o reverb")
 		print("[smoke] voltou ao mundo aberto")
 	else:
 		print("[smoke] ERRO: nenhuma entrada de masmorra encontrada")

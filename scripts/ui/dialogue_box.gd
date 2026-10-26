@@ -103,6 +103,8 @@ func open(data: DialogueData, speaker_name: String = "") -> void:
 	get_tree().paused = true
 	UIKit.pop_in(_panel)
 	Sfx.play(&"ui_open", -8.0)
+	# 7.5: música abaixa −6dB durante o diálogo (MECANICAS §15.1)
+	Audio.duck_music(true)
 	engine.start(data)
 
 
@@ -168,6 +170,8 @@ func _close() -> void:
 		_type_tween.kill()
 	get_tree().paused = false
 	Sfx.play(&"ui_close", -10.0)
+	# 7.5: diálogo acabou — música volta ao volume (MECANICAS §15.1)
+	Audio.duck_music(false)
 	var tw := create_tween()
 	tw.tween_property(_dim, "color:a", 0.0, 0.18)
 	UIKit.pop_out(_panel, func():

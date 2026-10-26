@@ -94,7 +94,7 @@ func respawn_position() -> Vector2:
 
 
 func _intro() -> void:
-	Game.play_music("res://assets/audio/music_dungeon.ogg")
+	# 7.5: música base do mundo aberto vem do Audio adaptativo (mus_overworld)
 	var diff: Dictionary = Game.hero.difficulty_data()
 	hud.show_message("Mundo de Kinfire", UIKit.GOLD, 3.0)
 	hud.show_message("Dificuldade: %s%s" % [diff.name, "  •  HARDCORE" if Game.hero.hardcore else ""], diff.color, 3.0)

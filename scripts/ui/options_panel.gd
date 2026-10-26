@@ -28,8 +28,10 @@ func _build(tab: int) -> void:
 	_slider(audio, "Volume Geral", "master_volume", 0.0, 1.0, 0.05, true)
 	_slider(audio, "Música", "music_volume", 0.0, 1.0, 0.05, true)
 	_slider(audio, "Efeitos Sonoros", "sfx_volume", 0.0, 1.0, 0.05, true)
+	_slider(audio, "Ambiência", "ambience_volume", 0.0, 1.0, 0.05, true)
+	_slider(audio, "Interface", "ui_volume", 0.0, 1.0, 0.05, true)
 	_check(audio, "Silenciar quando a janela perde o foco", "mute_unfocused")
-	_reset_button(audio, ["master_volume", "music_volume", "sfx_volume", "mute_unfocused"])
+	_reset_button(audio, ["master_volume", "music_volume", "sfx_volume", "ambience_volume", "ui_volume", "mute_unfocused"])
 
 	var video := _page("Vídeo")
 	_check(video, "Tela Cheia", "fullscreen")
