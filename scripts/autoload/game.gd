@@ -44,6 +44,10 @@ const ACTIONS := {
 ## Fase 5.5: um diálogo emitiu efeito `comercio` — o HUD abre o TradePanel
 signal trade_requested(race: StringName)
 
+## Fase 7.1: a hora virou no mundo (MECANICAS §14.1) — 06:00 re-estoque,
+## 00:00 autosave "A Vela Virou", contatos noturnos dos mistérios
+signal hour_changed(hour: int)
+
 var hero: Hero
 var depth: int = 1
 ## Fase do jogador (PHASE_PROLOGUE | PHASE_CREATED) — REGRAS §15, MECANICAS §12

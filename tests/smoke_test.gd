@@ -1430,6 +1430,42 @@ func _test_overworld() -> void:
 	var freed65 := await _wait_until(func(): return not is_instance_valid(pop65))
 	assert(freed65, "popup libertado apos o pop_out")
 	print("[smoke]   micro-interacoes ok (pop_in/pop_out na janela unificada e nos popups, reabertura cancela o fechamento)")
+	# 7.1: relógio na HUD e ciclo dia/noite rico (MECANICAS §14.1)
+	var chip71 := ClockChip.new()
+	chip71.set_time(0.5)     # meio-dia
+	assert(chip71.time_text() == "12:00" and chip71.is_day, "chip mostra 12:00 de dia")
+	chip71.set_time(0.0)     # meia-noite exata
+	assert(chip71.time_text() == "00:00" and not chip71.is_day, "chip mostra 00:00 de noite")
+	chip71.set_time(0.26)    # 06:14 — madrugada ainda conta como noite? 0.26 > 0.25 -> dia
+	assert(chip71.is_day, "dia comeca as 06:00 (0.25)")
+	assert(ow.hud._clock is ClockChip and ow.hud._clock.visible, "chip de relogio na HUD sob o minimapa")
+	# color grading por keyframes: meio-dia neutro, meia-noite azul-profundo
+	assert(ow._day_color(0.5).is_equal_approx(Color(0.8, 0.78, 0.74)), "meio-dia neutro (keyframe)")
+	assert(ow._day_color(0.0).is_equal_approx(Color(0.22, 0.26, 0.45)), "meia-noite azul-profundo")
+	assert(ow._day_color(0.31).b > ow._day_color(0.27).b and ow._day_color(0.31).b < 0.74,
+		"interpolacao suave entre amanhecer e meio-dia")
+	# signal hour_changed + autosave "A Vela Virou" na virada da meia-noite
+	var hora71 := {"h": -1}
+	var latch71 := func(h: int): hora71["h"] = h
+	Game.hour_changed.connect(latch71)
+	ow._time = float(int(ow._time)) + 0.001   # meia-noite e um minuto
+	ow._last_hour = 23
+	var virou71 := await _wait_until(func(): return hora71["h"] == 0)
+	Game.hour_changed.disconnect(latch71)
+	assert(virou71 and int(fmod(ow._time, 1.0) * 24.0) == 0, "meia-noite emite hour_changed(0) e autosava")
+	# dormir na fogueira até o amanhecer: salto até 06:00 + cura
+	ow._time = float(int(ow._time)) + 0.92    # 22:04 da noite
+	assert(ow._is_night(), "22:04 e noite")
+	ow._offer_sleep()
+	assert(ow.hud._popup != null, "fogueira acesa a noite oferece Dormir/Viajar")
+	ow.hud.close_popup()
+	ow.player.hp = 1.0
+	ow._sleep_until_dawn()
+	var amanheceu71 := await _wait_until(func():
+		return absf(fmod(ow._time, 1.0) - 0.25) < 0.002)
+	assert(amanheceu71 and not ow._is_night(), "dormir avanca ate 06:00 (0.25)")
+	assert(absf(ow.player.hp - ow.player.max_hp) < 0.5, "dormir cura toda a vida")
+	print("[smoke]   relogio/ciclo ok (chip HH:MM + arco, keyframes de cor, hour_changed na vela, dormir cura e avanca)")
 	await _shot("07_mundo_acampamento")
 	h.gold = 5000
 	ow.hud.open_merchant()

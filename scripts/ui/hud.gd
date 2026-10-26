@@ -46,6 +46,8 @@ var skills: SkillsPanel
 var questlog: QuestPanel
 ## Fase 6.2: janela unificada (abas Personagem/Inventário/Habilidades/Missões)
 var _unified: UnifiedPanel
+## Fase 7.1: chip de relógio HH:MM + arco do dia (MECANICAS §14.1)
+var _clock: ClockChip
 var _pause_layer: Control
 var _death_layer: Control
 var _popup: Control
@@ -251,6 +253,10 @@ func _build_top() -> void:
 	var mm := Minimap.new(world)
 	mm.name = "Minimap"
 	_root.add_child(mm)
+	# Fase 7.1: chip de relógio sob o minimapa — HH:MM de Eldara + arco do dia
+	_clock = ClockChip.new()
+	_clock.name = "ClockChip"
+	_root.add_child(_clock)
 
 
 func _make_chip(border: Color, bg: Color) -> PanelContainer:
@@ -282,6 +288,9 @@ func _layout() -> void:
 	mm.modulate.a = float(Game.settings.minimap_opacity)
 	mm.visible = mm.modulate.a > 0.01
 	mm.size = Vector2(190, 190)
+	# Fase 7.1: relógio colado sob o minimapa (§14.1)
+	_clock.reset_size()
+	_clock.position = Vector2(vs.x - _clock.size.x - 14, 14 + 190 + 8)
 	_messages.position = Vector2(vs.x * 0.5 - 300, vs.y * 0.22)
 	# Fase 6.1: chips de moeda no canto inferior esquerdo (§9.2)
 	_gold_chip.reset_size()
@@ -312,9 +321,11 @@ func _process(delta: float) -> void:
 	_badge.set_progress(hero.level, hero.xp, hero.xp_to_next())
 	_badge.tooltip_text = "Nível %d  —  %d / %d XP" % [hero.level, hero.xp, hero.xp_to_next()]
 	_location.text = world.region_name()
-	var tl := world.time_label()
-	_gold.text = "● %d%s" % [hero.gold, ("   " + tl) if tl != "" else ""]
+	_gold.text = "● %d" % hero.gold
 	_essence.text = "◆ %d" % hero.essence
+	# Fase 7.1: o chip de relógio assume o HH:MM (§14.1) — Game.world_time
+	# é a fonte da verdade; em masmorra congela no valor salvo
+	_clock.set_time(fmod(Game.world_time, 1.0))
 	if _popup and is_instance_valid(_popup) and world.player.global_position.distance_to(_popup.get_meta("anchor")) > 40.0:
 		close_popup()
 	_points_hint.visible = hero.unspent_points > 0 and not character.visible

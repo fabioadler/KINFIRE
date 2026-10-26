@@ -29,6 +29,20 @@ var _src: TileSetAtlasSource
 var _ground_src: TileSetAtlasSource
 var _time := 0.3
 var _last_day := -1
+var _last_hour := -1
+
+# 7.1: color grading por keyframes (MECANICAS §14.1) — [fração do dia, tom]
+# 0.0 = meia-noite, 0.5 = meio-dia; interpolado suavemente (sem saltos)
+const DAY_KEYFRAMES := [
+	[0.0, Color(0.22, 0.26, 0.45)],    # 00:00 azul-profundo
+	[0.23, Color(0.35, 0.38, 0.50)],  # 05:30 madrugada cinza-azul
+	[0.27, Color(0.80, 0.60, 0.40)],  # 06:30 amanhecer âmbar
+	[0.5, Color(0.80, 0.78, 0.74)],   # 12:00 neutro (referência)
+	[0.73, Color(0.90, 0.68, 0.40)],  # 17:30 dourado de fim de tarde
+	[0.79, Color(0.58, 0.47, 0.58)],  # 19:00 crepúsculo lilás
+	[0.875, Color(0.26, 0.29, 0.48)], # 21:00 noite
+	[1.0, Color(0.22, 0.26, 0.45)],  # 24:00 = 00:00 (fecha o ciclo)
+]
 
 
 func _setup_map() -> void:
@@ -213,17 +227,22 @@ func _apply_brightness() -> void:
 func _update_daylight() -> void:
 	var b: float = Game.settings.brightness
 	var h := fmod(_time, 1.0)
-	# 0.0 = meia-noite, 0.5 = meio-dia
 	var day := clampf(0.5 - 0.5 * cos(h * TAU), 0.0, 1.0)
-	var night := Color(0.22, 0.24, 0.42)
-	var noon := Color(0.8, 0.78, 0.74)
-	var dusk := Color(0.95, 0.6, 0.45)
-	var c := night.lerp(noon, smoothstep(0.15, 0.6, day))
-	if day > 0.15 and day < 0.45:
-		c = c.lerp(dusk, 0.35 * (1.0 - absf(day - 0.3) / 0.15))
+	var c := _day_color(h)
 	canvas_modulate.color = Color(c.r * b, c.g * b, c.b * b, 1.0)
 	if player:
 		player.light.energy = lerpf(1.6, 0.12, day)
+
+
+## 7.1: tom do mundo interpolado entre keyframes do dia (§14.1)
+func _day_color(h: float) -> Color:
+	for i in DAY_KEYFRAMES.size() - 1:
+		var a: float = DAY_KEYFRAMES[i][0]
+		var b: float = DAY_KEYFRAMES[i + 1][0]
+		if h >= a and h <= b:
+			var t := (h - a) / maxf(b - a, 0.0001)
+			return (DAY_KEYFRAMES[i][1] as Color).lerp(DAY_KEYFRAMES[i + 1][1], t)
+	return DAY_KEYFRAMES[0][1]
 
 
 # ------------------------------------------------------------------ LOOP / STREAMING
@@ -232,6 +251,17 @@ func _process(delta: float) -> void:
 	super._process(delta)
 	_time += delta / DAY_LENGTH
 	Game.world_time = _time
+	# 7.1: eventos por hora (MECANICAS §14.1) — signal na virada da hora
+	var hour := int(fmod(_time, 1.0) * 24.0)
+	if hour != _last_hour:
+		if _last_hour >= 0:
+			Game.hour_changed.emit(hour)
+			if hour == 0:
+				# "A Vela Virou": autosave na meia-noite
+				Game.save_game()
+				hud.show_message("A vela virou — o dia %d começa." % (int(_time) + 1),
+					Color(0.55, 0.68, 1.0), 3.0)
+		_last_hour = hour
 	_update_daylight()
 	# Fase 5.2: virada do dia às 06:00 — vendors re-estocam e a demanda
 	# recupera 5% rumo ao nível natural (REGRAS §10/§14)
@@ -580,7 +610,50 @@ func light_campfire(f: Interactable) -> void:
 func _on_campfire_lit(fire: Interactable) -> void:
 	light_campfire(fire)
 	hud.show_message("Fogueira acesa: você renascerá aqui.", Color(1, 0.7, 0.3))
-	hud.open_waypoints()
+	if _is_night():
+		_offer_sleep()
+	else:
+		hud.open_waypoints()
+
+
+## 7.1: noite na fogueira = opção de dormir até o amanhecer (§14.1)
+func _is_night() -> bool:
+	var h := fmod(_time, 1.0) * 24.0
+	return h >= 18.0 or h < 6.0
+
+
+func _offer_sleep() -> void:
+	var body := hud._open_popup("Fogueira acesa", 430)
+	body.add_child(UIKit.rich(
+		"[color=#9A917F]A noite cobre Eldara. As fogueiras afastam o frio — e o resto.[/color]"))
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	body.add_child(row)
+	row.add_child(UIKit.button("Dormir até o amanhecer", _sleep_until_dawn, 240))
+	row.add_child(UIKit.button("Viajar (fogueiras)", func(): hud.open_waypoints(), 170))
+
+
+## Fast-forward com fade até as 06:00: cura, re-estoca o mercado e salva
+func _sleep_until_dawn() -> void:
+	hud.close_popup()
+	var veil := hud._overlay(0.0)
+	var bg: ColorRect = veil.get_child(0)
+	Sfx.play(&"potion", -10.0)
+	var tw := create_tween()
+	tw.tween_property(bg, "color:a", 1.0, 0.8)
+	tw.tween_callback(func():
+		# 06:00 = 0.25 do dia (REGRAS §14) — o hook de virada re-estoca
+		_time += fposmod(0.25 - fmod(_time, 1.0), 1.0)
+		Game.world_time = _time
+		player.heal(player.max_hp)
+		player.resource = player.max_resource
+		_update_daylight()
+		Game.save_game()
+		hud.show_message("Você acorda ao amanhecer — dia %d." % (int(_time) + 1),
+			Color(1, 0.85, 0.5), 3.5)
+	)
+	tw.tween_property(bg, "color:a", 0.0, 0.9)
+	tw.tween_callback(veil.queue_free)
 
 
 func travel_to(pos: Vector2) -> void:
