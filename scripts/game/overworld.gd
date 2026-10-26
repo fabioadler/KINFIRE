@@ -34,6 +34,8 @@ var _last_hour := -1
 var _lantern: PointLight2D
 ## 7.3: timer da atualização de atmosfera por bioma
 var _atmos_timer := 0.0
+## 7.6: camada de clima (partículas, névoa, chuva/relâmpago)
+var weather: WeatherLayer
 
 # 7.1: color grading por keyframes (MECANICAS §14.1) — [fração do dia, tom]
 # 0.0 = meia-noite, 0.5 = meio-dia; interpolado suavemente (sem saltos)
@@ -73,6 +75,10 @@ func _setup_map() -> void:
 	WindField.world_seed = Game.world_seed
 	WindField.set_provider(func(p: Vector2) -> StringName:
 		return og.biome_at(world_to_cell(p)))
+	# 7.6: clima — partículas por bioma, névoa, chuva determinística (§14.4)
+	Weather.world_seed = Game.world_seed
+	weather = WeatherLayer.new()
+	add_child(weather)
 	_build_tileset()
 	var start := world_to_cell(_start_position())
 	var sc := _chunk_of(start)
@@ -271,7 +277,11 @@ func _update_daylight() -> void:
 func _update_atmos() -> void:
 	if player == null:
 		return
-	_apply_atmos(BIOME_ATMOS.get(og.biome_at(world_to_cell(player.global_position)), {}))
+	var biome: StringName = og.biome_at(world_to_cell(player.global_position))
+	_apply_atmos(BIOME_ATMOS.get(biome, {}))
+	# 7.6: clima por bioma (§14.4) — chuva determinística semente+dia
+	if weather != null:
+		weather.configure(biome, _is_night(), Weather.rain_on(int(_time)), self)
 
 
 ## 7.1: tom do mundo interpolado entre keyframes do dia (§14.1)

@@ -1748,6 +1748,42 @@ func _test_overworld() -> void:
 	await _wait(0.8)
 	assert(absf(AudioServer.get_bus_volume_db(bus_m75) - vol75) < 0.5, "fechar o diálogo devolve o volume")
 	print("[smoke]   som adaptativo ok (buses Ambience/UI, base+ambiencia por bioma, vento no bus, sting, camada de combate, ducking de dialogo)")
+	# 7.6: clima e partículas ambientais (MECANICAS §14.4) — emissor por bioma,
+	# vagalumes noturnos, névoa parallax, chuva determinística + relâmpago
+	assert(Weather.rain_on(3) == Weather.rain_on(3), "chuva determinística por dia")
+	var wet76 := 0
+	for d76 in 60:
+		if Weather.rain_on(d76):
+			wet76 += 1
+	assert(wet76 >= 1 and wet76 <= 30, "60 dias têm dias de chuva E de sol (~20%)")
+	assert(Weather.emitter_of(&"floresta") == &"leaf" and Weather.emitter_of(&"tundra") == &"snow",
+		"emissor por bioma (folha na floresta, neve na tundra)")
+	assert(Weather.fireflies_at(&"planicie", true) and not Weather.fireflies_at(&"deserto", true),
+		"vagalumes só à noite em planície/floresta")
+	assert(Weather.fog_at(&"pantano") and Weather.fog_at(&"corrompido") and not Weather.fog_at(&"planicie"),
+		"névoa volumétrica só no pântano e Terras Corrompidas")
+	assert(ow.weather != null, "camada de clima existe no mundo aberto")
+	await _wait(0.8)  # um tick do _update_atmos
+	assert(ow.weather.current_biome() == ow.og.biome_at(ow.world_to_cell(ow.player.global_position)),
+		"camada de clima conhece o bioma do herói")
+	assert(ow.weather.active_emitters().has(Weather.emitter_of(ow.weather.current_biome())),
+		"emissor do bioma ativo")
+	# névoa + chuva no pântano (configure direto — o tick restaura o estado real)
+	ow.weather.configure(&"pantano", false, true, ow)
+	assert(ow.weather.fog_visible(), "pântano tem névoa parallax")
+	assert(ow.weather.active_emitters().has(&"spore") and ow.weather.active_emitters().has(&"rain"),
+		"esporos do pântano + chuva ativos")
+	# vagalumes noturnos na planície; sem névoa; sem chuva
+	ow.weather.configure(&"planicie", true, false, ow)
+	assert(ow.weather.active_emitters().has(&"dust") and ow.weather.active_emitters().has(&"firefly"),
+		"planície noturna tem poeira E vagalumes")
+	assert(not ow.weather.fog_visible(), "planície sem névoa")
+	# relâmpago (§14.4): flash conta e trovão dispara
+	var fc76 := ow.weather.flash_count()
+	ow.weather.trigger_lightning()
+	assert(ow.weather.flash_count() == fc76 + 1, "relâmpago conta o flash")
+	# restore: o _update_atmos real no próximo tick traz o bioma verdadeiro de volta
+	print("[smoke]   clima ok (chuva deterministica, emissor por bioma, vagalumes noturnos, nevoa parallax, relampago)")
 	await _shot("07_mundo_acampamento")
 	h.gold = 5000
 	ow.hud.open_merchant()

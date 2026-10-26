@@ -14,6 +14,10 @@ var _amb_a: AudioStreamPlayer
 var _amb_b: AudioStreamPlayer
 var _layer: AudioStreamPlayer
 var _sting: AudioStreamPlayer
+var _rain: AudioStreamPlayer
+var _thunder: AudioStreamPlayer
+var _rain_stream: AudioStream
+var _thunder_stream: AudioStream
 
 # --- ESTADO ---
 var _base_path: String = ""
@@ -23,6 +27,7 @@ var _layer_fade_out: float = 4.0
 var _duck_db: float = 0.0          # diálogo: música −6dB (§15.1)
 var _amb_duck_db: float = 0.0      # fogueira à noite: ambience −3dB
 var _reverb_on: bool = false
+var _raining := false
 var _wind_db: float = 0.0
 var _last_state: Dictionary = {}
 var _tweens: Dictionary = {}  # AudioStreamPlayer -> Tween
@@ -59,9 +64,19 @@ func _ready() -> void:
 	_sting = AudioStreamPlayer.new()
 	_sting.bus = "SFX"
 	add_child(_sting)
+	# chuva (bus Ambience, fade 3s) e trovão (bus SFX, one-shot) — 7.6
+	_rain = AudioStreamPlayer.new()
+	_rain.bus = "Ambience"
+	add_child(_rain)
+	_rain.volume_db = -60.0
+	_thunder = AudioStreamPlayer.new()
+	_thunder.bus = "SFX"
+	add_child(_thunder)
 	# pré-carrega stings
 	_sting_camp = load(AMB + "sting_campeao.wav")
 	_sting_leg = load(AMB + "sting_lendario.wav")
+	_rain_stream = _looped(AMB + "rain_loop.wav")
+	_thunder_stream = load(AMB + "thunder.wav")
 	# garante loop nos WAVs
 	for p in [_base_a, _base_b, _amb_a, _amb_b, _layer]:
 		p.finished.connect(func(): _ensure_loop(p))
@@ -198,6 +213,28 @@ func sting(rarity: int) -> bool:
 
 # ------------------------------------------------------------------ DUCKING / REVERB
 
+## 7.6: chuva molha o som (§14.4) — loop de chuva no bus Ambience, fade 3s
+func set_rain(on: bool) -> void:
+	if on == _raining:
+		return
+	_raining = on
+	if on:
+		_rain.stream = _rain_stream
+		_rain.play()
+	_kill_tweens(_rain)
+	var t: Tween = create_tween()
+	t.tween_property(_rain, "volume_db", -9.0 if on else -60.0, 3.0)
+	_tweens[_rain] = t
+	if not on:
+		t.chain().tween_callback(_rain.stop)
+
+## 7.6: trovão — one-shot no bus SFX
+func play_thunder() -> void:
+	if _thunder_stream == null:
+		return
+	_thunder.stream = _thunder_stream
+	_thunder.play()
+
 func duck_music(on: bool) -> void:
 	_duck_db = -6.0 if on else 0.0
 	_apply_music_bus()
@@ -316,6 +353,7 @@ func stop_all() -> void:
 	set_base("")
 	set_ambience("")
 	set_layer("")
+	set_rain(false)
 	_duck_db = 0.0
 	_amb_duck_db = 0.0
 	_apply_music_bus()
