@@ -1196,6 +1196,74 @@ func _test_overworld() -> void:
 	Game.reputation = rep_backup53
 	Game.market = {}
 	print("[smoke]   reputacao ok (tiers Estranho→Laco, desconto 0/5/10/15/20%, reputação e por territorio do vendor)")
+	# 5.4: casa de leilões (REGRAS §9) — 6 slots Raro+ rotativos por dia
+	Game.auction = {}
+	var s54: Array = Auction.slots()
+	assert(s54.size() == Auction.SLOT_COUNT, "6 slots diários")
+	var raro54 := true
+	var ess54 := 0
+	for e54 in s54:
+		if int(e54["rarity"]) < Item.Rarity.RARE or not DB.BASES.has(e54["base"]):
+			raro54 = false
+		if String(e54["currency"]) == "essence":
+			ess54 += 1
+	assert(raro54 and ess54 == 1, "todos Raro+ com base válida, 1 slot em essência")
+	for e54 in s54:
+		var exp54: int = ceili(float(e54["value"]) / float(Auction.ESSENCE_DIVISOR)) \
+			if String(e54["currency"]) == "essence" \
+			else ceili(float(e54["value"]) * Auction.BID_PREMIUM)
+		assert(int(e54["min_bid"]) == exp54, "lance inicial: prêmio ×1.2 (essência = valor/20)")
+	var snap54 := []
+	for e54 in s54:
+		snap54.append(e54["base"])
+	Game.auction = {}
+	var s54b: Array = Auction.slots()
+	var mesmo54 := true
+	for i54 in Auction.SLOT_COUNT:
+		if s54b[i54]["base"] != snap54[i54]:
+			mesmo54 = false
+	assert(mesmo54, "mesmo dia = mesmo leilão (determinístico por dia)")
+	s54 = s54b  # re-rolou acima: opera sobre os dicts atuais
+	# lances: rivais contra-lançam (+10% no mínimo); (rivais+1) lances vencem
+	var gold54 := h.gold
+	h.gold = 100000
+	# o herói chega aqui com o inventário cheio (itens de ~28 quests) —
+	# liberar espaço para os arremates
+	for it54 in h.inventory.items.duplicate():
+		if it54 != null:
+			h.inventory.remove(it54)
+	var bid54: int = int(s54[0]["min_bid"])
+	var rivais54: int = int(s54[0]["rivals_left"])
+	var won54 := false
+	var last54 := ""
+	for i54 in rivais54 + 3:
+		var r54 := Auction.place_bid(0)
+		last54 = String(r54["result"])
+		if String(r54["result"]) == "outbid":
+			assert(int(s54[0]["min_bid"]) == ceili(bid54 * 1.10), "contra-lance eleva 10%")
+			bid54 = int(s54[0]["min_bid"])
+		elif String(r54["result"]) == "won":
+			won54 = true
+			break
+		else:
+			won54 = false
+			break
+	assert(won54 and bool(s54[0]["sold"]), "lance vence após %d rivais (último: %s)" % [rivais54, last54])
+	assert(h.gold == 100000 - bid54, "ouro cobrado só na vitória")
+	assert(String(Auction.place_bid(0)["result"]) == "sold", "slot vendido é final")
+	h.gold = 0
+	assert(String(Auction.place_bid(1)["result"]) == "broke", "sem ouro, sem lance")
+	# slot em essência cobra essência (REGRAS §9: moeda dura)
+	var ess54b := h.essence
+	h.essence = 500
+	while String(Auction.place_bid(Auction.ESSENCE_INDEX)["result"]) == "outbid":
+		pass
+	assert(bool(s54[Auction.ESSENCE_INDEX]["sold"]), "slot de essência vencível")
+	assert(h.essence == 500 - int(s54[Auction.ESSENCE_INDEX]["min_bid"]), "essência cobrada")
+	h.essence = ess54b
+	h.gold = gold54
+	Game.auction = {}
+	print("[smoke]   leilao ok (6 slots Raro+ rotativos por dia, 1 em essencia, rivais +10% por contra-lance, deterministico)")
 	await _shot("07_mundo_acampamento")
 	h.gold = 5000
 	ow.hud.open_merchant()
