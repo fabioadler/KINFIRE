@@ -301,7 +301,8 @@ func _free_movement(mouse: Vector2) -> void:
 			_path.remove_at(0)
 		if not _path.is_empty():
 			dir = global_position.direction_to(_path[0])
-	velocity = dir * hero.move_speed()
+	# 7.4: ventania empurra quem anda a favor do vento (±10%, §14.5.1)
+	velocity = dir * hero.move_speed() * WindField.speed_factor(global_position, dir)
 	if dir != Vector2.ZERO:
 		facing = dir
 		if state != State.MOVE:

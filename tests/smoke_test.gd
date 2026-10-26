@@ -1613,6 +1613,94 @@ func _test_overworld() -> void:
 		"aura de Campeao+ floresce no glow (HDR 2D)")
 	assert(LightFx.flicker_of(champ73._aura) == -1, "aura nao tremula (constancia ameacadora)")
 	print("[smoke]   pos-processo ok (glow HDR 2D, rim light nos sprites, vinheta/temperatura por bioma)")
+	# 7.4: sistema de vento global (MECANICAS §14.5) — coerência, navegação,
+	# forecast, desvio de flechas, "Ler o Vento" e calmaria de campeões
+	# (determinismo: override fixa o vento; noise testado com t explícito)
+	WindField.override = Vector2(1.0, 0.0)
+	var far74 := Vector2(1000000, 1000000)
+	assert(WindField.at(far74) == Vector2(1.0, 0.0), "override fixa o vento em qualquer lugar")
+	assert(WindField.at(far74) == WindField.at(far74), "coerencia: mesma consulta, mesmo vento")
+	# navegação (§14.5.1): ±10% andando com/contra a ventania; lateral não muda
+	assert(WindField.speed_factor(far74, Vector2(1, 0)) > 1.05, "a favor da ventania acelera ~10%")
+	assert(WindField.speed_factor(far74, Vector2(-1, 0)) < 0.95, "contra a ventania freia ~10%")
+	assert(is_equal_approx(WindField.speed_factor(far74, Vector2(0, 1)), 1.0), "vento lateral nao muda a velocidade")
+	# custo de rota (§14.5.4): a favor é mais barato, contra custa mais
+	assert(WindField.path_factor(far74, far74 + Vector2(100, 0)) < 1.0, "rota a favor do vento custa menos")
+	assert(WindField.path_factor(far74, far74 + Vector2(-100, 0)) > 1.0, "rota contra o vento custa mais")
+	# noise coerente com o tempo (§14.5.1): 6 ticks distintos, determinísticos
+	WindField.override = Vector2.ZERO
+	var samples74: Array = []
+	for k74 in 6:
+		var t74 := k74 * WindField.TICK * 3.0 + 5.0
+		var w74 := WindField.at(ow.player.global_position, t74)
+		samples74.append(w74)
+		assert(w74 == WindField.at(ow.player.global_position, t74), "vento deterministico por (pos, t)")
+		assert(w74.length() <= 1.0 + 0.001, "forca do vento nunca passa de 1")
+	var kinds74 := {}
+	for w74 in samples74:
+		kinds74[w74] = true
+	assert(kinds74.size() >= 2, "o vento varia com o tempo (value-noise em ticks)")
+	# forecast do dia (§14.5.1): evento válido e determinístico por dia
+	var seen74 := {}
+	for day74 in 60:
+		var f74: StringName = WindField.forecast(day74)
+		assert(f74 in [&"calmaria", &"ventania", &"frente", &"normal"], "evento de vento valido")
+		assert(f74 == WindField.forecast(day74), "forecast deterministico por dia")
+		assert(not WindField.presagio(day74) or f74 == &"calmaria", "presagio so na calmaria")
+		seen74[f74] = true
+	assert(seen74.size() >= 2, "60 dias veem pelo menos dois eventos de vento")
+	# desvio de flechas (§14.5.4): vento lateral empurra o projétil físico;
+	# "Ler o Vento" (§14.5.5, Caçador) faz a flecha voar reta
+	# (is_solid para a flecha em chunk descarregado — disparamos numa faixa
+	# livre escaneada perto do herói; pierce=99 + hit vazio atravessa inimigos)
+	WindField.override = Vector2(1.0, 0.0)
+	var noop74 := func(_e: Node, _p: Node) -> void: pass
+	var lane74 := Vector2i(999999, 999999)
+	var base74 := ow.world_to_cell(ow.player.global_position)
+	for r74 in 40:
+		var c74 := base74 + Vector2i(r74, 0)
+		if not ow.is_floor(c74):
+			continue
+		var clear74 := true
+		for k74 in 12:
+			if not ow.is_floor(c74 + Vector2i(0, -k74 - 1)):
+				clear74 = false
+				break
+		if clear74:
+			lane74 = c74
+			break
+	assert(lane74 != Vector2i(999999, 999999), "existe faixa livre para a flecha")
+	var from74 := ow.cell_to_world(lane74) + Vector2(0, -2)
+	var arrow74 := Projectile.fire(ow, from74, Vector2(0, -1), 300.0, Color.WHITE, false, noop74, "weapon_arrow")
+	arrow74.pierce = 99
+	var flew74 := await _wait_until(func(): return is_instance_valid(arrow74) and arrow74._travelled > 120.0)
+	assert(flew74, "flecha percorreu 120px")
+	if flew74:
+		assert(absf(arrow74.position.x - from74.x) > 3.0, "vento lateral desvia a flecha (>3px)")
+	arrow74.queue_free()
+	ow.player.add_buff("wind_reader", 1.0, 30.0, "Ler o Vento", Color(0.6, 0.9, 1.0))
+	var arrow74b := Projectile.fire(ow, from74, Vector2(0, -1), 300.0, Color.WHITE, false, noop74, "weapon_arrow")
+	arrow74b.pierce = 99
+	var flew74b := await _wait_until(func(): return is_instance_valid(arrow74b) and arrow74b._travelled > 120.0)
+	assert(flew74b, "flecha do leitor de vento percorreu 120px")
+	if flew74b:
+		assert(absf(arrow74b.position.x - from74.x) <= 2.0, "Ler o Vento faz a flecha voar reta")
+	arrow74b.queue_free()
+	# calmaria sobrenatural (§14.5.2): campeão PARA o vento ao redor de si
+	var cc74 := WindField.calm_count()
+	var champ74: Enemy = ow.spawn_enemy(g73, ow.player.global_position + Vector2(0, 5000),
+		Enemy.Rarity.CAMPEAO, 5)
+	assert(WindField.calm_count() == cc74 + 1, "campeao registrado no vento (calmaria)")
+	assert(WindField.has_calm(champ74.get_instance_id()), "calmaria viva sob o campeao")
+	assert(WindField.at(champ74.global_position).length() < 0.02, "calmaria sobrenatural para o vento")
+	assert(WindField.at(ow.player.global_position + Vector2(0, 3000)).length() > 0.9, "alem do raio o vento volta")
+	assert(WindField.at(ow.player.global_position) == Vector2(1.0, 0.0), "fora da calmaria o override manda")
+	var cid74 := champ74.get_instance_id()
+	champ74.queue_free()
+	var gone74 := await _wait_until(func(): return not WindField.has_calm(cid74))
+	assert(gone74, "a calmaria morre com o campeao")
+	WindField.override = Vector2.ZERO
+	print("[smoke]   vento ok (coerencia, forecast, ±10% navegacao, flecha desvia, Ler o Vento reto, calmaria de campeao)")
 	await _shot("07_mundo_acampamento")
 	h.gold = 5000
 	ow.hud.open_merchant()

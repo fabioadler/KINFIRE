@@ -82,6 +82,8 @@ func _setup_map() -> void:
 	explored.fill(0)
 	_build_tiles()
 	_build_astar()
+	# 7.4: masmorras não consultam bioma — vento de base planície
+	WindField.set_provider(Callable())
 
 
 func _start_position() -> Vector2:

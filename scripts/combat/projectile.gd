@@ -9,6 +9,10 @@ var hits_minions := false        ## projéteis hostis também atingem aliados in
 var hits_enemies := false        ## projétil hostil de inimigo confuso atinge outros inimigos
 var color := Color.WHITE
 var sprite_name := ""
+## 7.4: massa 0-1 — flecha leve desvia mais (§14.5.4); projéteis mágicos
+## (sem sprite) só sentem o vento se marcados wind_affected
+var wind_mass := 0.8
+var wind_affected := false
 var pierce := 0
 var explode_radius := 0.0
 var hit_radius := 6.0
@@ -50,6 +54,19 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	# Dobra Temporal desacelera projéteis inimigos
 	var step := velocity * delta * (_world.time_scale_at(global_position) if hostile else 1.0)
+	# 7.4: o vento desvia projéteis físicos (§14.5.4) — mágicos só se marcados;
+	# "Ler o Vento" (Caçador) faz as flechas do herói voarem retas (§14.5.5)
+	if sprite_name != "" or wind_affected:
+		var straight := false
+		if not hostile and _world.player != null:
+			for b in _world.player.buffs.values():
+				if b.stat == "wind_reader":
+					straight = true
+					break
+		if not straight:
+			var w := WindField.at(global_position)
+			velocity += w * 90.0 * (1.5 - wind_mass) * delta
+	rotation = velocity.angle()
 	position += step
 	_travelled += step.length()
 	_trail.push_front(Vector2.ZERO)

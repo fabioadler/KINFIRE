@@ -69,6 +69,10 @@ func _setup_map() -> void:
 	# A capital da raça do jogador é o acampamento promovido (LORE §X).
 	territories = Territories.new(Game.world_seed, Game.hero.race.id if Game.hero else &"humano")
 	_time = Game.world_time
+	# 7.4: o vento é coerente com a semente do mundo e sabe o bioma (§14.5)
+	WindField.world_seed = Game.world_seed
+	WindField.set_provider(func(p: Vector2) -> StringName:
+		return og.biome_at(world_to_cell(p)))
 	_build_tileset()
 	var start := world_to_cell(_start_position())
 	var sc := _chunk_of(start)

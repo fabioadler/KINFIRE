@@ -76,6 +76,11 @@ func _ready() -> void:
 			_sprite.texture = ow_texture(Vector2i(14, 8))
 			# 7.2: fogueira oscila viva e projeta sombras reais (§14.2)
 			_light = Fx.make_light(Color(1, 0.6, 0.25), 2.2, 1.3, LightFx.Flicker.FIRE, true)
+			# 7.4: a chama curva-se com o vento (§14.5.2) — uniformes no _process
+			var sway := ShaderMaterial.new()
+			sway.shader = preload("res://shaders/wind_sway.gdshader")
+			sway.set_shader_parameter("flexibility", 0.5)
+			_sprite.material = sway
 		Kind.MERCHANT:
 			_sprite.visible = false
 			_anim = AnimatedSprite2D.new()
@@ -204,6 +209,11 @@ func _process(delta: float) -> void:
 		Kind.CAMPFIRE:
 			_sprite.texture = ow_texture(Vector2i(14 + int(_t * 6.0) % 2, 8))
 			_light.energy = 1.2 + sin(_t * 9.0) * 0.12 + sin(_t * 23.0) * 0.08
+			# 7.4: chama inclina com o vento e ventania (>0.7) sufoca a fogueira
+			# (§14.5.4 — tochas desprotegidas quase se apagam)
+			var w := WindField.at(global_position)
+			(_sprite.material as ShaderMaterial).set_shader_parameter("wind", w)
+			_light.energy *= 1.0 - 0.35 * clampf(w.length() - 0.7, 0.0, 0.3) / 0.3
 		Kind.DUNGEON_ENTRANCE, Kind.DUNGEON_EXIT:
 			_light.energy = 1.0 + sin(_t * 2.5) * 0.3
 		Kind.MIRROR:

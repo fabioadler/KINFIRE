@@ -107,6 +107,10 @@ func setup(p_data: EnemyData, p_world: World, p_depth: int, p_rarity: int, p_aff
 
 func _ready() -> void:
 	add_to_group("enemies")
+	# 7.4: Campeões/chefes PARAM o vento ao redor — calmaria sobrenatural
+	# (§14.5.2): cue grátis de perigo, as chamas param de crepitar
+	if rarity >= Rarity.CAMPEAO:
+		WindField.add_calm(get_instance_id(), global_position)
 	var diff: Dictionary = Game.hero.difficulty_data() if Game.hero else DB.DIFFICULTIES[0]
 	var hp_mult: float = (1.0 + 0.4 * (depth - 1)) * diff.hp
 	var dmg_mult: float = (1.0 + 0.25 * (depth - 1)) * diff.dmg
@@ -390,6 +394,12 @@ func _reset_attack_cd(base: float) -> float:
 
 # ------------------------------------------------------------------ IA
 
+func _exit_tree() -> void:
+	# 7.4: a calmaria morre com o campeão (§14.5.2)
+	if rarity >= Rarity.CAMPEAO:
+		WindField.remove_calm(get_instance_id())
+
+
 func _physics_process(delta: float) -> void:
 	if is_dead():
 		return
@@ -397,7 +407,12 @@ func _physics_process(delta: float) -> void:
 	delta *= tscale
 	_state_time += delta
 	if _aura:
-		_aura.energy = 0.75 + sin(_state_time * 3.2) * 0.25
+		# 7.3/7.4: pulsa ATRAVESSANDO o threshold do glow (1.0) — a aura
+		# de Campeão/Lendário floresce e apaga com a respiração
+		_aura.energy = 1.15 + sin(_state_time * 3.2) * 0.3
+	# 7.4: a calmaria segue o campeão (§14.5.2)
+	if rarity >= Rarity.CAMPEAO:
+		WindField.move_calm(get_instance_id(), global_position)
 	if _spawn_beam:
 		_spawn_beam.modulate.a = 0.65 + sin(_state_time * 3.2) * 0.35
 	_attack_cd -= delta

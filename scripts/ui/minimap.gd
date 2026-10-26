@@ -79,5 +79,17 @@ func _draw() -> void:
 	for m in world.minions_near(world.player.global_position, 160.0):
 		draw_circle(to_map.call(m.global_position), 1.6, Color(0.4, 1, 0.6))
 	draw_circle(size * 0.5, 3.0, Color(0.3, 1.0, 0.3))
+	# 7.4: "Ler o Vento" (Caçador, §14.5.5) — vetor do vento no minimapa
+	var reading74 := false
+	for b in world.player.buffs.values():
+		if b.stat == "wind_reader":
+			reading74 = true
+			break
+	if reading74:
+		var w74 := WindField.at(world.player.global_position)
+		if w74.length() > 0.02:
+			var tip74 := size * 0.5 + w74.normalized() * (24.0 + 40.0 * w74.length())
+			draw_line(size * 0.5, tip74, Color(0.6, 0.9, 1.0, 0.9), 2.0, true)
+			draw_circle(tip74, 2.6, Color(0.7, 0.95, 1.0))
 	# Fase 6.1: borda dourada circular (a máscara do shader corta os cantos)
 	draw_arc(size * 0.5, size.x * 0.5 - 2.0, 0, TAU, 64, UIKit.GOLD, 2.0, true)
