@@ -112,6 +112,9 @@
 - [x] 9.2 `feat: scroll nos paineis do jogador` — **QuestPanel**: lista de missões em ScrollContainer (360px, horizontal desligado; contagem de Fragmentos fixa fora); **InventoryPanel**: boneco+stats+grade em scroll (330px — somavam ~580px > janela de 470; ouro/Vender/dica fixos embaixo); **CharacterPanel**: TabContainer 420→330px (retrato 72 + abas cabem na janela do painel unificado) e aba **Atributos** vira ScrollContainer (Detalhes já era); **TradePanel**: conteúdo das abas Comprar/Vender/Leilão em scroll (430px). SkillsPanel e OptionsPanel já tinham scroll. Smoke: helper `_first_scroll` + asserts de scroll vertical nas 4 abas do painel unificado — SMOKE OK (202 linhas, 0 erros).
 - [x] 9.3 `feat: objetivos do prologo visiveis no painel de Missoes + textos legiveis` — o jogador chegava ao mundo sem saber o que fazer: os sussurros do tutorial apareciam e sumiam antes de dar para ler, e nada constava no painel de Missões. **Solução**: nova quest **"Primeiros Passos na Névoa"** (`data/quests/prologo_tutorial.tres`, 7 estágios FLAG espelhando cada passo: mover → espantalho → apanhar espada → equipar (I) → poção (Q) → fogueira → lobos/nível 1/espelho), **sem recompensas** (não distorce o XP do prólogo — nível 1 continua vindo dos lobos, REGRAS §13), iniciada pela flag `tut_inicio` em `_setup_tutorial()`; cada `_advance()` seta a flag do passo concluído (`TUT_FLAGS`) → a quest avança de estágio junto com o jogo, visível **no painel (J) e no tracker lateral da HUD** do primeiro ao último segundo; `_on_mirror` conclui a quest. **Textos legíveis**: sussurros 5s → **9s**, dicas contextuais 5.5s → 8s. Smoke: quest ativa desde a carga do prólogo, tracker não vazio, diário no último estágio após a fogueira, concluída no espelho — SMOKE OK (202 linhas, 0 erros).
 
+### Fase 10 — Progressão ARPG: Teclado, Consumíveis, Status, Árvore (commits 51–64) — `status: EM ANDAMENTO`
+- [x] 10.1 `feat: remapeamento de teclado + skills basicas/pesadas/cura-simples + consumiveis 1-9 + HUD` — ACTIONS dict: skills 1-4 → Z/X/C/V, Q=cura simples (CD 8s, 15% HP, sem custo), E=interagir, Tab=inventário, P/H/M=painéis, 1-9=consumíveis; Player: _use_simple_heal, _try_interact (contextual: fogueira/baú/NPC/item/portal), _use_consumable_slot; Skills novas: pesado_basico (RMB), cura_simples (Q); HUD: barra consumíveis 1-9 (drag/drop, tooltip, cooldown radial), slot cura simples (Q), botões painéis Tab/P/H/M/≡; Hero: consumable_slots[9], consumable_cooldowns, save/load v5; Tutorial: dicas Tab/Q/E; Smoke: asserts Tab/Q, _try_interact — **SMOKE OK (215 linhas, 0 erros)**
+
 ### Backlog (v2 — não prometido)
 - Crafting e coleta de recursos • caravanas comerciais com escolta • montarias • pets de combate não-ladino • localization EN • new game+ • conquesta de masmorras ao final • modo hardcore com ranking local
 
@@ -138,9 +141,11 @@
 | 3. Raridade/Loot | ✅ Concluída | 2026-10-25 |
 | 4. Quests | ✅ Concluída | 2026-10-25 |
 | 5. Economia | ✅ Concluída | 2026-10-26 |
-| 6. UI/UX | 🔄 Em andamento | 2026-10-26 |
-| 7. Luz/Sombra/Som/Vento | ⬜ Não iniciada | — |
-| 8. Polimento | ⬜ Não iniciada | — |
+| 6. UI/UX | ✅ Concluída | 2026-10-26 |
+| 7. Luz/Sombra/Som/Vento | ✅ Concluída | 2026-10-26 |
+| 8. Polimento | ✅ Concluída | 2026-10-26 |
+| 9. Pós-v0.3 | ✅ Concluída | 2026-10-27 |
+| 10. Progressão ARPG | 🔄 Em andamento | 2026-10-27 |
 
 ### Registro de commits
 | Data | Commit | Fase | Notas |
@@ -157,6 +162,7 @@
 | 2026-10-25 | c4abfcd | 2.1 | `feat:` DialogueData (.tres) + motor de diálogo com nós, escolhas e condições — resolver DSL, efeitos, `Game.flags` no save, `count_item`; smoke `_test_dialogue` OK |
 | 2026-10-25 | a20e0c0 | 2.2 | `feat:` DialogueBox (retratos, máquina-de-escrever, escolhas) + diálogo ramificado real de despertar com o Cinzento — smoke OK |
 | 2026-10-25 | 68ad684 | 2.3 | `feat:` NpcData/Npc conversáveis (Marn, Bree) no acampamento — flags de memória, tópicos leigo/instruído, `rep humano/halfling +1` por promessa única, `DB.npc()`, hover duck-typed; smoke OK |
+| 2026-10-27 | e0e671b | 10.1 | `feat:` remapeamento teclado + skills basicas/pesadas/cura-simples + consumiveis 1-9 + HUD — Z/X/C/V, Q/E/Tab, 1-9, save v5, smoke OK |
 | 2026-10-25 | 037ee0b | 2.4 | `feat:` territórios raciais procedurais — 14 capitais (LORE §X) por Voronoi determinístico (semente+raça), Vale do Centro neutro, acampamento promovido a capital, `region_level`/`region_name_at`; smoke OK |
 | 2026-10-25 | 9dc821c | 2.5 | `feat:` `TerritoryNpcs` — líder + 3 plebeus por capital com ganho-de-vida por raça e diálogos gerados por template do TerritoryData (56 diálogos no cache do DB, zero .tres à mão); Fogueira Principal como waypoint; smoke OK |
 | 2026-10-25 | 13b87fc | 2.6 | `test:` smoke valida a aceitação da Fase 2 permanentemente (14 raças × capital + 4 NPCs + diálogo ramificado + economia própria) — **Fase 2 concluída** |
