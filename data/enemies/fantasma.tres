@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1_script")
+elemental_type = 1
 id = &"fantasma"
 display_name = "Espectro Lamentoso"
 sprite = "k:121"

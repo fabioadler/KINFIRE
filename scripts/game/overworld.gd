@@ -603,6 +603,10 @@ func _spawn_chunk_content(k: Vector2i, data: Dictionary) -> void:
 	# Monstros por bioma
 	var density: float = Game.settings.monster_density
 	var packs := int(round(rng.randi_range(1, 3) * density))
+	# REGRAS §6: noite (21:00–05:00) — mortos-vivos +50% peso em biomas sombrios,
+	# todos os monstros +10% agressividade (raio de aggro)
+	var night: bool = _is_night()
+	var shadowy_biomes: Array[String] = ["corrompido", "pantano"]  # biomas sombrios
 	for i in packs:
 		var p := _random_floor(k, rng, 3)
 		if p == Vector2.INF:
@@ -611,7 +615,17 @@ func _spawn_chunk_content(k: Vector2i, data: Dictionary) -> void:
 		var pool := _pool_for(biome, lvl)
 		if pool.is_empty():
 			continue
+		# bônus noturno: aplica +50% no peso de spawn de mortos-vivos em biomas sombrios
+		if night and shadowy_biomes.has(biome):
+			for e in pool:
+				if e.elemental_type == EnemyData.ElementalType.UNDEAD:
+					e.spawn_weight *= 1.5
 		var data_e := _weighted_pick(pool)
+		# restaura o peso original (evita acumular entre chunks)
+		if night and shadowy_biomes.has(biome):
+			for e in pool:
+				if e.elemental_type == EnemyData.ElementalType.UNDEAD:
+					e.spawn_weight /= 1.5
 		var count := rng.randi_range(2, 4) if data_e.behavior != EnemyData.Behavior.SWARM else rng.randi_range(4, 7)
 		# 3.1: raridade do pack pelo rng do chunk (determinístico) + bônus de dificuldade
 		var pack_rarity := Enemy.roll_rarity(lvl, Game.hero.difficulty_data().loot if Game.hero else 0.0, rng)
@@ -622,6 +636,9 @@ func _spawn_chunk_content(k: Vector2i, data: Dictionary) -> void:
 			var off := Vector2(rng.randf_range(-24, 24), rng.randf_range(-24, 24))
 			var pos := last_free_point(p, p + off)
 			var en := spawn_enemy(data_e, pos, pack_rarity if j == 0 else Enemy.Rarity.COMUM, lvl, pack_affixes if j == 0 else [])
+			# noite: +10% aggro (REGRAS §6)
+			if night:
+				en.aggro_range *= 1.1
 			nodes.append(en)
 	# Chefe de mundo (raro, regiões distantes)
 	if lvl >= 4 and rng.randf() < 0.025:

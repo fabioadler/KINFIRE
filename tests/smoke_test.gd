@@ -1839,6 +1839,69 @@ func _test_overworld() -> void:
 	Game.settings.particle_amount = 1
 	Game.apply_settings()
 	print("[smoke]   video ok (FSR 2.2 no viewport, MSAA 2x/4x, filtro nearest, particulas 50/75/100%, presets Baixo/Medio/Alto, glow reativo)")
+	# 8.2: balanceamento pass — números conferem com REGRAS_DO_JOGO.md
+	# REGRAS §3: undead ×1.5 holy, demon imune a shadow / weak a holy
+	var ud82 := EnemyData.new()
+	ud82.elemental_type = EnemyData.ElementalType.UNDEAD
+	assert(Enemy._resist_calc(100.0, "holy", ud82) == 150.0, "undead leva ×1.5 holy (REGRAS §3)")
+	assert(Enemy._resist_calc(100.0, "shadow", ud82) == 100.0, "undead sem resist a shadow")
+	assert(Enemy._resist_calc(100.0, "physical", ud82) == 100.0, "undead dano físico normal")
+	var dm82 := EnemyData.new()
+	dm82.elemental_type = EnemyData.ElementalType.DEMON
+	assert(Enemy._resist_calc(100.0, "holy", dm82) == 150.0, "demon fraco a holy ×1.5")
+	assert(Enemy._resist_calc(100.0, "shadow", dm82) == 0.0, "demon imune a shadow")
+	# data-driven: 12 undead + 6 demon marcados nos .tres
+	var ud_count := 0
+	var dm_count := 0
+	for e82 in DB.enemies:
+		if e82.elemental_type == EnemyData.ElementalType.UNDEAD:
+			ud_count += 1
+		elif e82.elemental_type == EnemyData.ElementalType.DEMON:
+			dm_count += 1
+	assert(ud_count == 12, "12 mortos-vivos marcados nos .tres")
+	assert(dm_count == 6, "6 demônios marcados nos .tres")
+	# REGRAS §2: XP para o próximo nível = 20 × nível^1.5
+	for l82 in [1, 5, 10, 20, 60]:
+		var old82 := h.level
+		h.level = l82
+		assert(h.xp_to_next() == int(20 * pow(l82, 1.5)), "XP nível %d = 20×n^1.5" % l82)
+		h.level = old82
+	# REGRAS §2: +1 ponto de atributo a cada 4 níveis (1, 5, 9, 13…)
+	for l82 in [1, 5, 9, 13, 21]:
+		assert(l82 % 4 == 1, "nível %d da ponto de atributo" % l82)
+	# REGRAS §7: morte gold loss por dificuldade 10/20/30/30%
+	var loss82 := [0.10, 0.20, 0.30, 0.30]
+	for i82 in 4:
+		assert(DB.DIFFICULTIES[i82].death_gold_loss == loss82[i82],
+			"%s: -%.0f%% ouro" % [DB.DIFFICULTIES[i82].name, loss82[i82] * 100])
+	# REGRAS §7: multiplicadores de dificuldade
+	assert(DB.DIFFICULTIES[1].hp == 1.6 and DB.DIFFICULTIES[1].dmg == 1.35 and DB.DIFFICULTIES[1].xp == 1.25,
+		"Difícil: 1.6 HP / 1.35 dmg / 1.25 XP")
+	assert(DB.DIFFICULTIES[3].hp == 4.0 and DB.DIFFICULTIES[3].dmg == 2.5 and DB.DIFFICULTIES[3].xp == 2.0,
+		"Inferno: 4.0 HP / 2.5 dmg / 2.0 XP")
+	# REGRAS §8: valor de venda = (5 + lvl×3) × (1 + rar×2)
+	var it82 := Item.new()
+	it82.item_level = 10
+	it82.rarity = 2  # Raro
+	assert(it82.sell_value() == (5 + 10 * 3) * (1 + 2 * 2), "sell_value = (5+lvl×3)×(1+rar×2)")
+	# REGRAS §10: desconto de reputação 0/5/10/15/20% por tier
+	for t82 in 5:
+		assert(Market.rep_discount(t82) == 0.05 * t82, "rep tier %d = %.0f%%" % [t82, t82 * 5])
+	# REGRAS §6: multiplicadores de raridade (HP/dano/XP/ouro)
+	assert(Enemy.RARITY_HP == [1.0, 2.5, 5.0, 10.0, 1.0], "raridade HP 1/2.5/5/10 (REGRAS §6)")
+	assert(Enemy.RARITY_DMG == [1.0, 1.3, 1.8, 2.5, 1.0], "raridade dmg 1/1.3/1.8/2.5")
+	assert(Enemy.RARITY_REWARD == [1, 3, 6, 15, 1], "raridade XP/ouro 1/3/6/15")
+	# REGRAS §6: chances de spawn por raridade — distribuição sobre 10k rolagens
+	var rng82 := RandomNumberGenerator.new()
+	rng82.seed = 42
+	var count82 := {Enemy.Rarity.LENDARIO: 0, Enemy.Rarity.CAMPEAO: 0, Enemy.Rarity.ELITE: 0, Enemy.Rarity.COMUM: 0}
+	for i82 in 10000:
+		count82[Enemy.roll_rarity(1, 0.0, rng82)] += 1
+	# tolerância estatística (p=0.3%/2%/9%): ±0.3% / ±0.6% / ±1.2%
+	assert(absf(count82[Enemy.Rarity.LENDARIO] / 10000.0 - 0.003) < 0.003, "Lendário ~0.3%")
+	assert(absf(count82[Enemy.Rarity.CAMPEAO] / 10000.0 - 0.02) < 0.006, "Campeão ~2%")
+	assert(absf(count82[Enemy.Rarity.ELITE] / 10000.0 - 0.09) < 0.012, "Elite ~9% (8%+1% nível)")
+	print("[smoke]   balance ok (undead/demon resist, 12+6 marcados, XP curva, pontos a cada 4 niveis, dificuldade, sell_value, rep 5%/tier, raridade)")
 	await _shot("07_mundo_acampamento")
 	h.gold = 5000
 	ow.hud.open_merchant()

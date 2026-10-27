@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1_script")
+elemental_type = 1
 id = &"zumbi_miudo"
 display_name = "Zumbi Miúdo"
 sprite = "tiny_zombie"

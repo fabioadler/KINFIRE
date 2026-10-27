@@ -271,6 +271,18 @@ func body_radius() -> float:
 # ------------------------------------------------------------------ DANO E STATUS
 
 ## Retorna o dano efetivamente causado
+## 8.2: multiplicador de dano por tipo elemental (REGRAS §3) — estático
+## para o smoke conferir os números sem instanciar inimigo.
+static func _resist_calc(amount: float, element: String, edata: EnemyData) -> float:
+	if element == "holy" and edata.elemental_type == EnemyData.ElementalType.UNDEAD:
+		return amount * 1.5  # mortos-vivos levam ×1.5 de Sagrado
+	if element == "holy" and edata.elemental_type == EnemyData.ElementalType.DEMON:
+		return amount * 1.5  # demônios fracos a Sagrado
+	if element == "shadow" and edata.elemental_type == EnemyData.ElementalType.DEMON:
+		return 0.0  # demônios imunes a Sombrio (não têm laço — LORE)
+	return amount
+
+
 func take_damage(amount: float, crit: bool, from_pos: Vector2, knockback: float, element := "physical", ignore_armor := false) -> float:
 	if is_dead():
 		return 0.0
@@ -279,6 +291,11 @@ func take_damage(amount: float, crit: bool, from_pos: Vector2, knockback: float,
 		DamageNumber.spawn_text(world.fx_layer, hit_center(), "Esquiva", Color(0.65, 0.85, 1.0))
 		return 0.0
 	var final := amount if ignore_armor else amount * (100.0 / (100.0 + armor))
+	# REGRAS §3: resistências/vulnerabilidades por tipo elemental
+	final = _resist_calc(final, element, data)
+	if final <= 0.0:
+		DamageNumber.spawn_text(world.fx_layer, hit_center(), "Imune", Color(0.75, 0.5, 1))
+		return 0.0
 	_flash = 1.0
 	_hp_bar_visible = 4.0
 	# ESCUDO ARCANO: absorve o dano antes de tocar o HP

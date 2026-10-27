@@ -3,6 +3,9 @@ extends Resource
 ## Definição de monstro. Fica em res://data/enemies/*.tres
 
 enum Behavior { MELEE, RANGED, CHARGER, SWARM, BOSS }
+## Tipo elemental para resistências/vulnerabilidades (REGRAS §3):
+## "undead" = fraco a holy (×1.5), "demon" = imune a shadow + fraco a holy
+enum ElementalType { NONE, UNDEAD, DEMON }
 
 @export var id: StringName
 @export var display_name: String = ""
@@ -11,8 +14,9 @@ enum Behavior { MELEE, RANGED, CHARGER, SWARM, BOSS }
 @export var behavior: Behavior = Behavior.MELEE
 @export var max_hp: float = 30.0
 @export var damage: float = 6.0
-## physical, fire, ice, poison, shadow, arcane
+## physical, fire, ice, poison, shadow, arcane, holy
 @export var element: String = "physical"
+@export var elemental_type: ElementalType = ElementalType.NONE  ## REGRAS §3
 @export var armor: float = 0.0
 @export var move_speed: float = 55.0
 @export var attack_range: float = 18.0
