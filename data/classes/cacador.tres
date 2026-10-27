@@ -31,4 +31,6 @@ allowed_offhands = PackedStringArray("quiver")
 starting_weapon = &"bow"
 starting_offhand = &"quiver"
 regen_only_still = true
+base_status = {"forca": 9, "agilidade": 14, "mente": 12, "vitalidade": 9}
+status_growth = {"forca": 0, "agilidade": 1, "mente": 1, "vitalidade": 0}
 skills = Array[ExtResource("99_skscript")]([ExtResource("2_sk"), ExtResource("3_sk"), ExtResource("4_sk"), ExtResource("5_sk"), ExtResource("6_sk"), ExtResource("7_sk"), ExtResource("8_sk")])

@@ -31,4 +31,6 @@ starting_weapon = &"staff"
 starting_offhand = &"book"
 costs_life = true
 lifesteal = 0.1
+base_status = {"forca": 7, "agilidade": 9, "mente": 13, "vitalidade": 11}
+status_growth = {"forca": 0, "agilidade": 0, "mente": 1, "vitalidade": 1}
 skills = Array[ExtResource("99_skscript")]([ExtResource("2_sk"), ExtResource("3_sk"), ExtResource("4_sk"), ExtResource("5_sk"), ExtResource("6_sk"), ExtResource("7_sk")])

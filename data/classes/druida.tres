@@ -29,4 +29,6 @@ allowed_weapons = PackedStringArray("staff", "mace", "spear")
 allowed_offhands = PackedStringArray("orb")
 starting_weapon = &"staff"
 starting_offhand = &""
+base_status = {"forca": 10, "agilidade": 10, "mente": 13, "vitalidade": 12}
+status_growth = {"forca": 0, "agilidade": 0, "mente": 1, "vitalidade": 1}
 skills = Array[ExtResource("99_skscript")]([ExtResource("2_sk"), ExtResource("3_sk"), ExtResource("4_sk"), ExtResource("5_sk"), ExtResource("6_sk"), ExtResource("7_sk")])

@@ -31,4 +31,6 @@ starting_weapon = &"great_axe"
 starting_offhand = &""
 resource_decays = true
 gain_on_hurt = 4.0
+base_status = {"forca": 16, "agilidade": 8, "mente": 6, "vitalidade": 14}
+status_growth = {"forca": 1, "agilidade": 0, "mente": 0, "vitalidade": 1}
 skills = Array[ExtResource("99_skscript")]([ExtResource("2_sk"), ExtResource("3_sk"), ExtResource("4_sk"), ExtResource("5_sk"), ExtResource("6_sk"), ExtResource("7_sk")])

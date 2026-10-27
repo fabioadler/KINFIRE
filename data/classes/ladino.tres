@@ -30,4 +30,6 @@ allowed_offhands = PackedStringArray()
 starting_weapon = &"dagger"
 starting_offhand = &""
 burst_regen_after_idle = 4.0
+base_status = {"forca": 8, "agilidade": 16, "mente": 8, "vitalidade": 8}
+status_growth = {"forca": 0, "agilidade": 1, "mente": 0, "vitalidade": 0}
 skills = Array[ExtResource("99_skscript")]([ExtResource("2_sk"), ExtResource("3_sk"), ExtResource("4_sk"), ExtResource("5_sk"), ExtResource("6_sk"), ExtResource("7_sk")])

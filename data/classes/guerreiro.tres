@@ -30,4 +30,6 @@ allowed_offhands = PackedStringArray("shield")
 starting_weapon = &"sword"
 starting_offhand = &"shield_round"
 block_chance = 0.15
+base_status = {"forca": 14, "agilidade": 10, "mente": 8, "vitalidade": 12}
+status_growth = {"forca": 1, "agilidade": 0, "mente": 0, "vitalidade": 1}
 skills = Array[ExtResource("99_skscript")]([ExtResource("2_sk"), ExtResource("3_sk"), ExtResource("4_sk"), ExtResource("5_sk"), ExtResource("6_sk"), ExtResource("7_sk")])

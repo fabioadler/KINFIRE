@@ -31,4 +31,6 @@ starting_weapon = &"mace"
 starting_offhand = &"shield_kite"
 block_chance = 0.2
 gain_on_block = 10.0
+base_status = {"forca": 13, "agilidade": 8, "mente": 12, "vitalidade": 13}
+status_growth = {"forca": 1, "agilidade": 0, "mente": 1, "vitalidade": 1}
 skills = Array[ExtResource("99_skscript")]([ExtResource("2_sk"), ExtResource("3_sk"), ExtResource("4_sk"), ExtResource("5_sk"), ExtResource("6_sk"), ExtResource("7_sk")])
