@@ -18,6 +18,11 @@ extends Resource
 ## Ordem de prioridade para o point-buy recomendado
 @export var recommended: PackedStringArray = PackedStringArray()
 @export var base_armor: int = 5
+## Status base da classe (pontos fixos que sobem com o nível, não podem ser respeitados)
+## Chaves: "forca", "agilidade", "mente", "vitalidade"
+@export var base_status: Dictionary = {"forca": 10, "agilidade": 10, "mente": 10, "vitalidade": 10}
+## Crescimento automático de status por nível (aplicado a base_status)
+@export var status_growth: Dictionary = {"forca": 0, "agilidade": 0, "mente": 0, "vitalidade": 0}
 
 @export_group("Recurso")
 @export var resource_label: String = "Fúria"

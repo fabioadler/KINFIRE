@@ -29,6 +29,11 @@ var gold: int = 0
 ## Moeda "dura" da economia (REGRAS §9): só dropa de Campeão/Lendário/Chefe
 var essence: int = 0
 var unspent_points: int = 0
+## Status ARPG (pontos livres distribuíveis + base da classe)
+## Total = base_status[classe] + pontos_gastos
+var status := {"forca": 10, "agilidade": 10, "mente": 10, "vitalidade": 10}
+## Pontos de status não gastos (ganhos ao subir de nível: +2/nível)
+var status_points: int = 0
 var inventory: InventoryGrid
 var equipment := {}
 ## Ids das habilidades em cada slot: [LMB, RMB, 1, 2, 3, 4]
@@ -72,6 +77,8 @@ static func create(p_name: String, p_race: RaceData, p_cls: ClassData, p_sex: St
 	h.consumable_slots.resize(9)
 	for i in 9:
 		h.consumable_slots[i] = null
+	# Inicializa status ARPG a partir da classe
+	h._init_status()
 	if p_background == "nobre":
 		h.gold = 100
 	h.refresh_skill_bar()
@@ -92,6 +99,7 @@ static func create_villager() -> Hero:
 	h.consumable_slots.resize(9)
 	for i in 9:
 		h.consumable_slots[i] = null
+	h._init_status()
 	h.refresh_skill_bar()
 	return h
 
@@ -297,8 +305,12 @@ func add_xp(amount: int) -> void:
 	while xp >= xp_to_next() and level < MAX_LEVEL:
 		xp -= xp_to_next()
 		level += 1
-		## +1 ponto de atributo a cada 4 níveis (1, 5, 9, 13…) — REGRAS §2
+		## +1 ponto de atributo D&D a cada 4 níveis (1, 5, 9, 13…) — REGRAS §2
 		unspent_points += 1 if level % 4 == 1 else 0
+		## +2 pontos de status ARPG por nível (livres para distribuir) — REGRAS §2/Fase 10
+		status_points += 2
+		## Base da classe escala com o nível (status_growth)
+		_recalc_status()
 		refresh_skill_bar()
 		leveled_up.emit(level)
 	xp_changed.emit()
@@ -321,6 +333,72 @@ func spend_point(a: String) -> void:
 	unspent_points -= 1
 	base_abilities[a] = int(base_abilities[a]) + 1
 	stats_changed.emit()
+
+
+## Inicializa status ARPG a partir da classe (base_status)
+func _init_status() -> void:
+	for s in ["forca", "agilidade", "mente", "vitalidade"]:
+		var base: int = cls.base_status.get(s, 10)
+		status[s] = base
+	status_points = 0
+	_recalc_status()
+
+
+## Recalcula status: base da classe (com growth por nível) + pontos gastos
+func _recalc_status() -> void:
+	for s in ["forca", "agilidade", "mente", "vitalidade"]:
+		var base: int = cls.base_status.get(s, 10)
+		var growth: int = cls.status_growth.get(s, 0)
+		# base sobe com o nível
+		if level > 1:
+			base += growth * (level - 1)
+		# status final = base + pontos gastos (já está em status[s])
+		# mantemos apenas a parte "base" separada para respec
+		# status[s] já contém base + gasto
+		# nada a fazer aqui, só emitir sinal
+	stats_changed.emit()
+
+
+## Gasta 1 ponto de status no atributo indicado
+## Retorna true se gastou
+func spend_status_point(stat: String) -> bool:
+	if status_points <= 0:
+		return false
+	if not status.has(stat):
+		return false
+	status_points -= 1
+	status[stat] = int(status[stat]) + 1
+	stats_changed.emit()
+	return true
+
+
+## Respec gratuito: devolve todos os pontos gastos (exceto base da classe)
+func respec_status() -> void:
+	var total_gasto: int = 0
+	for s in ["forca", "agilidade", "mente", "vitalidade"]:
+		var base: int = cls.base_status.get(s, 10)
+		var growth: int = cls.status_growth.get(s, 0)
+		if level > 1:
+			base += growth * (level - 1)
+		var gasto: int = int(status[s]) - base
+		if gasto > 0:
+			total_gasto += gasto
+			status[s] = base
+	status_points += total_gasto
+	stats_changed.emit()
+
+
+## Retorna bônus de combate dos status (para SkillExecutor/Player)
+## Força: +1% dano melee/ponto | Agilidade: +0.5% vel mov/ataque | Mente: +1% dano mágico + 2 MP | Vitalidade: +5 HP
+func status_bonus() -> Dictionary:
+	return {
+		"melee_damage_pct": status["forca"] * 0.01,
+		"move_speed_pct": status["agilidade"] * 0.005,
+		"attack_speed_pct": status["agilidade"] * 0.005,
+		"spell_damage_pct": status["mente"] * 0.01,
+		"max_mp_bonus": status["mente"] * 2,
+		"max_hp_bonus": status["vitalidade"] * 5,
+	}
 
 
 func unlocked_skills() -> Array[SkillData]:
@@ -422,6 +500,9 @@ func to_dict() -> Dictionary:
 	var cons_cds := {}
 	for key in consumable_cooldowns:
 		cons_cds[String(key)] = consumable_cooldowns[key]
+	var st := {}
+	for s in ["forca", "agilidade", "mente", "vitalidade"]:
+		st[s] = status[s]
 	return {
 		"name": hero_name, "race": String(race.id), "class": String(cls.id), "sex": sex, "tint": tint.to_html(),
 		"background": background, "difficulty": difficulty, "hardcore": hardcore, "free_bonus": free_bonus,
@@ -429,6 +510,7 @@ func to_dict() -> Dictionary:
 		"inventory": inventory.to_array(), "equipment": eq, "skill_bar": bar, "kills": kills,
 		"deepest": deepest, "play_time": play_time,
 		"consumable_slots": cons, "consumable_cooldowns": cons_cds,
+		"status": st, "status_points": status_points,
 	}
 
 
@@ -474,5 +556,11 @@ static func from_dict(d: Dictionary) -> Hero:
 	var cons_cds: Dictionary = d.get("consumable_cooldowns", {})
 	for key in cons_cds:
 		h.consumable_cooldowns[StringName(key)] = float(cons_cds[key])
+	# Status ARPG
+	var st: Dictionary = d.get("status", {})
+	for s in ["forca", "agilidade", "mente", "vitalidade"]:
+		h.status[s] = int(st.get(s, h.cls.base_status.get(s, 10)))
+	h.status_points = int(d.get("status_points", 0))
+	h._recalc_status()
 	h.refresh_skill_bar()
 	return h

@@ -9,6 +9,10 @@ var _points_label: Label
 var _ability_rows := {}
 var _derived: RichTextLabel
 var _details: RichTextLabel
+## Aba Status (Fase 10)
+var _status_points_label: Label
+var _status_rows := {}
+var _status_bonus: RichTextLabel
 
 
 func setup(p_hud: HUD, p_hero: Hero) -> void:
@@ -36,7 +40,7 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 	tabs.custom_minimum_size = Vector2(480, 330)
 	body.add_child(tabs)
 
-	# Atributos: pontos + grade + derivadas somam mais que a aba — rola
+	# Atributos D&D: pontos + grade + derivadas somam mais que a aba — rola
 	var attr_scroll := ScrollContainer.new()
 	attr_scroll.name = "Atributos"
 	attr_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -85,6 +89,106 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 	_derived.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	attr.add_child(_derived)
 
+	# Status ARPG (Fase 10): Força, Agilidade, Mente, Vitalidade
+	var status_scroll := ScrollContainer.new()
+	status_scroll.name = "Status"
+	status_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	tabs.add_child(status_scroll)
+	var status_tab := VBoxContainer.new()
+	status_tab.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	status_tab.add_theme_constant_override("separation", 8)
+	status_scroll.add_child(status_tab)
+	_status_points_label = UIKit.label("", 15, Color(0.5, 1, 0.5), true)
+	_status_points_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	status_tab.add_child(_status_points_label)
+	var status_grid := GridContainer.new()
+	status_grid.columns = 4
+	status_grid.add_theme_constant_override("h_separation", 10)
+	status_grid.add_theme_constant_override("v_separation", 6)
+	status_tab.add_child(status_grid)
+	for s in ["forca", "agilidade", "mente", "vitalidade"]:
+		var s_name: String = s.capitalize()
+		var lbl := UIKit.label(s_name, 16, UIKit.TEXT, true)
+		lbl.custom_minimum_size.x = 110
+		status_grid.add_child(lbl)
+		# Total (base + gasto)
+		var total_lbl := UIKit.label("", 18, Color.WHITE, true)
+		total_lbl.custom_minimum_size.x = 40
+		status_grid.add_child(total_lbl)
+		# Base da classe
+		var base_lbl := UIKit.label("", 14, UIKit.TEXT_DIM)
+		base_lbl.custom_minimum_size.x = 40
+		base_lbl.tooltip_text = "Base da classe (sobe com o nível, não pode ser respeitado)"
+		status_grid.add_child(base_lbl)
+		# Botões +/-
+		var btns := HBoxContainer.new()
+		btns.add_theme_constant_override("separation", 4)
+		var minus := Button.new()
+		minus.text = "−"
+		minus.custom_minimum_size = Vector2(28, 24)
+		var tight_m := UIKit.box(Color(0.3, 0.16, 0.1), Color(0.8, 0.4, 0.3), 1, 3)
+		tight_m.content_margin_top = 0
+		tight_m.content_margin_bottom = 0
+		tight_m.content_margin_left = 4
+		tight_m.content_margin_right = 4
+		minus.add_theme_stylebox_override("normal", tight_m)
+		minus.pressed.connect(func():
+			# Respec individual: devolve 1 ponto se acima da base
+			var base: int = hero.cls.base_status.get(s, 10)
+			var growth: int = hero.cls.status_growth.get(s, 0)
+			if hero.level > 1:
+				base += growth * (hero.level - 1)
+			if hero.status[s] > base:
+				hero.status[s] -= 1
+				hero.status_points += 1
+				hero.stats_changed.emit()
+				Sfx.play(&"click")
+		)
+		btns.add_child(minus)
+		var plus := Button.new()
+		plus.text = "+"
+		plus.custom_minimum_size = Vector2(28, 24)
+		var tight_p := UIKit.box(Color(0.16, 0.3, 0.1), Color(0.4, 0.8, 0.3), 1, 3)
+		tight_p.content_margin_top = 0
+		tight_p.content_margin_bottom = 0
+		tight_p.content_margin_left = 4
+		tight_p.content_margin_right = 4
+		plus.add_theme_stylebox_override("normal", tight_p)
+		plus.pressed.connect(func():
+			if hero.spend_status_point(s):
+				Sfx.play(&"click")
+		)
+		btns.add_child(plus)
+		status_grid.add_child(btns)
+		_status_rows[s] = {"total": total_lbl, "base": base_lbl, "minus": minus, "plus": plus}
+	status_tab.add_child(UIKit.separator())
+	# Botão Respec Total
+	var respec_row := HBoxContainer.new()
+	respec_row.add_theme_constant_override("separation", 12)
+	respec_row.alignment = BoxContainer.ALIGNMENT_CENTER
+	var respec_btn := Button.new()
+	respec_btn.text = "Respec Total (devolve pontos gastos)"
+	respec_btn.custom_minimum_size = Vector2(220, 32)
+	var respec_style := UIKit.box(Color(0.3, 0.16, 0.1), Color(0.8, 0.4, 0.3), 1, 4)
+	respec_style.content_margin_top = 4
+	respec_style.content_margin_bottom = 4
+	respec_btn.add_theme_stylebox_override("normal", respec_style)
+	respec_btn.pressed.connect(func():
+		hero.respec_status()
+		Sfx.play(&"click")
+		hud.show_message("Status respecado — %d pontos devolvidos" % hero.status_points, Color(0.4, 1, 0.4), 1.5)
+	)
+	respec_row.add_child(respec_btn)
+	status_tab.add_child(respec_row)
+	status_tab.add_child(UIKit.separator())
+	# Bônus de combate
+	var bonus_lbl := UIKit.label("[font_size=15][color=#e8c060]Bônus de Combate[/color][/font_size]", 15)
+	bonus_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	status_tab.add_child(bonus_lbl)
+	_status_bonus = UIKit.rich()
+	_status_bonus.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	status_tab.add_child(_status_bonus)
+
 	var det_scroll := ScrollContainer.new()
 	det_scroll.name = "Detalhes"
 	det_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -128,6 +232,36 @@ func refresh() -> void:
 	t += _row("Velocidade de movimento", "%d%%" % roundi(hero.move_speed() / Hero.BASE_MOVE_SPEED * 100))
 	t += _row("Atributo primário", DB.ABILITY_NAMES[hero.cls.primary_ability])
 	_derived.text = t + "[/table][/font_size]"
+
+	# Aba Status ARPG
+	_status_points_label.text = ("Pontos de status disponíveis: %d" % hero.status_points) if hero.status_points > 0 else ""
+	for s in ["forca", "agilidade", "mente", "vitalidade"]:
+		var row: Dictionary = _status_rows[s]
+		var base: int = hero.cls.base_status.get(s, 10)
+		var growth: int = hero.cls.status_growth.get(s, 0)
+		if hero.level > 1:
+			base += growth * (hero.level - 1)
+		var total: int = hero.status[s]
+		var gasto: int = total - base
+		row.total.text = str(total)
+		row.total.add_theme_color_override("font_color", UIKit.GOLD if gasto > 0 else Color.WHITE)
+		row.base.text = "(base %d)" % base
+		var has_points: bool = hero.status_points > 0
+		row.plus.disabled = not has_points
+		row.plus.modulate.a = 1.0 if has_points else 0.0
+		row.minus.disabled = gasto <= 0
+		row.minus.modulate.a = 1.0 if gasto > 0 else 0.0
+	# Bônus de combate
+	var bonus := hero.status_bonus()
+	var b := "[font_size=14][table=2]"
+	b += _row("Dano corpo a corpo", "+%.1f%%" % (bonus.melee_damage_pct * 100))
+	b += _row("Velocidade de movimento", "+%.1f%%" % (bonus.move_speed_pct * 100))
+	b += _row("Velocidade de ataque", "+%.1f%%" % (bonus.attack_speed_pct * 100))
+	b += _row("Dano mágico", "+%.1f%%" % (bonus.spell_damage_pct * 100))
+	b += _row("Mana máxima", "+%d" % bonus.max_mp_bonus)
+	b += _row("Vida máxima", "+%d" % bonus.max_hp_bonus)
+	b += "[/table][/font_size]"
+	_status_bonus.text = b
 
 	var d := "[font_size=15][color=#e8c060]Resistências[/color][/font_size]\n[font_size=14][table=2]"
 	for e in ["fire", "ice", "poison", "shadow"]:
