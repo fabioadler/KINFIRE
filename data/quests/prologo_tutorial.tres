@@ -41,7 +41,7 @@ objectives = Array[ExtResource("3_qobj")]([SubResource("Obj_collect")])
 script = ExtResource("3_qobj")
 type = 2
 target = &"tut_equip"
-text = "Equipe a espada (inventário I, clique direito nela)"
+text = "Equipe a espada (inventário Tab, clique direito nela)"
 
 [sub_resource type="Resource" id="Stage_equip"]
 script = ExtResource("2_qstage")
@@ -52,7 +52,7 @@ objectives = Array[ExtResource("3_qobj")]([SubResource("Obj_equip")])
 script = ExtResource("3_qobj")
 type = 2
 target = &"tut_potion"
-text = "Beba a poção de vida (Q)"
+text = "Use a Cura Simples (Q)"
 
 [sub_resource type="Resource" id="Stage_potion"]
 script = ExtResource("2_qstage")
@@ -63,7 +63,7 @@ objectives = Array[ExtResource("3_qobj")]([SubResource("Obj_potion")])
 script = ExtResource("3_qobj")
 type = 2
 target = &"tut_campfire"
-text = "Acenda a fogueira da vila"
+text = "Acenda a fogueira da vila (E para interagir)"
 
 [sub_resource type="Resource" id="Stage_campfire"]
 script = ExtResource("2_qstage")

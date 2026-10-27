@@ -64,9 +64,9 @@ const STEP_HINTS := {
 	TutStep.MOVE: "Use WASD ou clique no chão para andar.",
 	TutStep.ATTACK: "Clique esquerdo no espantalho para atacar.",
 	TutStep.COLLECT: "Aproxime-se do brilho da espada (ou clique no nome) para apanhá-la.",
-	TutStep.EQUIP: "Abra o inventário (I) e clique com o botão direito na espada para equipá-la.",
-	TutStep.POTION: "Aperte Q para beber a poção.",
-	TutStep.CAMPFIRE: "Clique na fogueira para acendê-la.",
+	TutStep.EQUIP: "Abra o inventário (Tab) e clique com o botão direito na espada para equipá-la.",
+	TutStep.POTION: "Aperte Q para usar a Cura Simples.",
+	TutStep.CAMPFIRE: "Aperte E na fogueira para acendê-la.",
 }
 
 var tut_step: TutStep = TutStep.MOVE

@@ -33,6 +33,10 @@ var inventory: InventoryGrid
 var equipment := {}
 ## Ids das habilidades em cada slot: [LMB, RMB, 1, 2, 3, 4]
 var skill_bar: Array = [&"", &"", &"", &"", &"", &""]
+## Slots de consumíveis (1-9): Array[Item] ou null
+var consumable_slots: Array = []
+## Cooldowns de consumíveis por base_id: {base_id: tempo_restante}
+var consumable_cooldowns: Dictionary = {}
 var kills: int = 0
 var deepest: int = 1
 var play_time: float = 0.0
@@ -64,6 +68,10 @@ static func create(p_name: String, p_race: RaceData, p_cls: ClassData, p_sex: St
 		h.equipment.offhand = DB.create_item(p_cls.starting_offhand, 1, Item.Rarity.COMMON)
 	h.equipment.chest = DB.create_item(&"leather" if p_cls.base_armor < 12 else &"plate", 1, Item.Rarity.COMMON)
 	h.inventory.add(DB.create_item(&"wood_sword", 1, Item.Rarity.COMMON))
+	# Inicializa slots de consumíveis (9 slots vazios)
+	h.consumable_slots.resize(9)
+	for i in 9:
+		h.consumable_slots[i] = null
 	if p_background == "nobre":
 		h.gold = 100
 	h.refresh_skill_bar()
@@ -81,6 +89,9 @@ static func create_villager() -> Hero:
 	h.base_abilities = {"str": 10, "dex": 10, "con": 10, "int": 10, "wis": 10, "cha": 10}
 	h.level = 0
 	h._make_inventory()
+	h.consumable_slots.resize(9)
+	for i in 9:
+		h.consumable_slots[i] = null
 	h.refresh_skill_bar()
 	return h
 
@@ -405,12 +416,19 @@ func to_dict() -> Dictionary:
 	var bar := []
 	for id in skill_bar:
 		bar.append(String(id))
+	var cons := []
+	for item in consumable_slots:
+		cons.append(item.to_dict() if item else null)
+	var cons_cds := {}
+	for key in consumable_cooldowns:
+		cons_cds[String(key)] = consumable_cooldowns[key]
 	return {
 		"name": hero_name, "race": String(race.id), "class": String(cls.id), "sex": sex, "tint": tint.to_html(),
 		"background": background, "difficulty": difficulty, "hardcore": hardcore, "free_bonus": free_bonus,
 		"abilities": base_abilities, "level": level, "xp": xp, "gold": gold, "essence": essence, "points": unspent_points,
 		"inventory": inventory.to_array(), "equipment": eq, "skill_bar": bar, "kills": kills,
 		"deepest": deepest, "play_time": play_time,
+		"consumable_slots": cons, "consumable_cooldowns": cons_cds,
 	}
 
 
@@ -445,5 +463,16 @@ static func from_dict(d: Dictionary) -> Hero:
 	var bar: Array = d.get("skill_bar", [])
 	for i in mini(bar.size(), SKILL_SLOTS):
 		h.skill_bar[i] = StringName(bar[i])
+	# Consumíveis
+	var cons: Array = d.get("consumable_slots", [])
+	h.consumable_slots.resize(9)
+	for i in 9:
+		if i < cons.size() and cons[i] is Dictionary:
+			h.consumable_slots[i] = Item.from_dict(cons[i])
+		else:
+			h.consumable_slots[i] = null
+	var cons_cds: Dictionary = d.get("consumable_cooldowns", {})
+	for key in cons_cds:
+		h.consumable_cooldowns[StringName(key)] = float(cons_cds[key])
 	h.refresh_skill_bar()
 	return h

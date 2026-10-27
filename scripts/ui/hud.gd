@@ -3,6 +3,7 @@ extends CanvasLayer
 ## Interface em jogo estilo Diablo 3: globos, barra de habilidades, XP, alvo, minimapa e painéis.
 
 const ORB_SHADER := preload("res://shaders/orb.gdshader")
+const ConsumableSlotScript := preload("res://scripts/ui/consumable_slot.gd")
 
 var world: World
 var player: Player
@@ -15,6 +16,8 @@ var _res_bar: VitalsBar
 var _badge: LevelBadge
 var _slots: Array[SkillSlot] = []
 var _potion_slot: SkillSlot
+var _heal_slot: SkillSlot
+var _consumable_slots: Array = []
 var _gold_chip: PanelContainer
 var _essence_chip: PanelContainer
 var _gold: Label
@@ -141,17 +144,32 @@ func _build_bottom_bar() -> void:
 	_buff_row.custom_minimum_size.y = 0
 	v.add_child(_buff_row)
 
+	# Linha principal: consumíveis (1-9) + cura simples (Q) + vida/recurso + skills + raciais + painéis
 	var h := HBoxContainer.new()
 	h.add_theme_constant_override("separation", 6)
 	h.alignment = BoxContainer.ALIGNMENT_CENTER
 	v.add_child(h)
 
-	_potion_slot = SkillSlot.new(-1, Game.key_name("potion"))
-	_potion_slot.is_potion = true
-	_potion_slot.player = player
-	_potion_slot.clicked.connect(func(_s): player.use_potion())
-	h.add_child(_potion_slot)
+	# Barra de consumíveis 1-9
+	_consumable_slots = []
+	for i in 9:
+		var slot_idx = i  # 0-8 para slots 1-9
+		var key_name = Game.key_name("consumable_%d" % (i + 1))
+		var cs := ConsumableSlotScript.new(slot_idx, key_name)
+		cs.player = player
+		cs.used.connect(func(s: int): player._use_consumable_slot(s))
+		_consumable_slots.append(cs)
+		h.add_child(cs)
 	h.add_child(_spacer(8))
+
+	# Cura simples (Q) — sempre disponível
+	_heal_slot = SkillSlot.new(-2, Game.key_name("heal"))
+	_heal_slot.is_potion = true
+	_heal_slot.player = player
+	_heal_slot.clicked.connect(func(_s): player._use_simple_heal())
+	h.add_child(_heal_slot)
+	h.add_child(_spacer(8))
+
 	# Fase 6.1: barras segmentadas de vida/recurso (MECANICAS §9.2)
 	var vitals := VBoxContainer.new()
 	vitals.add_theme_constant_override("separation", 4)
@@ -165,6 +183,8 @@ func _build_bottom_bar() -> void:
 	_res_bar.tooltip_text = hero.cls.resource_label
 	vitals.add_child(_res_bar)
 	h.add_child(_spacer(10))
+
+	# Skills: Ataque básico (LMB), Ataque pesado (RMB), Skills 1-4 (Z, X, C, V)
 	var keys := ["LMB", "RMB", Game.key_name("skill_1"), Game.key_name("skill_2"), Game.key_name("skill_3"), Game.key_name("skill_4")]
 	for i in 6:
 		var s := SkillSlot.new(i, keys[i])
@@ -178,7 +198,9 @@ func _build_bottom_bar() -> void:
 		h.add_child(_spacer(6))
 		h.add_child(rs)
 	h.add_child(_spacer(10))
-	for b in [["I", toggle_inventory, "Inventário (I)"], ["C", toggle_character, "Personagem (C)"], ["K", toggle_skills, "Habilidades (K)"], ["J", toggle_quests, "Missões (J)"], ["≡", toggle_pause, "Menu (Esc)"]]:
+
+	# Botões de painéis: Tab (Inventário), P (Personagem), H (Habilidades), M (Missões), ≡ (Menu)
+	for b in [["Tab", toggle_inventory, "Inventário (Tab)"], ["P", toggle_character, "Personagem (P)"], ["H", toggle_skills, "Habilidades (H)"], ["M", toggle_quests, "Missões (M)"], ["≡", toggle_pause, "Menu (Esc)"]]:
 		var btn := Button.new()
 		btn.text = b[0]
 		btn.tooltip_text = b[2]
@@ -188,6 +210,7 @@ func _build_bottom_bar() -> void:
 		_bar_buttons[b[0]] = btn
 		h.add_child(btn)
 	h.add_child(_spacer(8))
+
 	# Fase 6.1: emblema de nível com anel de XP (MECANICAS §9.2)
 	_badge = LevelBadge.new()
 	_badge.tooltip_text = "Nível e experiência"
@@ -206,6 +229,16 @@ func _spacer(w: int) -> Control:
 	c.custom_minimum_size = Vector2(w, 0)
 	c.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return c
+
+
+func _refresh_consumable_slot(slot: int) -> void:
+	if slot >= 0 and slot < _consumable_slots.size():
+		_consumable_slots[slot].queue_redraw()
+
+
+func _flash_consumable_slot(slot: int) -> void:
+	if slot >= 0 and slot < _consumable_slots.size():
+		_consumable_slots[slot].flash()
 
 
 func _build_top() -> void:
@@ -473,10 +506,18 @@ func damage_vignette() -> void:
 	_vignette.color.a = 0.22
 
 
-## Fase 6.4: pulsa o controle da barra indicado ("I"/"C"/"K"/"J" ou "Q"
-## da poção) — o onboarding aponta onde olhar (MECANICAS §9).
+## Fase 6.4: pulsa o controle da barra indicado — o onboarding aponta onde olhar (MECANICAS §9).
+## Suporta: Q (cura simples), 1-9 (consumíveis), Tab/P/H/M (painéis), Z/X/C/V (skills)
 func pulse_hint(key: String) -> void:
-	var target: Control = _potion_slot if key == "Q" else _bar_buttons.get(key)
+	var target: Control
+	if key == "Q":
+		target = _heal_slot
+	elif key.begins_with("consumable_"):
+		var idx = int(key.split("_")[1]) - 1
+		if idx >= 0 and idx < _consumable_slots.size():
+			target = _consumable_slots[idx]
+	else:
+		target = _bar_buttons.get(key)
 	if target == null or not is_instance_valid(target):
 		return
 	var tw := create_tween().set_loops(5)

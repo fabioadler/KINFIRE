@@ -212,14 +212,19 @@ func _physics_process(delta: float) -> void:
 	# Esquiva cancela recuperação e movimento (cancelamento de animação)
 	if Input.is_action_just_pressed("dodge") and dodge_cd <= 0.0 and state in [State.IDLE, State.MOVE, State.RECOVERY]:
 		_start_dodge(mouse)
-	if Input.is_action_just_pressed("potion"):
-		use_potion()
+	# Cura simples (Q) — sempre recarrega, sem custo de recurso
+	if Input.is_action_just_pressed("heal"):
+		_use_simple_heal()
+	# Interagir (E) — contextual: fogueira, baú, NPC, portal, item no chão
+	if Input.is_action_just_pressed("interact"):
+		_try_interact()
 
 	for i in 4:
 		if Input.is_action_just_pressed("skill_%d" % (i + 1)):
 			_request_cast(i + 2, mouse)
 	if Input.is_action_just_pressed("racial"):
 		_request_cast(RACIAL_SLOT, mouse)
+	# Ataque pesado (botão direito do mouse) — skill genérica
 	if _rmb_down:
 		_request_cast(1, mouse)
 
@@ -511,6 +516,91 @@ func use_potion() -> void:
 	Fx.burst(world.fx_layer, global_position + Vector2(0, -6), Color(1, 0.2, 0.2), 16, 40.0, 0.7)
 
 
+## Cura simples (Q) — sempre disponível, sem custo, CD 8s
+var _simple_heal_cd := 0.0
+const SIMPLE_HEAL_CD := 8.0
+const SIMPLE_HEAL_PERCENT := 0.15
+
+func _use_simple_heal() -> void:
+	if _simple_heal_cd > 0.0:
+		world.hud.show_message("Cura simples em recarga (%ds)" % ceili(_simple_heal_cd), Color(0.9, 0.6, 0.6), 0.8)
+		return
+	_simple_heal_cd = SIMPLE_HEAL_CD
+	heal(max_hp * SIMPLE_HEAL_PERCENT)
+	Sfx.play(&"magic")
+	Fx.burst(world.fx_layer, global_position + Vector2(0, -6), Color(0.3, 1, 0.5), 12, 30.0, 0.6)
+	world.hud.show_message("Cura Simples (+%d%% HP)" % int(SIMPLE_HEAL_PERCENT * 100), Color(0.4, 1, 0.4), 1.2)
+
+
+## Interagir (E) — contextual: fogueira, baú, NPC, portal, item no chão
+func _try_interact() -> void:
+	# Prioridade: item no chão (LootDrop) > Interactable (fogueira, baú, NPC) > Portal
+	var mouse_pos := get_global_mouse_position()
+	var range := 60.0
+	
+	# 1. LootDrop próximo ao mouse (ou jogador se não houver mouse)
+	var best_loot: LootDrop = null
+	var best_dist := range
+	for n in world.get_tree().get_nodes_in_group("interactables"):
+		if n is LootDrop and n.global_position.distance_to(mouse_pos) < best_dist:
+			best_dist = n.global_position.distance_to(mouse_pos)
+			best_loot = n
+	if best_loot and best_loot.global_position.distance_to(global_position) < 80.0:
+		best_loot.interact(self)
+		return
+	
+	# 2. Interactable (NPC, fogueira, baú, etc.)
+	var best_interactable: Interactable = null
+	best_dist = range
+	for n in world.get_tree().get_nodes_in_group("interactables"):
+		if n is Interactable and n.global_position.distance_to(mouse_pos) < best_dist:
+			best_dist = n.global_position.distance_to(mouse_pos)
+			best_interactable = n
+	if best_interactable and best_interactable.global_position.distance_to(global_position) < 80.0:
+		best_interactable.interact(self)
+		return
+	
+	# 3. Portal/transição de área (se estiver em cima)
+	for n in world.get_tree().get_nodes_in_group("area_transitions"):
+		if n.global_position.distance_to(global_position) < 40.0:
+			n.activate(self)
+			return
+
+
+## Usar consumível do slot 1-9
+func _use_consumable_slot(slot: int) -> void:
+	if slot < 0 or slot >= hero.consumable_slots.size():
+		return
+	var item: Item = hero.consumable_slots[slot]
+	if item == null:
+		world.hud.show_message("Slot %d vazio" % (slot + 1), Color(0.9, 0.6, 0.6), 0.8)
+		return
+	# Verifica cooldown do item
+	var cd: float = hero.consumable_cooldowns.get(item.base_id, 0.0)
+	if cd > 0.0:
+		world.hud.show_message("%s em recarga (%ds)" % [item.display_name, ceili(cd)], Color(0.9, 0.6, 0.6), 0.8)
+		return
+	# Verifica se tem o item no inventário
+	var count: int = hero.inventory_get_count(item.base_id)
+	if count <= 0:
+		world.hud.show_message("Sem %s no inventário" % item.display_name, Color(0.9, 0.6, 0.6), 0.8)
+		# Limpa o slot se não tem mais o item
+		hero.consumable_slots[slot] = null
+		if world.hud.has_method("_refresh_consumable_slot"):
+			world.hud._refresh_consumable_slot(slot)
+		return
+	# Usa o consumível
+	if item.use(self):
+		# Aplica cooldown se houver
+		if item.cooldown > 0:
+			hero.consumable_cooldowns[item.base_id] = item.cooldown
+		if world.hud.has_method("_flash_consumable_slot"):
+			world.hud._flash_consumable_slot(slot)
+		Sfx.play(&"potion")
+	else:
+		world.hud.show_message("Não pode usar agora", Color(0.9, 0.6, 0.6), 0.8)
+
+
 func heal(amount: float, show := true) -> void:
 	if is_dead():
 		return
@@ -636,6 +726,7 @@ func _tick_timers(delta: float) -> void:
 	for k in cooldowns.keys():
 		cooldowns[k] = maxf(cooldowns[k] - delta, 0.0)
 	potion_cd = maxf(potion_cd - delta, 0.0)
+	_simple_heal_cd = maxf(_simple_heal_cd - delta, 0.0)
 	dodge_cd = maxf(dodge_cd - delta, 0.0)
 	auto_dodge_cd = maxf(auto_dodge_cd - delta, 0.0)
 	cheat_death_cd = maxf(cheat_death_cd - delta, 0.0)

@@ -229,9 +229,9 @@ func _test_prologue() -> void:
 	pro._step_time = Prologue.HINT_DELAY + 0.1
 	await _wait(0.4)
 	assert(pro._hint_shown, "dica contextual após o atraso")
-	# destaque de HUD: passo EQUIP pulsa o botão I, POTION pulsa a poção
-	assert(pro.hud._bar_buttons.has("I") and pro.hud._bar_buttons.has("K"), "botões de barra registrados")
-	pro.hud.pulse_hint("I")
+	# destaque de HUD: passo EQUIP pulsa o botão Tab, POTION pulsa a cura simples (Q)
+	assert(pro.hud._bar_buttons.has("Tab") and pro.hud._bar_buttons.has("H"), "botões de barra registrados")
+	pro.hud.pulse_hint("Tab")
 	pro.hud.pulse_hint("Q")
 	await _wait(0.2)
 	# Passo 2: atacar — espantalho cai e solta a Espada de Treino
@@ -254,8 +254,8 @@ func _test_prologue() -> void:
 	await _wait(0.3)
 	assert(pro.tut_step == Prologue.TutStep.POTION)
 	assert(Game.hero.equipment.weapon != null)
-	# Passo 5: poção
-	pro.player.potion_cd = 0.1
+	# Passo 5: cura simples (Q)
+	pro.player._simple_heal_cd = 0.1
 	await _wait(0.3)
 	assert(pro.tut_step == Prologue.TutStep.CAMPFIRE)
 	assert(pro._guide_target() == pro.cell_to_world(Prologue.CAMPFIRE_CELL), "seta aponta a fogueira")
@@ -266,7 +266,8 @@ func _test_prologue() -> void:
 			fire = n
 			break
 	assert(fire != null)
-	fire.interact(pro.player)
+	# Usa E para interagir com a fogueira
+	pro.player._try_interact()
 	await _wait(0.3)
 	assert(pro.tut_step == Prologue.TutStep.DONE)
 	print("[smoke]   tutorial completo — portao aberto")
