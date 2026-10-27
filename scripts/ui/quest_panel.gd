@@ -14,9 +14,17 @@ func setup(p_hud: HUD) -> void:
 	var w := UIKit.window_panel("Missões", Vector2(460, 0), func(): hud.toggle_quests())
 	add_child(w.panel)
 	var body: VBoxContainer = w.body
+	# Scroll: a lista de missões cresce sem limite (20 principais + 8
+	# mistérios + concluídas); os Fragmentos ficam fixos, fora do scroll
+	var scroll := ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.custom_minimum_size = Vector2(0, 360)
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.add_child(scroll)
 	_list = VBoxContainer.new()
 	_list.add_theme_constant_override("separation", 14)
-	body.add_child(_list)
+	_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(_list)
 	_frags = UIKit.label("", 15, Color(0.75, 0.55, 1.0), true)
 	_frags.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	body.add_child(_frags)

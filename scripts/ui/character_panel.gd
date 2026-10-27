@@ -31,12 +31,20 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 	top.add_child(_header)
 
 	var tabs := TabContainer.new()
-	tabs.custom_minimum_size = Vector2(480, 420)
+	# 330px: retrato (72) + abas cabem na janela de 470px do painel unificado;
+	# o conteúdo que passa rola dentro de cada aba (scroll)
+	tabs.custom_minimum_size = Vector2(480, 330)
 	body.add_child(tabs)
 
+	# Atributos: pontos + grade + derivadas somam mais que a aba — rola
+	var attr_scroll := ScrollContainer.new()
+	attr_scroll.name = "Atributos"
+	attr_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	tabs.add_child(attr_scroll)
 	var attr := VBoxContainer.new()
-	attr.name = "Atributos"
-	tabs.add_child(attr)
+	attr.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	attr.add_theme_constant_override("separation", 6)
+	attr_scroll.add_child(attr)
 	_points_label = UIKit.label("", 15, Color(0.5, 1, 0.5), true)
 	_points_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	attr.add_child(_points_label)
@@ -74,6 +82,7 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 		_ability_rows[a] = {"score": score, "mod": m, "plus": plus}
 	attr.add_child(UIKit.separator())
 	_derived = UIKit.rich()
+	_derived.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	attr.add_child(_derived)
 
 	var det_scroll := ScrollContainer.new()

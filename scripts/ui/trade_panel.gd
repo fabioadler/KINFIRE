@@ -37,9 +37,16 @@ func _init() -> void:
 	_tab_bar = HBoxContainer.new()
 	_tab_bar.add_theme_constant_override("separation", 8)
 	body.add_child(_tab_bar)
+	# Scroll: estoque/leilão podem listar mais itens que cabem na janela
+	var scroll := ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.custom_minimum_size = Vector2(0, 430)
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.add_child(scroll)
 	_content = VBoxContainer.new()
 	_content.add_theme_constant_override("separation", 6)
-	body.add_child(_content)
+	_content.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	scroll.add_child(_content)
 	_status = UIKit.label("", 15, UIKit.TEXT_DIM)
 	body.add_child(UIKit.separator())
 	body.add_child(_status)

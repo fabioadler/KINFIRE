@@ -25,11 +25,19 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 	add_child(w.panel)
 	var body: VBoxContainer = w.body
 
+	# Scroll: boneco (212px) + stats + grade (240px+) somam mais que a altura
+	# da janela; ouro/vender/dica ficam fixos embaixo, fora do scroll
+	var scroll := ScrollContainer.new()
+	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	scroll.custom_minimum_size = Vector2(0, 330)
+	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.add_child(scroll)
+
 	# Equipamento em formato de "boneco" (paper doll)
 	var doll := Control.new()
 	doll.custom_minimum_size = Vector2(CELL * 7.5, CELL * 5.3)
 	doll.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	body.add_child(doll)
+	scroll.add_child(doll)
 	var layout := {
 		"helm": Rect2(2.75, 0.0, 2.0, 1.6), "amulet": Rect2(5.0, 0.3, 1.1, 1.1),
 		"weapon": Rect2(0.2, 1.3, 2.0, 2.8), "chest": Rect2(2.6, 1.8, 2.3, 2.3), "offhand": Rect2(5.3, 1.3, 2.0, 2.8),
@@ -47,13 +55,13 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 		_equip_views[s] = v
 
 	_stats_label = UIKit.rich()
-	body.add_child(_stats_label)
-	body.add_child(UIKit.separator())
+	scroll.add_child(_stats_label)
+	scroll.add_child(UIKit.separator())
 
 	_grid_view = _GridView.new()
 	_grid_view.panel = self
 	_grid_view.custom_minimum_size = Vector2(hero.inventory.cols * CELL, hero.inventory.rows * CELL)
-	body.add_child(_grid_view)
+	scroll.add_child(_grid_view)
 
 	var bottom := HBoxContainer.new()
 	body.add_child(bottom)
