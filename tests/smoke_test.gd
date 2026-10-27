@@ -338,6 +338,26 @@ func _test_prologue() -> void:
 	await _wait(1.0)
 	assert(ow.hud._dialogue_box == null)  # caixa fechou e se libertou
 	print("[smoke]   dialogo de despertar concluido (ignorancia %d)" % Game.ignorance)
+	# Fix missão inicial: o Cinzento não é mais efêmero — permanece no
+	# acampamento como interactable (quem fechar antes da despedida,
+	# ou chegar ao estágio "volte ao Cinzento", o reencontra)
+	assert(ow._cinzento != null and ow._cinzento.interactive)
+	assert(ow._cinzento.is_in_group("interactables"))
+	assert(ow._cinzento.display_name() == "Cinzento")
+	assert(ow.get_interactable_at(ow._cinzento.global_position + Vector2(0, -8)) == ow._cinzento,
+		"hover no Cinzento o encontra como interactable")
+	# Fecha o diálogo ANTES da despedida (ESC): flag ainda não setada, mas o
+	# jogador não fica preso — pode re-conversar (quest_log.start é idempotente)
+	ow._cinzento.interact(ow.player)
+	await _wait(0.3)
+	var box2: DialogueBox = ow.hud._dialogue_box
+	assert(box2 != null and box2.engine.current != null)
+	box2.engine.stop()
+	await _wait(1.0)
+	assert(ow.hud._dialogue_box == null)
+	assert(ow._cinzento != null and is_instance_valid(ow._cinzento),
+		"o Cinzento continua no mundo após fechar o diálogo cedo")
+	print("[smoke]   cinzento persistente: reencontravel apos fechar o dialogo cedo")
 	print("[smoke] prologo ok")
 
 
@@ -1396,6 +1416,19 @@ func _test_overworld() -> void:
 	assert(ow.hud._unified.current == 2 and ow.hud.skills.visible, "K troca para Habilidades")
 	ow.hud.toggle_quests()
 	assert(ow.hud._unified.current == 3 and ow.hud.questlog.visible, "J troca para Missões")
+	# Scroll: os painéis rolam quando o conteúdo passa da altura da janela
+	# (missões acumulam, inventário tem boneco+grade, ficha tem atributos)
+	var qs := _first_scroll(ow.hud.questlog)
+	assert(qs != null and qs.horizontal_scroll_mode == ScrollContainer.SCROLL_MODE_DISABLED,
+		"aba Missões tem scroll vertical")
+	var iscr := _first_scroll(ow.hud.inventory)
+	assert(iscr != null and iscr.horizontal_scroll_mode == ScrollContainer.SCROLL_MODE_DISABLED,
+		"Inventário tem scroll vertical")
+	var cs := _first_scroll(ow.hud.character)
+	assert(cs != null, "ficha tem scroll (aba Atributos)")
+	var ss := _first_scroll(ow.hud.skills)
+	assert(ss != null, "Habilidades mantém o scroll")
+	print("[smoke]   scroll ok (Missoes, Inventario, Personagem, Habilidades rolam quando o conteudo passa da janela)")
 	ow.hud.toggle_quests()
 	assert(not ow.hud._unified.is_open(), "mesma tecla fecha a janela")
 	print("[smoke]   painel unificado ok (Personagem/Inventario/Habilidades/Missoes na mesma janela, I/C/K/J)")
@@ -2000,3 +2033,14 @@ func _nearest_enemy(world: World, pos: Vector2) -> Enemy:
 			bd = d
 			best = e
 	return best
+
+
+## Primeiro ScrollContainer da árvore de um controle (asserts de scroll)
+func _first_scroll(c: Node) -> ScrollContainer:
+	if c is ScrollContainer:
+		return c
+	for ch in c.get_children():
+		var r := _first_scroll(ch)
+		if r != null:
+			return r
+	return null

@@ -36,6 +36,9 @@ var _lantern: PointLight2D
 var _atmos_timer := 0.0
 ## 7.6: camada de clima (partículas, névoa, chuva/relâmpago)
 var weather: WeatherLayer
+## O Cinzento persistente do acampamento (fix da missão inicial): criado em
+## _spawn_content, usado pelo diálogo de despertar e reencontrável depois.
+var _cinzento: Cinzento
 
 # 7.1: color grading por keyframes (MECANICAS §14.1) — [fração do dia, tom]
 # 0.0 = meia-noite, 0.5 = meio-dia; interpolado suavemente (sem saltos)
@@ -112,22 +115,18 @@ func _intro() -> void:
 
 
 ## Despertar no acampamento após o prólogo: o Cinzento entrega as primeiras
-## palavras do mundo real e se despede (REGRAS §13, LORE §8–9).
+## palavras do mundo real (REGRAS §13, LORE §8–9). Ele é o node persistente
+## criado em _spawn_content — não se despede: quem fechar o diálogo antes
+## da escolha "(Partir)" pode reencontrá-lo perto da fogueira (fix da
+## missão inicial — a flag cinzento_primeiro_dialogo volta a ser alcançável).
 func _awakening() -> void:
-	var c := Cinzento.new()
-	entities.add_child(c)
-	c.appear_at(Vector2(TILE * 0.5 + 20.0, TILE * 0.5 + 6.0))
+	if _cinzento == null:
+		return
 	hud.show_message("Você acorda com cheiro de brasa e chuva antiga. Não é sonho desta vez.", UIKit.TEXT_DIM, 4.0)
 	# A sombra termina de chegar antes de o diálogo pausar o mundo (2.2)
 	var t := get_tree().create_timer(0.9, true, false, true)
 	t.timeout.connect(func():
-		var box := hud.open_dialogue(DB.dialogue(&"cinzento_acampamento"), "Cinzento")
-		box.closed.connect(func():
-			if is_instance_valid(c):
-				var tw := c.create_tween()
-				tw.tween_property(c, "modulate:a", 0.0, 2.0)
-				tw.tween_callback(c.queue_free)
-		)
+		hud.open_dialogue(DB.dialogue(&"cinzento_acampamento"), "Cinzento")
 	)
 
 
@@ -148,6 +147,15 @@ func _spawn_content() -> void:
 	# Bree cozinha perto da tenda oeste
 	Npc.create(self, DB.npc(&"marn_vigia"), fire.global_position + Vector2(34, 8))
 	Npc.create(self, DB.npc(&"bree_cozinheira"), fire.global_position + Vector2(-38, 16))
+	# O Cinzento permanece no acampamento, à esquerda da fogueira: quem
+	# fechar o diálogo de despertar antes da despedida (ou chegar ao estágio
+	# "volte ao Cinzento" de ato1_1) o reencontra aqui — a sombra que guia
+	# não se vai enquanto o Laço-Vivo precisar de rumo (LORE §8).
+	_cinzento = Cinzento.new()
+	_cinzento.world = self
+	_cinzento.interactive = true
+	entities.add_child(_cinzento)
+	_cinzento.appear_at(fire.global_position + Vector2(0, -34))
 	# 2.5: líder racial + gente comum da capital do jogador (persistentes,
 	# como Marn/Bree — o acampamento não descarrega)
 	TerritoryNpcs.populate(self, Game.hero.race.id, fire.global_position)
