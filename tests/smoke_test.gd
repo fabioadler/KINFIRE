@@ -211,6 +211,11 @@ func _test_prologue() -> void:
 	assert(Game.phase == Game.PHASE_PROLOGUE)
 	assert(Game.hero.level == 0 and Game.hero.cls.id == &"aldeao")
 	assert(pro._gate_wall != null)
+	# 9.3: o tutorial é uma missão visível desde o primeiro segundo
+	# (painel J + tracker da HUD — o jogador nunca fica sem saber o que fazer)
+	assert(Game.quest_log.is_active(&"prologo_tutorial"), "quest do tutorial ativa no diario")
+	assert(Game.quest_log.tracked_quest() != null and Game.quest_log.tracker_line() != "",
+		"tracker da HUD mostra o objetivo do tutorial")
 	print("[smoke]   prologo carregou — passo %d" % pro.tut_step)
 	# 6.4: onboarding visual — seta-guia aponta o objetivo do passo
 	assert(pro._guide is Polygon2D, "seta-guia criada")
@@ -265,6 +270,9 @@ func _test_prologue() -> void:
 	await _wait(0.3)
 	assert(pro.tut_step == Prologue.TutStep.DONE)
 	print("[smoke]   tutorial completo — portao aberto")
+	# 9.3: o diário acompanhou cada passo — agora no estágio final (espelho)
+	assert(int(Game.quest_log.state(&"prologo_tutorial")["stage"]) == 6,
+		"diario no ultimo estagio (espelho) apos a fogueira")
 	# 6.4: fim do tutorial — a seta se recolhe
 	assert(not pro._guide.visible, "seta se esconde ao concluir o tutorial")
 	print("[smoke]   onboarding ok (seta-guia por passo, dica apos atraso, destaque na HUD)")
@@ -297,6 +305,7 @@ func _test_prologue() -> void:
 	var cc := get_tree().current_scene
 	assert(cc != null and cc.has_method("_on_start") and cc.has_method("_on_next"))
 	assert(Game.phase == Game.PHASE_PROLOGUE)
+	assert(Game.quest_log.is_completed(&"prologo_tutorial"), "quest do tutorial concluida no espelho")
 	print("[smoke]   espelho -> criacao de personagem")
 	# Wizard sequencial: raça → classe → atributos (27 pts) → nome — todos obrigatórios
 	cc._randomize()

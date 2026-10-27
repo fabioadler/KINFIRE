@@ -53,6 +53,13 @@ const CINZENTO_LINES := [
 # Fase 6.4: onboarding visual (MECANICAS §9) — seta-guia, dicas contextuais
 const GUIDE_MIN_DIST := 70.0   ## seta some quando o objetivo está perto
 const HINT_DELAY := 14.0       ## segundos no passo até a dica contextual
+## 9.3: flags que espelham cada passo concluído — o diário de missões
+## (painel J + tracker da HUD) mostra o que fazer, em vez de depender
+## só dos sussurros (que somem)
+const TUT_FLAGS := [
+	&"tut_move", &"tut_attack", &"tut_collect", &"tut_equip",
+	&"tut_potion", &"tut_campfire", &"tut_espelho",
+]
 const STEP_HINTS := {
 	TutStep.MOVE: "Use WASD ou clique no chão para andar.",
 	TutStep.ATTACK: "Clique esquerdo no espantalho para atacar.",
@@ -145,6 +152,10 @@ func _setup_tutorial() -> void:
 	_cinzento.appear_at(cell_to_world(CINZENTO_ANCHORS[0]))
 	_whisper("Levante-se, cinza. Este lugar já foi casa — e vai querer ser de novo.")
 	_whisper(CINZENTO_LINES[0])
+	# 9.3: o tutorial entra no diário de missões — "Primeiros Passos na
+	# Névoa" (data/quests/prologo_tutorial.tres), visível no painel (J) e
+	# no tracker da HUD desde o primeiro segundo de jogo
+	Game.quest_log.notify_flag(&"tut_inicio")
 	_build_gate()
 	_setup_guide()
 	Game.hero.leveled_up.connect(_on_hero_leveled_up)
@@ -165,7 +176,8 @@ func _process(delta: float) -> void:
 	_step_time += delta
 	if not _hint_shown and _step_time > HINT_DELAY and tut_step in STEP_HINTS:
 		_hint_shown = true
-		hud.show_message("Dica: %s" % STEP_HINTS[tut_step], UIKit.TEXT_DIM, 5.5)
+		# 9.3: 8s de leitura — dicas contextuais também somiam rápido demais
+		hud.show_message("Dica: %s" % STEP_HINTS[tut_step], UIKit.TEXT_DIM, 8.0)
 	if tut_step == TutStep.MOVE:
 		_moved += player.global_position.distance_to(_last_player_pos)
 		if _moved >= MOVE_DIST:
@@ -199,9 +211,15 @@ func _step_condition_met() -> bool:
 
 
 func _advance() -> void:
+	var finished := tut_step
 	tut_step += 1
 	tutorial_step_done.emit(tut_step)
 	Sfx.play(&"levelup", -8.0)
+	# 9.3: passo concluído vira flag — o diário de missões registra o
+	# progresso (a quest do tutorial avança de estágio junto com o jogo)
+	if finished < TUT_FLAGS.size():
+		Game.flags[TUT_FLAGS[finished]] = true
+		Game.quest_log.notify_flag(TUT_FLAGS[finished])
 	# 6.4: reinicia o relógio da dica contextual do passo novo
 	_step_time = 0.0
 	_hint_shown = false
@@ -367,6 +385,10 @@ func _on_mirror(_mirror: Interactable) -> void:
 		_whisper("O espelho espera. Termine o que a névoa pediu.")
 		return
 	_mirror_used = true
+	# 9.3: último objetivo do tutorial registrado no diário — a quest
+	# "Primeiros Passos na Névoa" conclui ao encarar a própria escolha
+	Game.flags[&"tut_espelho"] = true
+	Game.quest_log.notify_flag(&"tut_espelho")
 	_cinzento.appear_at(player.global_position + Vector2(-24, -10))
 	_whisper("...")
 	_whisper("Vidro vazio. O Véu levou o reflexo — e guardou, em troca, uma escolha.")
@@ -398,7 +420,8 @@ func _apply_brightness() -> void:
 
 
 func _whisper(text: String) -> void:
-	hud.show_message(text, Cinzento.VOICE, 5.0)
+	# 9.3: 9s de leitura — antes 5s e o texto sumia antes de dar para ler
+	hud.show_message(text, Cinzento.VOICE, 9.0)
 	Sfx.play(&"magic", -12.0)
 
 
