@@ -1,14 +1,14 @@
 shader_type canvas_item;
-## Fase 7.6 (MECANICAS §14.4): névoa volumétrica fake — duas camadas de
-## ruído sin-based scrollando em direções/velocidades distintas dão a
-## paralaxe; o vento empurra a névoa e a densidade sobe à noite.
+// Fase 7.6 (MECANICAS §14.4): névoa volumétrica fake — duas camadas de
+// ruído sin-based scrollando em direções/velocidades distintas dão a
+// paralaxe; o vento empurra a névoa e a densidade sobe à noite.
 
 uniform vec4 fog_color : source_color = vec4(0.75, 0.82, 0.75, 0.16);
-uniform float density := 0.16;      // 0..0.5 — mais denso à noite
-uniform vec2 drift_dir := vec2(1.0, 0.0);  // rumo do vento
-uniform float drift_speed := 12.0;  // px/s (paralaxe lenta)
-uniform float layer_seed := 0.0;     // desloca o padrão por camada
-uniform float time_sec := 0.0;
+uniform float density = 0.16;      // 0..0.5 — mais denso à noite
+uniform vec2 drift_dir = vec2(1.0, 0.0);  // rumo do vento
+uniform float drift_speed = 12.0;  // px/s (paralaxe lenta)
+uniform float layer_seed = 0.0;     // desloca o padrão por camada
+uniform float time_sec = 0.0;
 
 // ruído de valor suave 2D (sin-based, estável)
 float hash21(vec2 p) {

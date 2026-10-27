@@ -4,7 +4,7 @@ shader_type canvas_item;
 // chama, copas), mais ele se curva na direção do vento (§14.5.4: "a chama da
 // fogueira inclina no shader"). Phase por posição para nada sincronizar.
 
-uniform vec2 wind := vec2(0.0);
+uniform vec2 wind = vec2(0.0);
 uniform float flexibility : hint_range(0.0, 1.0) = 0.35;
 uniform float speed : hint_range(0.5, 4.0) = 2.2;
 

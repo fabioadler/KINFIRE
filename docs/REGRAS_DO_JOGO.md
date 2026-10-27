@@ -19,9 +19,11 @@
 - **XP:** monstro dá XP base × multiplicador de raridade (§6); missões dão XP fixo por ato (§10).  
   - **Regra canônica:** XP para o próximo nível = `20 × nível^1.5` (níveis 1–60). ✓ (código legado usava `80 × nível^1.6` — corrigido na Fase 0.4)  
 - **Ao subir de nível:** +HP, +recurso e +1 ponto de atributo a cada 4 níveis (1, 5, 9, 13…). ✓ (código legado dava +1 por nível — corrigido na Fase 0.4)  
-- **Habilidades:** 6 por classe, desbloqueadas por nível de classe; slot de 4 equipáveis + racial. ✓ (84 skills / 14 classes em `data/skills/`)  
-- **Ignorância:** o herói começa com `ignorance = 10` (após o prólogo); decai ao completar passos de tutorial, missões e primeiros-diálogos; nunca sobe. Afeta apenas textos de diálogo (nunca atributos).  
-**3. Combate**  
+- **Habilidades:** 6 por classe, desbloqueadas por nível de classe; slot de 4 equipáveis + racial. ✓ (84 skills / 14 classes em `data/skills/`)
+- **Ignorância:** o herói começa com `ignorance = 10` (após o prólogo); decai ao completar passos de tutorial, missões e primeiros-diálogos; nunca sobe. Afeta apenas textos de diálogo (nunca atributos).
+- **Árvore de Habilidades (Fase 10.4):** +1 ponto de árvore por nível; **não respeitável** (escolhas permanentes). Cada classe tem árvore própria com **4 skills novas** (desbloqueiam skills inéditas) + **melhorias (ranks)** nas skills base. Ranks: +15% dano / −7% cooldown por rank (máx. 3–5 ranks por nó). Nó verde = disponível; dourado = desbloqueado; cinza = bloqueado (pré-requisitos não atendidos). Dados em `scripts/data/skill_trees.gd` (GDScript, data-driven). UI no painel unificado (tecla **B**).
+- **Pontos de Status (Fase 10.2):** +2 pontos por nível (livres, respeitáveis a qualquer momento); base por classe não respeitável, sobe automaticamente com o nível.
+**3. Combate**
 - **Dano de arma** = base do item × (1 + (atributo relevante − 10) × 0.05) × bônus de raridade (aplicado na geração do item). ✓ conferido em `hero.gd` (`damage_multiplier`)  
 - **Crítico:** chance base por raça/classe/afixos (ex.: Halfling 5% de chance dobrada); dano crítico padrão ×2.  
 - **Esquiva (dodge):** consumível com i-frames curtos; cancela a recuperação do ataque; recharge 0.8s.  

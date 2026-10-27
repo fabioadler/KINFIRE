@@ -3,6 +3,12 @@ extends Node2D
 ## Base dos mundos jogáveis. Esta classe implementa a MASMORRA (salas + corredores);
 ## o mundo aberto (Overworld) herda dela e sobrescreve os métodos de mapa/spawn.
 
+## Preloads para type hints funcionarem em parse time (evita dependências circulares)
+const Player := preload("res://scripts/game/player.gd")
+const Interactable := preload("res://scripts/game/interactable.gd")
+const Enemy := preload("res://scripts/game/enemy.gd")
+# HUD não é preloadado aqui para evitar dependência circular com hud.gd
+
 const TILE := 16
 const PLAYER_SCENE := preload("res://scenes/game/player.tscn")
 const ENEMY_SCENE := preload("res://scenes/game/enemy.tscn")

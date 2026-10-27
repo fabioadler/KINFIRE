@@ -254,6 +254,8 @@ func _spawn_walker(progress := 0.0) -> void:
 	var base: String = PARADE_MONSTERS.pick_random() if is_monster else PARADE_HEROES.pick_random()
 	var right := randf() < 0.5
 	var pv := SpritePreview.new()
+	if not DB:
+		return
 	var fs := DB.frame_size(base)
 	pv.size = Vector2(fs.x, fs.y) * 3.0
 	pv.set_sprite(base, Color(0.7, 0.62, 0.6))

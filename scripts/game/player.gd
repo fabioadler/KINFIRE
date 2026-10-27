@@ -6,6 +6,12 @@ extends CharacterBody2D
 ## Shift + clique ataca parado; botão direito = habilidade secundária; 1-4 = habilidades;
 ## Espaço = esquiva; Q = poção; R = habilidade racial.
 
+## Preloads para type hints funcionarem em parse time
+const Hero := preload("res://scripts/core/hero.gd")
+const SkillData := preload("res://scripts/data/skill_data.gd")
+const Enemy := preload("res://scripts/game/enemy.gd")
+# World não é preloadado aqui para evitar dependência circular com world.gd
+
 signal died
 
 enum State { IDLE, MOVE, WINDUP, RECOVERY, DODGE, DASH, DEAD }
@@ -402,7 +408,7 @@ func _deliver() -> void:
 			_combo_strike = true
 	if _cast_slot > 0 and _cast_slot != RACIAL_SLOT and hero.cls.spell_imbue_bonus > 0 and _cast_skill.kind != SkillData.Kind.DASH:
 		_imbue_charges = 3
-	SkillExecutor.execute(_cast_skill, self, _cast_target)
+	SkillExecutor.execute(_cast_skill, self, _cast_target, hero)
 	if _cast_slot == 0 and _imbue_charges > 0:
 		_imbue_charges -= 1
 

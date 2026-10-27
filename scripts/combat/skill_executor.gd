@@ -2,7 +2,44 @@ class_name SkillExecutor
 extends RefCounted
 ## Executa o efeito de uma SkillData (fase de "Impacto" do ataque).
 
-static func execute(skill: SkillData, player: Player, target_pos: Vector2) -> void:
+## Aplica bônus da árvore de habilidades na skill (modifica a skill temporariamente)
+static func _apply_tree_bonuses(skill: SkillData, hero: Hero) -> SkillData:
+	var bonus := hero.get_tree_bonus_for_skill(skill.id)
+	if bonus.is_empty():
+		return skill
+	
+	# Cria uma cópia da skill para não modificar o original
+	var modified := skill.duplicate()
+	
+	# Aplica multiplicadores
+	if bonus.has("damage"):
+		modified.damage_mult *= (1.0 + bonus["damage"])
+	if bonus.has("cooldown"):
+		# Cooldown é aplicado no momento do cast (Player.gd), não aqui
+		pass
+	if bonus.has("projectile_count"):
+		modified.projectile_count += roundi(bonus["projectile_count"])
+	if bonus.has("radius"):
+		modified.radius *= (1.0 + bonus["radius"])
+	if bonus.has("reach"):
+		modified.reach *= (1.0 + bonus["reach"])
+	if bonus.has("heal"):
+		modified.heal_percent *= (1.0 + bonus["heal"])
+	if bonus.has("duration"):
+		modified.duration += bonus["duration"]
+	if bonus.has("resource_gain"):
+		modified.generate += bonus["resource_gain"]
+	if bonus.has("hits"):
+		modified.hits += roundi(bonus["hits"])
+	
+	return modified
+
+
+static func execute(skill: SkillData, player: Player, target_pos: Vector2, hero: Hero = null) -> void:
+	# Aplica bônus da árvore de habilidades
+	if hero:
+		skill = _apply_tree_bonuses(skill, hero)
+	
 	var world := player.world
 	var origin := player.global_position + Vector2(0, -5)
 	var dir := (target_pos - origin).normalized()

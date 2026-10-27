@@ -2,6 +2,22 @@ class_name HUD
 extends CanvasLayer
 ## Interface em jogo estilo Diablo 3: globos, barra de habilidades, XP, alvo, minimapa e painéis.
 
+## Preloads para type hints funcionarem em parse time
+const Hero := preload("res://scripts/core/hero.gd")
+const VitalsBar := preload("res://scripts/ui/vitals_bar.gd")
+const LevelBadge := preload("res://scripts/ui/level_badge.gd")
+const SkillSlot := preload("res://scripts/ui/skill_slot.gd")
+const InventoryPanel := preload("res://scripts/ui/inventory_panel.gd")
+const CharacterPanel := preload("res://scripts/ui/character_panel.gd")
+const SkillsPanel := preload("res://scripts/ui/skills_panel.gd")
+const QuestPanel := preload("res://scripts/ui/quest_panel.gd")
+const UnifiedPanel := preload("res://scripts/ui/unified_panel.gd")
+const ClockChip := preload("res://scripts/ui/clock_chip.gd")
+const DialogueBox := preload("res://scripts/ui/dialogue_box.gd")
+const TradePanel := preload("res://scripts/ui/trade_panel.gd")
+const SkillTreePanel := preload("res://scripts/ui/skill_tree_panel.gd")
+# World e Player não são preloadados aqui para evitar dependências circulares
+
 const ORB_SHADER := preload("res://shaders/orb.gdshader")
 const ConsumableSlotScript := preload("res://scripts/ui/consumable_slot.gd")
 
@@ -47,6 +63,7 @@ var inventory: InventoryPanel
 var character: CharacterPanel
 var skills: SkillsPanel
 var questlog: QuestPanel
+var skill_tree: SkillTreePanel
 ## Fase 6.2: janela unificada (abas Personagem/Inventário/Habilidades/Missões)
 var _unified: UnifiedPanel
 ## Fase 7.1: chip de relógio HH:MM + arco do dia (MECANICAS §14.1)
@@ -107,12 +124,16 @@ func _build() -> void:
 	# Fase 4.2: diário de missões + tracker lateral
 	questlog = QuestPanel.new()
 	questlog.setup(self)
+# Fase 10.4: painel da árvore de habilidades
+	skill_tree = SkillTreePanel.new()
+	skill_tree.setup(self, hero)
 	# Fase 6.2: painel unificado — os painéis viram abas da mesma janela
 	_unified = UnifiedPanel.new()
 	_root.add_child(_unified)
 	_unified.add_page("Personagem", character)
 	_unified.add_page("Inventário", inventory)
 	_unified.add_page("Habilidades", skills)
+	_unified.add_page("Árvore", skill_tree)
 	_unified.add_page("Missões", questlog)
 	_setup_quest_tracker()
 	Game.quest_log.quest_started.connect(_on_quest_started)
@@ -386,6 +407,8 @@ func _process(delta: float) -> void:
 		toggle_character()
 	if Input.is_action_just_pressed("skills"):
 		toggle_skills()
+	if Input.is_action_just_pressed("skill_tree"):
+		toggle_skill_tree()
 	if Input.is_action_just_pressed("quests"):
 		toggle_quests()
 	_update_quest_tracker()
@@ -559,7 +582,12 @@ func toggle_skills() -> void:
 
 ## Fase 4.2: diário de missões (tecla J)
 func toggle_quests() -> void:
-	_toggle_unified(3, questlog.refresh)
+	_toggle_unified(4, questlog.refresh)
+
+
+## Fase 10.4: árvore de habilidades (tecla B)
+func toggle_skill_tree() -> void:
+	_toggle_unified(3, skill_tree.refresh)
 
 
 ## Tracker lateral: quest em destaque + objetivo atual (Fase 4.2)

@@ -457,6 +457,20 @@ func get_skill(cls: ClassData, id: StringName) -> SkillData:
 	return null
 
 
+## Árvore de habilidades por classe (via skill_trees.gd - GDScript data-driven)
+var skill_trees := {}
+## Preload da classe para type hint funcionar em parse time
+const SkillTreeData := preload("res://scripts/data/skill_tree_data.gd")
+## Preload do módulo de árvores GDScript
+const SkillTrees := preload("res://scripts/data/skill_trees.gd")
+
+
+func get_skill_tree(class_id: StringName) -> SkillTreeData:
+	if not skill_trees.has(class_id):
+		skill_trees[class_id] = SkillTrees.get_tree(class_id)
+	return skill_trees.get(class_id)
+
+
 func bosses() -> Array[EnemyData]:
 	var out: Array[EnemyData] = []
 	for e in enemies:

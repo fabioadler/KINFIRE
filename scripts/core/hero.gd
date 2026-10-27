@@ -2,6 +2,10 @@ class_name Hero
 extends RefCounted
 ## Ficha do personagem (dados puros, sem física). O nó Player apenas lê daqui.
 
+## Preloads para type hints funcionarem em parse time
+const SkillTreeData := preload("res://scripts/data/skill_tree_data.gd")
+const SkillNodeData := preload("res://scripts/data/skill_node_data.gd")
+
 signal stats_changed
 signal leveled_up(new_level: int)
 signal gold_changed(amount: int)
@@ -34,6 +38,9 @@ var unspent_points: int = 0
 var status := {"forca": 10, "agilidade": 10, "mente": 10, "vitalidade": 10}
 ## Pontos de status não gastos (ganhos ao subir de nível: +2/nível)
 var status_points: int = 0
+## Árvore de habilidades: pontos não gastos (+1/nível) e nós desbloqueados
+var tree_points: int = 0
+var tree_unlocked: Array[StringName] = []
 var inventory: InventoryGrid
 var equipment := {}
 ## Ids das habilidades em cada slot: [LMB, RMB, 1, 2, 3, 4]
@@ -309,6 +316,8 @@ func add_xp(amount: int) -> void:
 		unspent_points += 1 if level % 4 == 1 else 0
 		## +2 pontos de status ARPG por nível (livres para distribuir) — REGRAS §2/Fase 10
 		status_points += 2
+		## +1 ponto de árvore de habilidades por nível — Fase 10.4
+		tree_points += 1
 		## Base da classe escala com o nível (status_growth)
 		_recalc_status()
 		refresh_skill_bar()
@@ -399,6 +408,59 @@ func status_bonus() -> Dictionary:
 		"max_mp_bonus": status["mente"] * 2,
 		"max_hp_bonus": status["vitalidade"] * 5,
 	}
+
+
+## Retorna o rank atual de um nó da árvore de habilidades
+func get_tree_node_rank(node_id: StringName) -> int:
+	if node_id in tree_unlocked:
+		# Conta quantas vezes o nó foi "comprado" (simplificado: 1 rank por compra)
+		# Para ranks > 1, precisaríamos um dict node_id -> rank
+		# Por enquanto retorna 1 se desbloqueado
+		return 1
+	return 0
+
+
+## Gasta 1 ponto de árvore no nó indicado
+## Retorna true se comprou
+func spend_tree_point(node_id: StringName) -> bool:
+	if tree_points <= 0:
+		return false
+	# Verifica pré-requisitos
+	var tree := DB.get_skill_tree(cls.id)
+	if not tree:
+		return false
+	var node := tree.get_node(node_id)
+	if not node:
+		return false
+	if not node.is_available(tree_unlocked):
+		return false
+	# Verifica se já está no rank máximo
+	var current_rank := get_tree_node_rank(node_id)
+	if current_rank >= node.max_rank:
+		return false
+	# Compra
+	tree_points -= 1
+	tree_unlocked.append(node_id)
+	# Se for nova skill, atualiza a skill bar
+	if node.is_new_skill:
+		refresh_skill_bar()
+	stats_changed.emit()
+	return true
+
+
+## Retorna bônus acumulado da árvore para uma skill específica
+func get_tree_bonus_for_skill(skill_id: StringName) -> Dictionary:
+	var bonus := {}
+	var tree := DB.get_skill_tree(cls.id)
+	if not tree:
+		return bonus
+	for node_id in tree_unlocked:
+		var node := tree.get_node(node_id)
+		if node and node.skill_id == skill_id:
+			var rank := get_tree_node_rank(node_id)
+			for key in node.per_rank:
+				bonus[key] = bonus.get(key, 0) + node.per_rank[key] * rank
+	return bonus
 
 
 func unlocked_skills() -> Array[SkillData]:
@@ -503,6 +565,9 @@ func to_dict() -> Dictionary:
 	var st := {}
 	for s in ["forca", "agilidade", "mente", "vitalidade"]:
 		st[s] = status[s]
+	var tree_unlocked_str := []
+	for id in tree_unlocked:
+		tree_unlocked_str.append(String(id))
 	return {
 		"name": hero_name, "race": String(race.id), "class": String(cls.id), "sex": sex, "tint": tint.to_html(),
 		"background": background, "difficulty": difficulty, "hardcore": hardcore, "free_bonus": free_bonus,
@@ -511,6 +576,7 @@ func to_dict() -> Dictionary:
 		"deepest": deepest, "play_time": play_time,
 		"consumable_slots": cons, "consumable_cooldowns": cons_cds,
 		"status": st, "status_points": status_points,
+		"tree_points": tree_points, "tree_unlocked": tree_unlocked_str,
 	}
 
 
@@ -561,6 +627,11 @@ static func from_dict(d: Dictionary) -> Hero:
 	for s in ["forca", "agilidade", "mente", "vitalidade"]:
 		h.status[s] = int(st.get(s, h.cls.base_status.get(s, 10)))
 	h.status_points = int(d.get("status_points", 0))
+	# Árvore de habilidades
+	h.tree_points = int(d.get("tree_points", 0))
+	var tree_unlocked_str: Array = d.get("tree_unlocked", [])
+	for sid in tree_unlocked_str:
+		h.tree_unlocked.append(StringName(sid))
 	h._recalc_status()
 	h.refresh_skill_bar()
 	return h

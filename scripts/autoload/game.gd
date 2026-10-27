@@ -40,6 +40,7 @@ const ACTIONS := {
 	"inventory": ["Inventário", [KEY_TAB]],
 	"character": ["Personagem", [KEY_P]],
 	"skills": ["Habilidades", [KEY_H]],
+	"skill_tree": ["Árvore de Habilidades", [KEY_B]],
 	"quests": ["Missões", [KEY_M]],
 	"show_loot": ["Mostrar itens no chão", [KEY_ALT]],
 	"pause": ["Menu / Pausa", [KEY_ESCAPE]],
