@@ -4,7 +4,7 @@
 
 extends Node
 
-class_name WorldSynchronizer
+# class_name WorldSynchronizer
 
 ## ============================================================================
 ## SNAPSHOT - HOST SIDE

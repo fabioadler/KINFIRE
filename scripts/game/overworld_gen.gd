@@ -83,7 +83,7 @@ static func danger(c: Vector2i) -> float:
 
 
 func biome_at(c: Vector2i) -> String:
-	var dist: Vector2 = Vector2(c).length()
+	var dist: float = Vector2(c).length()
 	if dist < SAFE_RADIUS + 30:
 		return "planicie"
 	var d := dist / CHUNK

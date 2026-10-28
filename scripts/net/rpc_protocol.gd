@@ -2,7 +2,7 @@
 ## Define todos os RPCs utilizados no sistema multiplayer
 ## Organizado por categoria e nível de permissão
 
-class_name MultiplayerRPC:
+class_name MultiplayerRPC
 
 ## ============================================================================
 ## ENEMY SYNCHRONIZATION

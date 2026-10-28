@@ -4,7 +4,7 @@
 
 extends Node
 
-class_name PlayerSynchronizer
+# class_name PlayerSynchronizer
 
 ## ============================================================================
 ## PLAYER SPAWNING

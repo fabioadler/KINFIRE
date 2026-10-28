@@ -48,4 +48,4 @@ func spawn_guardian(guardian_id: StringName) -> void:
 	
 	var spawn_data = GUARDIAN_SPAWN_POINTS[guardian_id]
 	# Flag guardian as available in world
-	Game.flags.set(str(guardian_id) + "_available")
+	Game.flags.set(str(guardian_id) + "_available", true)

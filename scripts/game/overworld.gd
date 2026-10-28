@@ -560,7 +560,7 @@ func _spawn_chunk_content(k: Vector2i, data: Dictionary) -> void:
 				capital_race = race
 				break
 	# Seguro: acampamento/capital do jogador OU chunk de capital OU perímetro de qualquer capital (2.4)
-	var safe: Vector2 = Vector2(center_cell).length() < OverworldGen.SAFE_RADIUS + 20 \
+	var safe: bool = Vector2(center_cell).length() < OverworldGen.SAFE_RADIUS + 20 \
 		or capital_race != &"" \
 		or (territories != null and territories.near_any_capital(center_cell))
 	var nodes: Array = data.nodes

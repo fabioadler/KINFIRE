@@ -47,7 +47,7 @@ func generate(depth: int, seed_value: int = -1) -> void:
 		var best_d := INF
 		for a in connected:
 			for b in remaining:
-				var d: Vector2 = Vector2(a.get_center()).distance_squared_to(Vector2(b.get_center()))
+				var d: float = Vector2(a.get_center()).distance_squared_to(Vector2(b.get_center()))
 				if d < best_d:
 					best_d = d
 					best_a = a
