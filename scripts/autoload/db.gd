@@ -1,12 +1,17 @@
 extends Node
 ## Banco de dados global: raças, classes, monstros, sprites animados, ícones e geração de itens.
 
-const TILESHEET := preload("res://assets/sprites/dungeon_tiles.png")
-const DT2_SHEET := preload("res://assets/sprites/dt2/dungeon_sheet.png")
+var TILESHEET: Texture2D
+var DT2_SHEET: Texture2D
 const DT2_LIST := "res://assets/sprites/dt2/tile_list.txt"
 const INDEX := "res://data/index.json"
 const TILE := 16
 const SHEET_COLS := 12
+
+func _ready() -> void:
+	# Carregar texturas dinamicamente
+	TILESHEET = load("res://assets/sprites/dungeon_tiles.png")
+	DT2_SHEET = load("res://assets/sprites/dt2/dungeon_sheet.png")
 
 const ABILITIES := ["str", "dex", "con", "int", "wis", "cha"]
 const ABILITY_NAMES := {
