@@ -34,7 +34,7 @@ const FACE_VARIANTS := ["wall_banner_red", "wall_banner_blue", "wall_banner_gree
 var gen := DungeonGenerator.new()
 var astar := AStarGrid2D.new()
 var player: Player
-var hud: HUD
+var hud: HUDResponsive  # Fase 12: HUD moderna e responsiva
 var stairs: Interactable
 var boss: Enemy
 var explored := PackedByteArray()
@@ -68,7 +68,7 @@ func _ready() -> void:
 	_apply_brightness()
 	_setup_post()
 
-	hud = HUD.new()
+	hud = HUDResponsive.new()  # Fase 12: HUD moderna e responsiva
 	add_child(hud)
 
 	player = PLAYER_SCENE.instantiate()
