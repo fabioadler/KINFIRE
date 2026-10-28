@@ -1,4 +1,4 @@
-class_name LoreInitializer
+class_name _LoreInitializer
 extends Node
 ## Lore system autoload - minimal version for testing
 
