@@ -94,7 +94,37 @@ choices = Array[ExtResource("3_choice")]([SubResource("DialogueChoice_kinfire")]
 script = ExtResource("2_node")
 id = &"kinfire_intro"
 pages = PackedStringArray("Nos encontraremos no coração do fogo apagado. Lá, faremos a Escolha Real.")
-choices = Array[ExtResource("3_choice")]([SubResource("DialogueChoice_partir")])
+choices = Array[ExtResource("3_choice")]([SubResource("DialogueChoice_final_choice")])
+
+[sub_resource type="Resource" id="DialogueChoice_final_choice"]
+script = ExtResource("3_choice")
+text = "(Entrar na Fenda)"
+next_id = &"final_gate"
+
+[sub_resource type="Resource" id="DialogueNode_final_gate"]
+script = ExtResource("2_node")
+id = &"final_gate"
+pages = PackedStringArray("A Fenda respira. Dentro, sete chamas ardem — ou apenas cinzas.")
+condition = "bonds_complete"
+next_id = &"final_golden"
+
+[sub_resource type="Resource" id="DialogueNode_final_gate_gray"]
+script = ExtResource("2_node")
+id = &"final_gate_gray"
+pages = PackedStringArray("A Fenda respira. Dentro, cinzas e silêncio. Você não tem as sete chamas reunidas.")
+condition = "!bonds_complete"
+next_id = &"final_cinzento"
+
+[sub_resource type="Resource" id="DialogueNode_final_cinzento"]
+script = ExtResource("2_node")
+id = &"final_cinzento"
+pages = PackedStringArray("O Cinzento estende a mão. Você toma. Juntos, selam a Fenda.", "Kinfire permanece apagada. O mundo segue reescrito. Mas vocês dois — vocês lembram.", "Isso basta. Isso sempre bastou.", "FIM — O Cinzento")
+choices = Array[ExtResource("3_choice")]([])
+
+[sub_resource type="Resource" id="DialogueNode_final_golden"]
+script = ExtResource("2_node")
+id = &"final_golden"
+pages = PackedStringArray("Sete chamas queimam em círculo. Você coloca a oitava — a sua — no centro.", "O fogo renasce. Kinfire acorda. E por um momento, todos os sete guardiões pairam à sua volta, finalmente em paz.", "O Cinzento sorri. Pela primeira vez, Ithariel sorri.", "FIM — O Fogo Dos Laços")
 
 [resource]
 script = ExtResource("1_script")
@@ -102,4 +132,4 @@ id = &"cinzento_acampamento"
 display_name = "Cinzento"
 portrait = "k:121"
 start_id = &"acorda"
-nodes = Array[ExtResource("2_node")]([SubResource("DialogueNode_acorda"), SubResource("DialogueNode_lugar"), SubResource("DialogueNode_aconteceu"), SubResource("DialogueNode_adeus"), SubResource("DialogueNode_revela_nome"), SubResource("DialogueNode_arrependimento"), SubResource("DialogueNode_kinfire_intro")])
+nodes = Array[ExtResource("2_node")]([SubResource("DialogueNode_acorda"), SubResource("DialogueNode_lugar"), SubResource("DialogueNode_aconteceu"), SubResource("DialogueNode_adeus"), SubResource("DialogueNode_revela_nome"), SubResource("DialogueNode_arrependimento"), SubResource("DialogueNode_kinfire_intro"), SubResource("DialogueNode_final_gate"), SubResource("DialogueNode_final_gate_gray"), SubResource("DialogueNode_final_cinzento"), SubResource("DialogueNode_final_golden")])
