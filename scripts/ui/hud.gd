@@ -155,6 +155,8 @@ func _build() -> void:
 func _build_bottom_bar() -> void:
 	var bar := PanelContainer.new()
 	bar.name = "BottomBar"
+	bar.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	bar.offset_top = -100
 	bar.add_theme_stylebox_override("panel", UIKit.box(Color(0.05, 0.035, 0.03, 0.92), UIKit.GOLD_DIM, 2, 6))
 	_root.add_child(bar)
 	var v := VBoxContainer.new()
