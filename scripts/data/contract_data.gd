@@ -1,22 +1,17 @@
 extends Resource
 class_name ContractData
 
-enum Status { DISPONIVEL, ACEITO, COMPLETO, FALHADO }
-enum Tipo { COMBATE, COLETA, ESCOLTA, INVESTIGACAO }
+enum Type { CACA, COLETA, EXPLORACAO, ESCOLTA }
 
 @export var id: StringName
-@export var titulo: String
-@export var descricao: String
-@export var tipo_contrato: Tipo
-@export var guilda_id: StringName
-@export var nivel_recomendado: int
-@export var reputacao_recompensa: int
-@export var ouro_recompensa: int
-@export var experiencia_recompensa: int
+@export var tipo: Type
+@export var regiao: StringName
+@export var descricao_template: String = ""
 @export var requisitos: Dictionary = {}
-@export var objetivos: Array[String] = []
-@export var duracao_dias: int = 7
-@export var localizacao: String = ""
+@export var recompensas: Dictionary = {}
+@export var tempo_limite_horas: float = 2.0
+@export var dificuldade: String = "F"
+@export var risco: float = 1.0
 
-func _init() -> void:
-	resource_name = "ContractData"
+func _init(p_id: StringName = &"") -> void:
+	id = p_id

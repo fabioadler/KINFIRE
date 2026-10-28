@@ -1,13 +1,12 @@
 extends Resource
 class_name RankData
 
-@export var id: StringName
-@export var display_name: String
-@export var nivel_rank: int
-@export var reputacao_necessaria: int
-@export var beneficios: Dictionary = {}
+@export var rank_letter: String = "F"
+@export var nivel_minimo: int = 1
 @export var titulo: String = ""
-@export var descricao: String = ""
+@export var requisitos_conquistas: Dictionary = {}
+@export var beneficios: Dictionary = {}
 
-func _init() -> void:
-	resource_name = "RankData"
+func _init(p_letter: String = "F", p_titulo: String = "") -> void:
+	rank_letter = p_letter
+	titulo = p_titulo
