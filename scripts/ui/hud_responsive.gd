@@ -1,4 +1,4 @@
-class_name HUDResponsive
+# class_name HUDResponsive
 extends HUD
 ## HUD moderna, responsiva e otimizada - extensão da HUD original com layout melhorado
 ## Fase 12: Redesign para múltiplas resoluções com escala dinâmica

@@ -11,7 +11,7 @@ func _init(p_hero: Hero) -> void:
 func join_guild(guild_id: StringName) -> bool:
 	if hero.guild_joined != &"":
 		return false  # Já membro
-	var guild = Guilds.guild(guild_id)  # Corrigido: Guilds.guild() ao invés de DB.guild()
+	var guild = Guilds.guild_cache.get(guild_id)  # Corrigido: Guilds.guild() ao invés de DB.guild()
 	if not guild:
 		return false
 	hero.guild_joined = guild_id

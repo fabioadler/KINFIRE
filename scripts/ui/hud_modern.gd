@@ -1,4 +1,4 @@
-class_name HUDModern
+# class_name HUDModern
 extends CanvasLayer
 ## HUD moderna, responsiva e otimizada - layout fluido que se adapta a qualquer resolução
 ## Fase 12: Redesign completo para suportar múltiplas resoluções e estilo moderno
