@@ -69,7 +69,7 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 	_gold_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	bottom.add_child(_gold_label)
 	bottom.add_child(UIKit.button("Vender Comuns e Mágicos", _sell_junk))
-	var hint := UIKit.label("Clique: mover - Direito: equipar - Shift+Direito: vender", 12, UIKit.TEXT_DIM)
+	var hint := UIKit.label("Esq: mover | Dir: equipar | Shift+Dir: vender", 12, UIKit.TEXT_DIM)
 	body.add_child(hint)
 
 	_tooltip = PanelContainer.new()
@@ -177,7 +177,9 @@ func equip_from_inventory(it: Item) -> void:
 		if not hero.inventory.add(old):
 			LootDrop.drop_item(hud.world, hud.world.player.global_position, old)
 	Sfx.play(&"equip")
+	hud.show_message("Equipado: %s" % it.display_name(), Color(0.4, 1, 0.4))
 	hide_tooltip()
+	_grid_view.queue_redraw()
 
 
 # ================================================================== GRADE
