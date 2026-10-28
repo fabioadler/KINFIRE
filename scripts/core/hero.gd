@@ -648,7 +648,7 @@ func to_dict() -> Dictionary:
 		"active_contracts": active_contracts_str, "completed_contracts": completed_contracts_str,
 		## v6 novo (Fase 11):
 		"guild_joined": String(guild_joined), "guild_rank": guild_rank, "guild_xp": guild_xp,
-		"contracts_active": [String(c) for c in contracts_active],
+		"contracts_active": contracts_active.map(func(c): return String(c)),
 		"contracts_completed": contracts_completed,
 		"rank_f_s": rank_f_s,
 		"player_guild_id": String(player_guild_id),
