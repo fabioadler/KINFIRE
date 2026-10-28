@@ -1,0 +1,43 @@
+class_name BrasaZoneManager
+extends Node
+
+var lore_manager: LoreSystemManager
+var current_territory: StringName = &""
+var kinfire_zones = [
+	&"kinfire_outskirts",
+	&"kinfire_heart", 
+	&"kinfire_core"
+]
+
+func _ready() -> void:
+	# Hook into world/territory system
+	if Game.has_meta("world"):
+		var world = Game.get_meta("world")
+		if world.has_signal("territory_changed"):
+			world.territory_changed.connect(_on_territory_changed)
+
+func set_lore_manager(manager: LoreSystemManager) -> void:
+	lore_manager = manager
+
+func _on_territory_changed(territory_id: StringName) -> void:
+	current_territory = territory_id
+	
+	# Entering Kinfire zone
+	if territory_id in kinfire_zones:
+		if lore_manager:
+			lore_manager.add_brasa(1)
+			print("🔥 Brasa +1! (Kinfire zone entered)")
+
+func _on_boss_defeated(zone_id: StringName) -> void:
+	# Defeated boss in Kinfire zone
+	if zone_id == &"kinfire_core":
+		if lore_manager:
+			lore_manager.brasa_system.clear_brasa()
+			print("🔥 Brasa cleared! (Maldrach defeated)")
+
+func _on_zone_exit(zone_id: StringName) -> void:
+	# Left zone without defeating boss
+	if zone_id in kinfire_zones and zone_id != &"kinfire_core":
+		if lore_manager:
+			lore_manager.remove_brasa(1)
+			print("🔥 Brasa -1 (zone exited without boss clear)")
