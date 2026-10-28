@@ -713,7 +713,7 @@ func _is_night() -> bool:
 func _offer_sleep() -> void:
 	var body := hud._open_popup("Fogueira acesa", 430)
 	body.add_child(UIKit.rich(
-		"[color=#9A917F]A noite cobre Eldara. As fogueiras afastam o frio — e o resto.[/color]")))
+		"[color=#9A917F]A noite cobre Eldara. As fogueiras afastam o frio — e o resto.[/color]"))
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 10)
 	body.add_child(row)
@@ -739,7 +739,7 @@ func _sleep_until_dawn() -> void:
 		Game.save_game()
 		hud.show_message("Você acorda ao amanhecer — dia %d." % (int(_time) + 1),
 			Color(1, 0.85, 0.5), 3.5)
-	)
+	))
 	tw.tween_property(bg, "color:a", 0.0, 0.9)
 	tw.tween_callback(veil.queue_free)
 
