@@ -62,6 +62,7 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 	_canvas = Control.new()
 	_canvas.custom_minimum_size = Vector2(1500, 800)  # Area grande para a árvore
 	_canvas.mouse_filter = Control.MOUSE_FILTER_PASS
+	_canvas.draw.connect(_canvas_draw)
 	scroll_container.add_child(_canvas)
 	
 	# Carrega a árvore da classe
