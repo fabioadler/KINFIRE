@@ -1,16 +1,16 @@
 class_name Auction
 extends RefCounted
-## Casa de leilões da Guilda dos Aventureiros (Fase 5.4, REGRAS §9,
-## MECANICAS §10) — só na capital humana (Porto Franco). 6 slots diários
+## Casa de leilões da Guilda dos Aventureiros (Fase 5.4, REGRAS #9,
+## MECANICAS #10) - só na capital humana (Porto Franco). 6 slots diários
 ## de itens Raro+ rotativos e determinísticos por dia; lance mínimo sobe
-## 10% por contra-lance de NPC rival (REGRAS §9); um slot especial aceita
-## ESSÊNCIA (moeda dura, REGRAS §9); relíquias de chefe aparecem raramente.
+## 10% por contra-lance de NPC rival (REGRAS #9); um slot especial aceita
+## ESSÊNCIA (moeda dura, REGRAS #9); relíquias de chefe aparecem raramente.
 ##
-## Estado em Game.auction: {"day": int, "slots": [...]} — cada slot:
+## Estado em Game.auction: {"day": int, "slots": [...]} - cada slot:
 ##   base, level, rarity, value, currency ("gold"/"essence"),
 ##   min_bid, rivals_left, sold, unique.
 ## O refresh é lazy: _ensure() re-sorteia quando o dia de mercado vira
-## (Market.market_day(), às 06:00 — REGRAS §14).
+## (Market.market_day(), às 06:00 - REGRAS #14).
 
 const SLOT_COUNT := 6
 const UNIQUE_CHANCE := 0.08        ## chance de slot ser relíquia de chefe
@@ -51,7 +51,7 @@ static func place_bid(slot_index: int) -> Dictionary:
 		out["result"] = "broke"
 		return out
 	# NPC rival contra-lança: nada é cobrado, mas o mínimo sobe 10%
-	# (REGRAS §9) e o jogador precisa insistir
+	# (REGRAS #9) e o jogador precisa insistir
 	if int(s["rivals_left"]) > 0:
 		s["min_bid"] = ceili(cost * 1.10)
 		s["rivals_left"] = int(s["rivals_left"]) - 1
@@ -104,7 +104,7 @@ static func _roll(day: int) -> Dictionary:
 		var essence := i == ESSENCE_INDEX
 		var minb := ceili(float(value) / float(ESSENCE_DIVISOR)) if essence \
 			else ceili(float(value) * BID_PREMIUM)
-		# 1 a 3 contra-lances de rivais — determinísticos por (dia, slot)
+		# 1 a 3 contra-lances de rivais - determinísticos por (dia, slot)
 		var rr := RandomNumberGenerator.new()
 		rr.seed = hash("leilao|%d|%d" % [day, i])
 		var rivals := 1 + (rr.randi() % 3)
@@ -117,7 +117,7 @@ static func _roll(day: int) -> Dictionary:
 	return {"day": day, "slots": out}
 
 
-## Base de equipamento (tem slot) — mercadoria digna de leilão
+## Base de equipamento (tem slot) - mercadoria digna de leilão
 static func _roll_base(rng: RandomNumberGenerator) -> StringName:
 	var pool: Array[StringName] = []
 	for k in DB.BASES:

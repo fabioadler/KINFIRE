@@ -1,16 +1,16 @@
 class_name ConditionResolver
 extends RefCounted
-## Avalia condições de diálogo (MECANICAS §7). Puro e sem estado — lê Game/Hero.
-## Sintaxe — um segmento por vírgula (AND lógico); prefixo `!` nega o segmento:
-##   flag nome            — flag narrativa verdadeira
-##   flag nome=valor      — flag igual ao valor (string)
-##   raca = id            — raça do herói (ex.: `raca = elfo_floresta`)
-##   classe = id          — classe do herói
-##   nivel >= n           — nível do herói (aceita = == != > >= < <=)
-##   ignorancia > n       — ignorância do Laço-Vivo (Game.ignorance)
-##   rep raca >= n        — reputação com a raça (0–4)
-##   quest id >= k        — estágio da quest (Fase 4)
-##   item id_base [n]     — possui n (padrão 1) do item-base (inventário+equipado)
+## Avalia condições de diálogo (MECANICAS #7). Puro e sem estado - lê Game/Hero.
+## Sintaxe - um segmento por vírgula (AND lógico); prefixo `!` nega o segmento:
+##   flag nome            - flag narrativa verdadeira
+##   flag nome=valor      - flag igual ao valor (string)
+##   raca = id            - raça do herói (ex.: `raca = elfo_floresta`)
+##   classe = id          - classe do herói
+##   nivel >= n           - nível do herói (aceita = == != > >= < <=)
+##   ignorancia > n       - ignorância do Laço-Vivo (Game.ignorance)
+##   rep raca >= n        - reputação com a raça (0–4)
+##   quest id >= k        - estágio da quest (Fase 4)
+##   item id_base [n]     - possui n (padrão 1) do item-base (inventário+equipado)
 ## Condição vazia é sempre verdadeira; comando desconhecido é permissivo.
 
 const OPS := ["=", "==", "!=", ">", ">=", "<", "<="]

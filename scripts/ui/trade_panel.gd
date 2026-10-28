@@ -1,18 +1,18 @@
 class_name TradePanel
 extends Control
-## UI de comércio unificada (Fase 5.5, MECANICAS §10): abas Comprar, Vender
+## UI de comércio unificada (Fase 5.5, MECANICAS #10): abas Comprar, Vender
 ## e Leilão. Aberta pelo diálogo do líder da capital (efeito `comercio`,
-## que emite Game.trade_requested) — cada território negocia pelo seu
+## que emite Game.trade_requested) - cada território negocia pelo seu
 ## líder; o leilão pertence só à Guilda de Porto Franco (humano).
 ## Tooltips mostram a decomposição do preço (base × demanda × especialidade
-## × reputação) para o jogador entender a economia (REGRAS §8/§10).
+## × reputação) para o jogador entender a economia (REGRAS #8/#10).
 
 signal closed
 
 const TAB_BUY := 0
 const TAB_SELL := 1
 const TAB_AUCTION := 2
-const AUCTION_RACE := &"humano"  ## casa de leilões: capital humana (REGRAS §9)
+const AUCTION_RACE := &"humano"  ## casa de leilões: capital humana (REGRAS #9)
 
 var race: StringName = &""
 var region_level := 1
@@ -84,7 +84,7 @@ func _unhandled_input(event: InputEvent) -> void:
 # ------------------------------------------------------------------ ABAS
 
 func _show_tab(tab: int) -> void:
-	# o leilão pertence só à Guilda de Porto Franco (REGRAS §9)
+	# o leilão pertence só à Guilda de Porto Franco (REGRAS #9)
 	if tab == TAB_AUCTION and race != AUCTION_RACE:
 		tab = TAB_BUY
 	_tab = tab
@@ -113,14 +113,14 @@ func _show_tab(tab: int) -> void:
 func _refresh_status() -> void:
 	var hero := Game.hero
 	var rep := int(Game.reputation.get(race, 0)) if Game.hero != null else 0
-	_status.text = "Ouro: %d    Essência: %d    Reputação aqui: %s (−%d%%)" % [
+	_status.text = "Ouro: %d    Essência: %d    Reputação aqui: %s (-%d%%)" % [
 		hero.gold, hero.essence, Market.tier_name(rep), 5 * rep]
 
 
 # ------------------------------------------------------------------ COMPRAR
 
 func _show_buy(vendor: VendorData) -> void:
-	var intro := UIKit.rich("[b]%s[/b] — [color=#9A917F]\"%s\"[/color]" % [
+	var intro := UIKit.rich("[b]%s[/b] - [color=#9A917F]\"%s\"[/color]" % [
 		vendor.display_name, vendor.greeting])
 	_content.add_child(intro)
 	var stock: Array = vendor.stock_for(Market.market_day(), region_level)
@@ -130,23 +130,23 @@ func _show_buy(vendor: VendorData) -> void:
 		var price := Market.buy_price(race, e)
 		var rname: String = Item.RARITY_NAMES[e["rarity"]]
 		if Market.is_sold(race, i):
-			var sold := UIKit.label("  %s — vendido hoje" % base["name"], 15, UIKit.TEXT_DIM)
+			var sold := UIKit.label("  %s - vendido hoje" % base["name"], 15, UIKit.TEXT_DIM)
 			_content.add_child(sold)
 			continue
-		var b := UIKit.button("%s (nv %d, %s) — %d ouro" % [base["name"], e["level"], rname, price],
+		var b := UIKit.button("%s (nv %d, %s) - %d ouro" % [base["name"], e["level"], rname, price],
 			func(): do_buy(i), 520)
 		b.tooltip_text = _buy_tooltip(e, price)
 		_content.add_child(b)
 
 
-## Tooltip: decomposição do preço de compra (MECANICAS §10)
+## Tooltip: decomposição do preço de compra (MECANICAS #10)
 func _buy_tooltip(e: Dictionary, price: int) -> String:
 	var cat := Market.category_of(e["base"])
 	var v: VendorData = DB.vendor(race)
 	var producer := cat in v.specialties
 	var dem := Market.demand(race, cat)
 	var rep := int(Game.reputation.get(race, 0)) if Game.hero != null else 0
-	return "base %d\n× demanda local %.2f\n× %s (produto daqui, dump do produtor)\n× reputação %s (−%d%%)\n= %d ouro" % [
+	return "base %d\n× demanda local %.2f\n× %s (produto daqui, dump do produtor)\n× reputação %s (-%d%%)\n= %d ouro" % [
 		int(e["price"]), dem, "0.45" if producer else "1.00",
 		Market.tier_name(rep), 5 * rep, price]
 
@@ -184,7 +184,7 @@ func _show_sell(_vendor: VendorData) -> void:
 			continue
 		count += 1
 		var price := Market.sell_price(race, it)
-		var b := UIKit.button("%s — %d ouro" % [it.name, price],
+		var b := UIKit.button("%s - %d ouro" % [it.name, price],
 			do_sell.bind(it), 520)
 		b.modulate = it.rarity_color()
 		b.tooltip_text = _sell_tooltip(it, price)
@@ -193,13 +193,13 @@ func _show_sell(_vendor: VendorData) -> void:
 		_content.add_child(UIKit.label("Nada para vender.", 16, UIKit.TEXT_DIM))
 
 
-## Tooltip: decomposição do preço de venda (REGRAS §8)
+## Tooltip: decomposição do preço de venda (REGRAS #8)
 func _sell_tooltip(it: Item, price: int) -> String:
 	var cat := StringName(it.category) if it.category != "" else Market.category_of(it.base_id)
 	var v: VendorData = DB.vendor(race)
 	var scarce := not (cat in v.specialties)
 	var dem := Market.demand(race, cat)
-	return "base %d (valor REGRAS §8)\n× 40%% (vendor compra abaixo do valor)\n× demanda local %.2f\n× %s (o que falta aqui paga mais)\n= %d ouro" % [
+	return "base %d (valor REGRAS #8)\n× 40%% (vendor compra abaixo do valor)\n× demanda local %.2f\n× %s (o que falta aqui paga mais)\n= %d ouro" % [
 		VendorData._base_value(it.item_level, it.rarity), dem,
 		"1.25" if scarce else "0.80", price]
 
@@ -218,7 +218,7 @@ func do_sell(it: Item) -> void:
 	_show_tab(TAB_SELL)
 
 
-# ------------------------------------------------------------------ LEILÃO
+# ------------------------------------------------------------------ LEILAO
 
 func _show_auction() -> void:
 	var slots: Array = Auction.slots()
@@ -228,10 +228,10 @@ func _show_auction() -> void:
 		var rname: String = Item.RARITY_NAMES[e["rarity"]]
 		var cur: String = "essência" if String(e["currency"]) == "essence" else "ouro"
 		if bool(e["sold"]):
-			_content.add_child(UIKit.label("  %s — arrematado" % base["name"], 15, UIKit.TEXT_DIM))
+			_content.add_child(UIKit.label("  %s - arrematado" % base["name"], 15, UIKit.TEXT_DIM))
 			continue
-		var flavor := " — Relíquia de chefe!" if bool(e["unique"]) else ""
-		var b := UIKit.button("%s (nv %d, %s%s) — lance %d %s" % [
+		var flavor := " - Relíquia de chefe!" if bool(e["unique"]) else ""
+		var b := UIKit.button("%s (nv %d, %s%s) - lance %d %s" % [
 				base["name"], e["level"], rname, flavor, e["min_bid"], cur],
 			func(): do_bid(i), 520)
 		if int(e["rarity"]) >= Item.Rarity.LEGENDARY:
@@ -239,7 +239,7 @@ func _show_auction() -> void:
 		b.tooltip_text = "Valor de tabela: %d\nLance mínimo sobe 10%% por contra-lance rival (%d restante(s))" % [
 			int(e["value"]), int(e["rivals_left"])]
 		_content.add_child(b)
-	_content.add_child(UIKit.rich("[color=#9A917F]A Guilda aceita essência no slot especial — moeda dura de Campeões e Chefes (REGRAS §9).[/color]"))
+	_content.add_child(UIKit.rich("[color=#9A917F]A Guilda aceita essência no slot especial - moeda dura de Campeões e Chefes (REGRAS #9).[/color]"))
 
 
 ## Jogador dá lance no slot `i` do leilão
@@ -247,7 +247,7 @@ func do_bid(i: int) -> void:
 	var r := Auction.place_bid(i)
 	match String(r["result"]):
 		"outbid":
-			_notice("Rival cobriu seu lance — o mínimo subiu 10%", Color(1, 0.6, 0.3))
+			_notice("Rival cobriu seu lance - o mínimo subiu 10%", Color(1, 0.6, 0.3))
 			Sfx.play(&"ui_close", -12.0)
 		"won":
 			var it: Item = r["item"]

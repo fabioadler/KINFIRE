@@ -1,6 +1,6 @@
 class_name QuestRewards
 extends Resource
-## Recompensas ao concluir uma quest (Fase 4). REGRAS §12: quest principal dá
+## Recompensas ao concluir uma quest (Fase 4). REGRAS #12: quest principal dá
 ## XP = 40 × nível da quest × ato + ouro proporcional + 1 item
 ## (raridade mínima = ato: Mágico/Raro/Lendário). xp = 0 usa a fórmula.
 
@@ -13,5 +13,5 @@ extends Resource
 @export var item_rarity: int = Item.Rarity.MAGIC
 ## Ganho de reputação por raça: {race_id: delta}
 @export var reputation: Dictionary = {}
-## Cadeia de mistério: rende 1 Fragmento da Verdade (REGRAS §12)
+## Cadeia de mistério: rende 1 Fragmento da Verdade (REGRAS #12)
 @export var fragment := false

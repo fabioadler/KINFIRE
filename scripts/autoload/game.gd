@@ -40,7 +40,7 @@ const ACTIONS := {
 	"inventory": ["Inventário", [KEY_TAB]],
 	"character": ["Personagem", [KEY_P]],
 	"skills": ["Habilidades", [KEY_H]],
-	"skill_tree": ["Árvore de Habilidades", [KEY_B]],
+	"skill_tree": ["Arvore de Habilidades", [KEY_B]],
 	"quests": ["Missões", [KEY_M]],
 	"show_loot": ["Mostrar itens no chão", [KEY_ALT]],
 	"pause": ["Menu / Pausa", [KEY_ESCAPE]],
@@ -56,21 +56,21 @@ const ACTIONS := {
 	"consumable_9": ["Consumível 9", [KEY_9]],
 }
 
-## Fase 5.5: um diálogo emitiu efeito `comercio` — o HUD abre o TradePanel
+## Fase 5.5: um diálogo emitiu efeito `comercio` - o HUD abre o TradePanel
 signal trade_requested(race: StringName)
 
-## Fase 7.1: a hora virou no mundo (MECANICAS §14.1) — 06:00 re-estoque,
+## Fase 7.1: a hora virou no mundo (MECANICAS #14.1) - 06:00 re-estoque,
 ## 00:00 autosave "A Vela Virou", contatos noturnos dos mistérios
 signal hour_changed(hour: int)
 
 var hero: Hero
 var depth: int = 1
-## Fase do jogador (PHASE_PROLOGUE | PHASE_CREATED) — REGRAS §15, MECANICAS §12
+## Fase do jogador (PHASE_PROLOGUE | PHASE_CREATED) - REGRAS #15, MECANICAS #12
 var phase: String = PHASE_CREATED
-## Transiente: true logo após finish_prologue — dispara o diálogo de despertar
+## Transiente: true logo após finish_prologue - dispara o diálogo de despertar
 ## no acampamento (não é salvo; o despertar acontece uma única vez)
 var awakened_from_prologue := false
-## Ignorância do Laço-Vivo (10 no pós-prólogo, decai ao aprender; REGRAS §2)
+## Ignorância do Laço-Vivo (10 no pós-prólogo, decai ao aprender; REGRAS #2)
 var ignorance: int = 0
 ## Reputação por raça: id da raça -> int 0..4 (Fase 5)
 var reputation := {}
@@ -78,13 +78,13 @@ var reputation := {}
 var quests := {}
 ## Log de quests (Fase 4): progresso/recompensas sobre `quests`
 var quest_log := QuestLog.new()
-## Flags narrativas (diálogos/quests): nome -> valor (MECANICAS §7)
+## Flags narrativas (diálogos/quests): nome -> valor (MECANICAS #7)
 var flags := {}
-## Fragmentos da Verdade coletados (Fase 4 — 8 destravam o Final Dourado)
+## Fragmentos da Verdade coletados (Fase 4 - 8 destravam o Final Dourado)
 var fragmentos: Array = []
 ## Economia por território (Fase 5.2): {raça: {"demand": {cat: float}, "sold": [índices]}}
 var market: Dictionary = {}
-## Casa de leilões (Fase 5.4): {"day": int, "slots": [...]} (REGRAS §9)
+## Casa de leilões (Fase 5.4): {"day": int, "slots": [...]} (REGRAS #9)
 var auction: Dictionary = {}
 ## Mundo aberto
 var world_seed: int = 0
@@ -98,7 +98,7 @@ var world_opened := {}
 var dungeon_level: int = 1
 var dungeon_name: String = "Masmorra" 
 var settings := {
-	# Áudio
+	# Audio
 	"master_volume": 0.8,
 	"music_volume": 0.6,
 	"sfx_volume": 0.8,
@@ -113,14 +113,14 @@ var settings := {
 	"ui_scale": 1.0,
 	"brightness": 1.0,
 	"show_fps": false,
-	# 7.2: sombras dinâmicas 2D — 0=Desligadas, 1=Suaves (PCF5), 2=Nítidas (PCF13)
+	# 7.2: sombras dinâmicas 2D - 0=Desligadas, 1=Suaves (PCF5), 2=Nítidas (PCF13)
 	"shadows": 1,
-	# 7.7: FSR 2.2 / MSAA / presets (§14.6)
+	# 7.7: FSR 2.2 / MSAA / presets (#14.6)
 	"fsr_mode": 2,         # 0=Desligado, 1=Qualidade, 2=Equilibrado, 3=Desempenho
 	"msaa": 1,             # 0=Desligado, 1=2x, 2=4x
 	"texture_filter": 0,   # 0=Nearest (pixel-art), 1=Linear
 	"particle_amount": 1,  # 0=50%, 1=75%, 2=100%
-	"glow": true,          # preset Baixo desliga (§14.6)
+	"glow": true,          # preset Baixo desliga (#14.6)
 	# Jogabilidade
 	"damage_numbers": true,
 	"shake_intensity": 1.0,
@@ -174,7 +174,7 @@ func aggro_mult() -> float:
 	return 1.0 if hero == null else 1.0 + hero.difficulty * 0.1
 
 
-## 7.7: multiplicador de partículas (§14.6) — presets 50%/75%/100%
+## 7.7: multiplicador de partículas (#14.6) - presets 50%/75%/100%
 func particle_mult() -> float:
 	return [0.5, 0.75, 1.0][clampi(int(settings.particle_amount), 0, 2)]
 
@@ -183,7 +183,7 @@ func particle_mult() -> float:
 
 func change_scene(path: String) -> void:
 	get_tree().paused = false
-	# 7.5: áudio adaptativo pertence ao mundo — troca de cena silencia as
+	# 7.5: áudio adaptativo pertence ao mundo - troca de cena silencia as
 	# camadas (o novo mundo/menu reassume o que precisa no primeiro _process)
 	Audio.stop_all()
 	var tw := create_tween()
@@ -221,7 +221,7 @@ func new_game(h: Hero) -> void:
 	change_scene(OVERWORLD)
 
 
-## Inicia o prólogo: o jogador é um aldeão nível 0 na Reminiscência (REGRAS §13)
+## Inicia o prólogo: o jogador é um aldeão nível 0 na Reminiscência (REGRAS #13)
 func new_prologue() -> void:
 	hero = Hero.create_villager()
 	phase = PHASE_PROLOGUE
@@ -246,7 +246,7 @@ func new_prologue() -> void:
 
 
 ## Conclui o prólogo: criação de personagem terminou, herói real acorda no
-## acampamento da raça escolhida (REGRAS §13: nada do prólogo carrega).
+## acampamento da raça escolhida (REGRAS #13: nada do prólogo carrega).
 func finish_prologue(h: Hero) -> void:
 	hero = h
 	phase = PHASE_CREATED
@@ -380,7 +380,7 @@ func load_game() -> bool:
 	return true
 
 
-## Migração encadeada por versão — nunca quebra saves antigos (MECANICAS §12)
+## Migração encadeada por versão - nunca quebra saves antigos (MECANICAS #12)
 func _migrate(data: Dictionary) -> Dictionary:
 	var v := int(data.get("version", 3))
 	if v < 4:
@@ -420,9 +420,9 @@ func save_summary() -> String:
 	var c := DB.get_class_data(StringName(h.get("class", "")))
 	var diff: Dictionary = DB.DIFFICULTIES[clampi(int(h.get("difficulty", 0)), 0, 3)]
 	if str(data.get("phase", "created")) == PHASE_PROLOGUE:
-		return "%s — Prólogo (Aldeão, nível %d)" % [h.get("name", "?"), int(h.get("level", 0))]
+		return "%s - Prólogo (Aldeão, nível %d)" % [h.get("name", "?"), int(h.get("level", 0))]
 	var where := "%s, andar %d" % [data.get("dungeon_name", "Masmorra"), int(data.get("depth", 1))] if data.get("in_dungeon", false) else "Mundo aberto"
-	return "%s — %s %s nível %d — %s (%s%s)" % [h.get("name", "?"), r.display_name, c.display_name, int(h.get("level", 1)),
+	return "%s - %s %s nível %d - %s (%s%s)" % [h.get("name", "?"), r.display_name, c.display_name, int(h.get("level", 1)),
 		where, diff.name, ", Hardcore" if h.get("hardcore", false) else ""]
 
 
@@ -434,7 +434,7 @@ func apply_settings() -> void:
 	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("SFX"), linear_to_db(settings.sfx_volume))
 	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("Ambience"), linear_to_db(settings.ambience_volume))
 	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("UI"), linear_to_db(settings.ui_volume))
-	# 7.7: FSR 2.2 (§14.6) — Desligado/Qualidade(0.77)/Equilibrado(0.67)/Desempenho(0.5)
+	# 7.7: FSR 2.2 (#14.6) - Desligado/Qualidade(0.77)/Equilibrado(0.67)/Desempenho(0.5)
 	# aplicado no viewport raiz via API nativa (fsr_sharpness + scaling_3d)
 	var vp := get_viewport()
 	var fsr_mode := int(settings.fsr_mode)
@@ -445,10 +445,10 @@ func apply_settings() -> void:
 		vp.scaling_3d_mode = Viewport.SCALING_3D_MODE_FSR2
 		vp.fsr_sharpness = 0.4
 	vp.scaling_3d_scale = fsr_scales[clampi(fsr_mode, 0, 3)]
-	# 7.7: MSAA 2×/4× (§14.6) — 0=Off, 2=2×, 4=4×
+	# 7.7: MSAA 2×/4× (#14.6) - 0=Off, 2=2×, 4=4×
 	var msaa_modes: Array = [Viewport.MSAA_DISABLED, Viewport.MSAA_2X, Viewport.MSAA_4X]
 	vp.msaa_2d = msaa_modes[clampi(int(settings.msaa), 0, 2)]
-	# 7.7: filtro de textura — nearest preserva pixel-art (§14.6)
+	# 7.7: filtro de textura - nearest preserva pixel-art (#14.6)
 	ProjectSettings.set("rendering/textures/canvas_textures/default_texture_filter",
 		clampi(int(settings.texture_filter), 0, 1))
 	if DisplayServer.get_name() != "headless":

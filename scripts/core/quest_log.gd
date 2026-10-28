@@ -95,22 +95,22 @@ func complete_objective(q: QuestData, obj: int) -> void:
 
 # ------------------------------------------------------------------ EVENTOS
 
-## Inimigo morto (id do EnemyData) — alimenta objetivos KILL
+## Inimigo morto (id do EnemyData) - alimenta objetivos KILL
 func notify_kill(enemy_id: StringName) -> void:
 	_event(QuestObjective.Type.KILL, enemy_id)
 
 
-## Conversa iniciada (id do diálogo/NPC) — alimenta objetivos TALK
+## Conversa iniciada (id do diálogo/NPC) - alimenta objetivos TALK
 func notify_talk(npc_id: StringName) -> void:
 	_event(QuestObjective.Type.TALK, npc_id)
 
 
-## Território alcançado (id da raça) — alimenta objetivos REACH
+## Território alcançado (id da raça) - alimenta objetivos REACH
 func notify_reach(region: StringName) -> void:
 	_event(QuestObjective.Type.REACH, region)
 
 
-## Flag narrativa setada — alimenta objetivos FLAG e dispara auto-início
+## Flag narrativa setada - alimenta objetivos FLAG e dispara auto-início
 func notify_flag(flag_name: StringName) -> void:
 	_event(QuestObjective.Type.FLAG, flag_name)
 	for qid in DB.quest_ids():
@@ -119,7 +119,7 @@ func notify_flag(flag_name: StringName) -> void:
 			start(q)
 
 
-## Inventário mudou — reconfere objetivos COLLECT
+## Inventário mudou - reconfere objetivos COLLECT
 func notify_collect() -> void:
 	for qid in Game.quests.keys():
 		var q: QuestData = DB.quest(qid)
@@ -163,7 +163,7 @@ func _event(type: int, target: StringName) -> void:
 	_check_autoflow()
 
 
-## Alvo exato OU wildcard "any:<fragmento>": casa por substring —
+## Alvo exato OU wildcard "any:<fragmento>": casa por substring -
 ## `any:_comum` conta conversa com qualquer plebeu (`capital_<raca>_comum0-2`).
 ## O fragmento pode conter `*` (qualquer sequência): `any:capital_*_lider`
 ## casa o líder de qualquer capital (`capital_<raca>_lider`).
@@ -238,7 +238,7 @@ func _complete(q: QuestData) -> void:
 		tracked = &""
 	grant_rewards(q)
 	quest_completed.emit(q.id)
-	# REGRAS §13: autosave ao concluir quest
+	# REGRAS #13: autosave ao concluir quest
 	if Game.hero != null and Game.is_inside_tree():
 		Game.save_game()
 	# Fluxo contínuo da cadeia: a próxima abre sozinha
@@ -267,13 +267,13 @@ func grant_rewards(q: QuestData) -> void:
 		return
 	var hero := Game.hero
 	if hero != null:
-		hero.add_xp(r.xp if r.xp > 0 else 40 * q.quest_level * q.act)  # REGRAS §12
+		hero.add_xp(r.xp if r.xp > 0 else 40 * q.quest_level * q.act)  # REGRAS #12
 		if r.gold > 0:
 			hero.add_gold(r.gold)
 		if r.essence > 0:
 			hero.add_essence(r.essence)
 		if r.item_base != &"":
-			# raridade mínima por ato: Mágico/Raro/Lendário (REGRAS §12)
+			# raridade mínima por ato: Mágico/Raro/Lendário (REGRAS #12)
 			hero.inventory.add(DB.create_item(r.item_base, maxi(1, q.quest_level),
 				maxi(r.item_rarity, mini(q.act, Item.Rarity.LEGENDARY))))
 	for rid in r.reputation:
@@ -283,7 +283,7 @@ func grant_rewards(q: QuestData) -> void:
 		Game.fragmentos.append(q.id)
 
 
-# ------------------------------------------------------------------ FINAL (REGRAS §12)
+# ------------------------------------------------------------------ FINAL (REGRAS #12)
 
 ## Fragmentos da Verdade coletados (mistérios concluídos)
 func fragments() -> int:

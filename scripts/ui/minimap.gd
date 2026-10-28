@@ -18,7 +18,7 @@ func _init(p_world: World) -> void:
 	custom_minimum_size = Vector2(190, 190)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	clip_contents = true
-	# Fase 6.1: máscara circular + borda dourada (§9.2)
+	# Fase 6.1: máscara circular + borda dourada (#9.2)
 	var mat := ShaderMaterial.new()
 	mat.shader = CIRCLE_MASK
 	material = mat
@@ -72,14 +72,14 @@ func _draw() -> void:
 		var r_map := 2.4 if (e.rarity >= Enemy.Rarity.ELITE or e.is_boss()) else 1.6
 		if e.rarity >= Enemy.Rarity.LENDARIO:
 			r_map = 3.0
-			# 3.4: anel pulsante — Lendário identificável no minimapa à primeira vista
+			# 3.4: anel pulsante - Lendário identificável no minimapa à primeira vista
 			var pulse_r := r_map + 1.4 + sin(Time.get_ticks_msec() * 0.005) * 0.8
 			draw_circle(to_map.call(e.global_position), pulse_r, Color(col.r, col.g, col.b, 0.3))
 		draw_circle(to_map.call(e.global_position), r_map, col)
 	for m in world.minions_near(world.player.global_position, 160.0):
 		draw_circle(to_map.call(m.global_position), 1.6, Color(0.4, 1, 0.6))
 	draw_circle(size * 0.5, 3.0, Color(0.3, 1.0, 0.3))
-	# 7.4: "Ler o Vento" (Caçador, §14.5.5) — vetor do vento no minimapa
+	# 7.4: "Ler o Vento" (Caçador, #14.5.5) - vetor do vento no minimapa
 	var reading74 := false
 	for b in world.player.buffs.values():
 		if b.stat == "wind_reader":

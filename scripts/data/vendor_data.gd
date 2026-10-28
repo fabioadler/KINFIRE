@@ -1,28 +1,28 @@
 class_name VendorData
 extends Resource
 ## Fornecedor de um território (Fase 5.1): estoque rotativo diário e
-## especialidades regionais — o território paga menos pelo que produz e
-## mais pelo que não produz; rotas comerciais emergem (REGRAS §10,
-## MECANICAS §10).
+## especialidades regionais - o território paga menos pelo que produz e
+## mais pelo que não produz; rotas comerciais emergem (REGRAS #10,
+## MECANICAS #10).
 
 @export var id: StringName
 @export var display_name: String = ""
 ## Território do fornecedor (id de `data/races/*.tres`)
 @export var race: StringName
 @export var greeting: String = ""
-## Categorias (`cat` em `DB.BASES`) que o território PRODUZ — aparecem
+## Categorias (`cat` em `DB.BASES`) que o território PRODUZ - aparecem
 ## com frequência triplicada no estoque local e valem menos aqui (5.2)
 @export var specialties: Array[StringName] = []
-## Slots de estoque re-sorteados às 06:00 (REGRAS §14)
+## Slots de estoque re-sorteados às 06:00 (REGRAS #14)
 @export var stock_size: int = 6
 ## Orçamento de raridades do dia: chance de um slot sair Raro
 @export var rare_chance: float = 0.15
 
 
-## Estoque do dia — determinístico por (id, dia): mesmo dia, mesmo estoque
+## Estoque do dia - determinístico por (id, dia): mesmo dia, mesmo estoque
 ## (verificável no smoke); comprar reduz (5.2 persiste), às 06:00 re-estoca.
 ## Cada entrada: {"base": StringName, "level": int, "rarity": int, "price": int}.
-## Preço base = valor de venda (REGRAS §8): (5 + nível×3) × (1 + raridade×2).
+## Preço base = valor de venda (REGRAS #8): (5 + nível×3) × (1 + raridade×2).
 func stock_for(day: int, region_level: int) -> Array[Dictionary]:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash("%s|%d" % [String(id), day])
@@ -34,7 +34,7 @@ func stock_for(day: int, region_level: int) -> Array[Dictionary]:
 		var b: Dictionary = DB.BASES[k]
 		if b.get("slot", "") == "":
 			continue
-		# armaduras/joias não têm "cat" (só armas/offhands) — nunca são
+		# armaduras/joias não têm "cat" (só armas/offhands) - nunca são
 		# especialidade; entram no pool geral de mercadorias
 		if b.get("cat", &"") in specialties:
 			pool_specialty.append(k)
@@ -43,7 +43,7 @@ func stock_for(day: int, region_level: int) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
 	for i in stock_size:
 		# 45% dos slots vêm da especialidade local (vs ~1/12 por categoria
-		# no resto do pool) — o território vende o que produz
+		# no resto do pool) - o território vende o que produz
 		var base: StringName
 		if not pool_specialty.is_empty() and rng.randf() < 0.45:
 			base = pool_specialty[rng.randi_range(0, pool_specialty.size() - 1)]
@@ -60,6 +60,6 @@ func stock_for(day: int, region_level: int) -> Array[Dictionary]:
 	return out
 
 
-## Valor de um item (REGRAS §8): (5 + nível×3) × (1 + raridade×2)
+## Valor de um item (REGRAS #8): (5 + nível×3) × (1 + raridade×2)
 static func _base_value(level: int, rarity: int) -> int:
 	return int(round((5.0 + level * 3.0) * (1.0 + rarity * 2.0)))

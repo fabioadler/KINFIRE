@@ -22,7 +22,7 @@ extends Resource
 ## Estágios em sequência; concluir o último conclui a quest
 @export var stages: Array[QuestStage] = []
 @export var rewards: QuestRewards
-## Próxima quest da cadeia — auto-iniciada ao concluir esta (fluxo contínuo)
+## Próxima quest da cadeia - auto-iniciada ao concluir esta (fluxo contínuo)
 @export var next: StringName = &""
 
 
@@ -30,6 +30,6 @@ func is_main() -> bool:
 	return chain == &"main"
 
 
-## A quest é a final? (O Fogo dos Laços — REGRAS §12: regra do final)
+## A quest é a final? (O Fogo dos Laços - REGRAS #12: regra do final)
 func is_final() -> bool:
 	return id == &"ato3_8"

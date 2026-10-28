@@ -1,11 +1,11 @@
 class_name Weather
 extends RefCounted
-## Fase 7.6 (MECANICAS §14.4): clima e partículas ambientais.
-## Chuva determinística por (semente do mundo, dia) — o jogador pode
+## Fase 7.6 (MECANICAS #14.4): clima e partículas ambientais.
+## Chuva determinística por (semente do mundo, dia) - o jogador pode
 ## "prever" o tempo pelo forecast; o resto é consulta por bioma.
 ## Class estática no padrão WindField/LightFx (sem autoload).
 
-## Emissor por bioma (§14.4): folhas, neve, cinzas, esporos, poeira.
+## Emissor por bioma (#14.4): folhas, neve, cinzas, esporos, poeira.
 const BIOME_EMITTER := {
 	&"planicie": &"dust",
 	&"floresta": &"leaf",
@@ -16,13 +16,13 @@ const BIOME_EMITTER := {
 	&"corrompido": &"ash",
 }
 
-## Vagalumes noturnos (§14.4): planícies e floresta, só à noite.
+## Vagalumes noturnos (#14.4): planícies e floresta, só à noite.
 const FIREFLY_BIOMES := [&"planicie", &"floresta"]
 
-## Névoa volumétrica fake (§14.4): pântano e Terras Corrompidas.
+## Névoa volumétrica fake (#14.4): pântano e Terras Corrompidas.
 const FOG_BIOMES := [&"pantano", &"corrompido"]
 
-## Massa da partícula (§14.5.3): sensibilidade ao vento — folha leve
+## Massa da partícula (#14.5.3): sensibilidade ao vento - folha leve
 ## voa inteira com a ventania, neve quase não sente.
 const EMITTER_MASS := {
 	&"leaf": 1.0, &"snow": 0.5, &"ash": 0.7, &"spore": 0.9,
@@ -40,7 +40,7 @@ const EMITTER_COLOR := {
 static var world_seed := 0
 
 
-## Chove neste dia? (§14.4: determinístico semente+dia, ~20% dos dias)
+## Chove neste dia? (#14.4: determinístico semente+dia, ~20% dos dias)
 static func rain_on(day: int) -> bool:
 	return _day_hash(day) < 0.20
 

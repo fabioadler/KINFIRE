@@ -1,7 +1,7 @@
 extends RefCounted
 class_name Guilds
 
-## Sistema central de guildas — data-driven
+## Sistema central de guildas - data-driven
 
 const GuildData := preload("res://scripts/data/guild_data.gd")
 const RankData := preload("res://scripts/data/rank_data.gd")

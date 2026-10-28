@@ -33,7 +33,7 @@ signal server_started
 signal server_stopped
 
 ## ============================================================================
-## INICIALIZAÇÃO
+## INICIALIZAÇAO
 ## ============================================================================
 
 func _ready() -> void:
@@ -209,7 +209,7 @@ func clear_enemy_tracking(enemy_id: int) -> void:
 	kill_credit.erase(enemy_id)
 
 ## ============================================================================
-## UTILITÁRIOS
+## UTILITARIOS
 ## ============================================================================
 
 ## Retorna se está em modo multiplayer

@@ -1,13 +1,13 @@
 class_name UIKit
 extends RefCounted
-## Design tokens e helpers de UI — linguagem "dark fantasy premium".
-## Spec canônica: docs/MECANICAS.md §9. Todo painel novo nasce a partir daqui.
+## Design tokens e helpers de UI - linguagem "dark fantasy premium".
+## Spec canônica: docs/MECANICAS.md #9. Todo painel novo nasce a partir daqui.
 
 const FONT_TITLE := preload("res://assets/fonts/Cinzel.ttf")
 const FONT_BODY := preload("res://assets/fonts/Alegreya.ttf")
 
 # ------------------------------------------------------------------ TOKENS
-# Núcleo (§9.1)
+# Núcleo (#9.1)
 const BG_BASE := Color("0B0908")                    ## fundo do jogo/menus
 const PANEL_BG := Color(0.086, 0.067, 0.051, 0.86)  ## vidro escuro (rgba 22,17,13 / 0.86)
 const PANEL_BORDER := Color(0.94, 0.75, 0.38, 0.25) ## contorno dourado sutil 1px
@@ -19,7 +19,7 @@ const HP_RED := Color(0.75, 0.12, 0.08)
 const MANA_BLUE := Color(0.35, 0.55, 0.95)
 const XP_GOLD := Color(0.94, 0.75, 0.38)
 
-# Aliases legados (nomes usados pelo jogo base — valores atualizados aos tokens)
+# Aliases legados (nomes usados pelo jogo base - valores atualizados aos tokens)
 const GOLD := ACCENT_GOLD
 const GOLD_DIM := Color(0.5, 0.38, 0.2)
 const TEXT := TEXT_MAIN
@@ -27,22 +27,22 @@ const BG := Color(0.043, 0.033, 0.027, 0.94)
 const BG_LIGHT := Color(0.12, 0.09, 0.07, 0.94)
 const RED := HP_RED
 
-# Raridades (§9.1) — cores + formas p/ daltônismo
+# Raridades (#9.1) - cores + formas p/ daltônismo
 const RARITY_COLORS := [
-	Color("B8B8B8"),  # Comum     — círculo
-	Color("5B8DFF"),  # Mágico    — losango
-	Color("C65CFF"),  # Raro      — triângulo
-	Color("FF9A3C"),  # Lendário  — estrela
+	Color("B8B8B8"),  # Comum     - círculo
+	Color("5B8DFF"),  # Mágico    - losango
+	Color("C65CFF"),  # Raro      - triângulo
+	Color("FF9A3C"),  # Lendário  - estrela
 ]
 const RARITY_SHAPES := ["●", "◆", "▲", "★"]
 
-# Geometria (§9.1)
+# Geometria (#9.1)
 const RADIUS_SM := 8   ## botões
 const RADIUS_LG := 12  ## painéis
 const SPACING := [4, 8, 12, 16, 24]
 const SHADOW_COLOR := Color(0, 0, 0, 0.5)  ## sombra 0 4px 16px
 
-# Tempos de micro-interação (§9.3)
+# Tempos de micro-interação (#9.3)
 const TWEEN_FAST := 0.18  ## abrir/fechar painéis (back-ease)
 
 
@@ -61,7 +61,7 @@ static func install_theme() -> void:
 	t.set_stylebox("panel", "PanelContainer", panel)
 	t.set_stylebox("panel", "Panel", panel)
 
-	# Botões: estados completos idle/hover/press/focus/disabled (§9.4)
+	# Botões: estados completos idle/hover/press/focus/disabled (#9.4)
 	var normal := box(Color(0.16, 0.08, 0.06, 0.9), PANEL_BORDER, 1, RADIUS_SM)
 	var hover := box(Color(0.30, 0.12, 0.07, 0.95), ACCENT_GOLD, 1, RADIUS_SM)
 	hover.shadow_size = 12
@@ -78,7 +78,7 @@ static func install_theme() -> void:
 	t.set_stylebox("pressed", "Button", pressed)
 	t.set_stylebox("disabled", "Button", disabled)
 	t.set_stylebox("hover_pressed", "Button", hover)
-	# Foco de teclado: anel dourado 2px (§9.3)
+	# Foco de teclado: anel dourado 2px (#9.3)
 	var focus := StyleBoxFlat.new()
 	focus.bg_color = Color(0, 0, 0, 0)
 	focus.border_color = ACCENT_GOLD
@@ -193,14 +193,14 @@ static func button(text: String, callback: Callable, min_w: int = 0) -> Button:
 	return b
 
 
-## Micro-interação de escala suave (hover lift / press scale) — §9.3
+## Micro-interação de escala suave (hover lift / press scale) - #9.3
 static func _lift(c: Control, target_scale: float, time: float = 0.12) -> void:
 	var tw := c.create_tween()
 	tw.tween_property(c, "scale", Vector2(target_scale, target_scale), time)\
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 
-## Abre um painel com tween pop (0.18s back-ease) e fade — §9.3
+## Abre um painel com tween pop (0.18s back-ease) e fade - #9.3
 static func pop_in(panel: Control, final_scale: Vector2 = Vector2.ONE) -> Tween:
 	panel.scale = final_scale * 0.92
 	panel.modulate.a = 0.0

@@ -1,6 +1,6 @@
 class_name VitalsBar
 extends Control
-## Barra de vida/recurso da HUD moderna (Fase 6.1, MECANICAS §9.2):
+## Barra de vida/recurso da HUD moderna (Fase 6.1, MECANICAS #9.2):
 ## horizontal, segmentada com marcas a cada 25%, gradiente interno sutil,
 ## brilho na ponta quando cheia, flash + tremor ao tomar dano. O texto do
 ## valor fica no centro (contornado), legível sobre qualquer preenchimento.

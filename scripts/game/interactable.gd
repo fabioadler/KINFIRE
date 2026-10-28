@@ -74,9 +74,9 @@ func _ready() -> void:
 			_sprite.position = Vector2.ZERO
 		Kind.CAMPFIRE:
 			_sprite.texture = ow_texture(Vector2i(14, 8))
-			# 7.2: fogueira oscila viva e projeta sombras reais (§14.2)
+			# 7.2: fogueira oscila viva e projeta sombras reais (#14.2)
 			_light = Fx.make_light(Color(1, 0.6, 0.25), 2.2, 1.3, LightFx.Flicker.FIRE, true)
-			# 7.4: a chama curva-se com o vento (§14.5.2) — uniformes no _process
+			# 7.4: a chama curva-se com o vento (#14.5.2) - uniformes no _process
 			var sway := ShaderMaterial.new()
 			sway.shader = preload("res://shaders/wind_sway.gdshader")
 			sway.set_shader_parameter("flexibility", 0.5)
@@ -103,7 +103,7 @@ func _ready() -> void:
 			_sprite.position = Vector2.ZERO
 			_light = Fx.make_light(Color(0.5, 0.9, 1.0), 1.4, 1.2)
 		Kind.MIRROR:
-			# Vazio escuro sem reflexo (o Véu roubou o reflexo — LORE §9)
+			# Vazio escuro sem reflexo (o Véu roubou o reflexo - LORE #9)
 			_sprite.texture = DB.dt2_texture("hole")
 			_sprite.scale = Vector2(1.25, 1.5)
 			_sprite.position = Vector2(0, -10)
@@ -128,7 +128,7 @@ func display_name() -> String:
 		Kind.STAIRS: return "Descer para o andar %d" % (Game.depth + 1)
 		Kind.CAMPFIRE: return "%s (viagem rápida)" % label
 		Kind.MERCHANT: return "Mercador Bartolomeu"
-		Kind.DUNGEON_ENTRANCE: return "%s — Nível %d" % [label, dungeon_level]
+		Kind.DUNGEON_ENTRANCE: return "%s - Nível %d" % [label, dungeon_level]
 		Kind.DUNGEON_EXIT: return "Voltar ao mundo aberto"
 		Kind.MIRROR: return "Espelho Antigo"
 	return ""
@@ -210,14 +210,14 @@ func _process(delta: float) -> void:
 			_sprite.texture = ow_texture(Vector2i(14 + int(_t * 6.0) % 2, 8))
 			_light.energy = 1.2 + sin(_t * 9.0) * 0.12 + sin(_t * 23.0) * 0.08
 			# 7.4: chama inclina com o vento e ventania (>0.7) sufoca a fogueira
-			# (§14.5.4 — tochas desprotegidas quase se apagam)
+			# (#14.5.4 - tochas desprotegidas quase se apagam)
 			var w := WindField.at(global_position)
 			(_sprite.material as ShaderMaterial).set_shader_parameter("wind", w)
 			_light.energy *= 1.0 - 0.35 * clampf(w.length() - 0.7, 0.0, 0.3) / 0.3
 		Kind.DUNGEON_ENTRANCE, Kind.DUNGEON_EXIT:
 			_light.energy = 1.0 + sin(_t * 2.5) * 0.3
 		Kind.MIRROR:
-			# O vazio "respira" — luz fria que não reflete nada
+			# O vazio "respira" - luz fria que não reflete nada
 			_light.energy = 1.0 + sin(_t * 1.3) * 0.2 + sin(_t * 4.7) * 0.08
 			_sprite.modulate = Color(0.9, 0.88, 1.0) if sin(_t * 0.7) > 0 else Color(0.8, 0.78, 0.95)
 		Kind.SPIKES:

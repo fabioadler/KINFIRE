@@ -70,7 +70,7 @@ func _make_custom_tooltip(_for_text: String) -> Object:
 	return r
 
 
-## Setor radial do cooldown (Fase 6.1, §9.2: "varredura em cone") — pontos
+## Setor radial do cooldown (Fase 6.1, #9.2: "varredura em cone") - pontos
 ## do polígono que cobre a fração restante, a partir do topo, horário.
 static func _radial_points(center: Vector2, radius: float, frac: float) -> PackedVector2Array:
 	var pts := PackedVector2Array([center])

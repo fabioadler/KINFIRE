@@ -1,6 +1,6 @@
 class_name DialogueBoxModern
 extends Control
-## Caixa de Diálogo Moderna — Animações suaves, design premium
+## Caixa de Diálogo Moderna - Animações suaves, design premium
 ## Fase 13: Redesign com efeitos visuais atraentes
 
 var _content: DialogueData

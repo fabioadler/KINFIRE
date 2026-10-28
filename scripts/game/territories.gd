@@ -1,15 +1,15 @@
 class_name Territories
 extends RefCounted
-## Territórios raciais (MECANICAS §3, tarefa 2.4): Voronoi procedural sobre o
-## mundo infinito, determinístico por (semente + raça do jogador) — não precisa
+## Territórios raciais (MECANICAS #3, tarefa 2.4): Voronoi procedural sobre o
+## mundo infinito, determinístico por (semente + raça do jogador) - não precisa
 ## ser salvo. 14 capitais: a raça do jogador fica na origem (o acampamento
 ## inicial promovido a capital), as demais num anel com espaçamento mínimo
 ## garantido, preferindo o bioma da raça e nunca sobre água/terraços líquidos.
 ## O Vale do Centro (zona neutra da Kinfire apagada) não pertence a ninguém.
 
-## Raio do Vale do Centro (células) — coincide com a planície forçada do gerador
+## Raio do Vale do Centro (células) - coincide com a planície forçada do gerador
 const NEUTRAL_RADIUS := 42.0
-## Perímetro da capital: sem spawn de inimigos, repel radius (MECANICAS §3)
+## Perímetro da capital: sem spawn de inimigos, repel radius (MECANICAS #3)
 const CAPITAL_SAFE_RADIUS := 14.0
 ## Anel de placement das 13 capitais não-jogadoras (células da origem)
 const RING_MIN := 180.0
@@ -34,7 +34,7 @@ func _init(p_seed: int, p_player_race: StringName) -> void:
 
 # ------------------------------------------------------------------ CONSULTAS
 
-## Território dono da célula — Voronoi da capital mais próxima.
+## Território dono da célula - Voronoi da capital mais próxima.
 ## Retorna &"" dentro do Vale do Centro (neutro: de todos = de ninguém).
 func territory_at(c: Vector2i) -> StringName:
 	if Vector2(c).length() <= NEUTRAL_RADIUS:
@@ -61,7 +61,7 @@ func near_any_capital(c: Vector2i, radius := CAPITAL_SAFE_RADIUS) -> bool:
 	return false
 
 
-## Nível da região: distância do Vale do Centro + modificador do território (REGRAS §11)
+## Nível da região: distância do Vale do Centro + modificador do território (REGRAS #11)
 func region_level(c: Vector2i) -> int:
 	var base := clampi(1 + int(OverworldGen.danger(c) * 0.9), 1, 60)
 	var race := territory_at(c)
@@ -79,16 +79,16 @@ func region_name_at(c: Vector2i) -> String:
 			if t != null:
 				return "%s (área segura)" % t.capital_name
 	if Vector2(c).length() <= NEUTRAL_RADIUS:
-		return "Vale do Centro — a Kinfire apagada"
+		return "Vale do Centro - a Kinfire apagada"
 	var race := territory_at(c)
 	if race != &"":
 		var r: RaceData = DB.get_race(race)
 		if r != null:
-			return "Território %s — Nível %d" % [r.display_name, region_level(c)]
+			return "Território %s - Nível %d" % [r.display_name, region_level(c)]
 	return "Terra de Ninguém"
 
 
-# ------------------------------------------------------------------ GERAÇÃO
+# ------------------------------------------------------------------ GERAÇAO
 
 func _build() -> void:
 	# A capital do jogador é o acampamento promovido (origem)
@@ -99,7 +99,7 @@ func _build() -> void:
 	for r in DB.races:
 		if r.id != player_race:
 			order.append(r.id)
-	# Embaralha com o rng local (determinístico — Array.shuffle usaria o global)
+	# Embaralha com o rng local (determinístico - Array.shuffle usaria o global)
 	for i in range(order.size() - 1, 0, -1):
 		var j := rng.randi_range(0, i)
 		var tmp := order[i]
@@ -110,7 +110,7 @@ func _build() -> void:
 		var pos := _place_capital(rng, t)
 		capitals[race] = pos
 		if pos == Vector2.INF:
-			push_warning("[territorios] capital de %s sem lugar — anel cheio?" % race)
+			push_warning("[territorios] capital de %s sem lugar - anel cheio?" % race)
 
 
 ## Amostragem por rejeição no anel: primeiro exige o bioma preferido,
@@ -134,7 +134,7 @@ func _fits(pos: Vector2, want_biome: String) -> bool:
 	var biome: String = _gen.biome_at(c)
 	if want_biome != "" and biome != want_biome:
 		return false
-	# Capital não pode cair na água — checa o centro e os 4 vizinhos imediatos
+	# Capital não pode cair na água - checa o centro e os 4 vizinhos imediatos
 	for off in [Vector2i.ZERO, Vector2i(3, 0), Vector2i(-3, 0), Vector2i(0, 3), Vector2i(0, -3)]:
 		if _gen.liquid_at(c + off, biome):
 			return false

@@ -40,7 +40,7 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 	tabs.custom_minimum_size = Vector2(480, 330)
 	body.add_child(tabs)
 
-	# Atributos D&D: pontos + grade + derivadas somam mais que a aba — rola
+	# Atributos D&D: pontos + grade + derivadas somam mais que a aba - rola
 	var attr_scroll := ScrollContainer.new()
 	attr_scroll.name = "Atributos"
 	attr_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
@@ -124,7 +124,7 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 		var btns := HBoxContainer.new()
 		btns.add_theme_constant_override("separation", 4)
 		var minus := Button.new()
-		minus.text = "−"
+		minus.text = "-"
 		minus.custom_minimum_size = Vector2(28, 24)
 		var tight_m := UIKit.box(Color(0.3, 0.16, 0.1), Color(0.8, 0.4, 0.3), 1, 3)
 		tight_m.content_margin_top = 0
@@ -176,7 +176,7 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 	respec_btn.pressed.connect(func():
 		hero.respec_status()
 		Sfx.play(&"click")
-		hud.show_message("Status respecado — %d pontos devolvidos" % hero.status_points, Color(0.4, 1, 0.4), 1.5)
+		hud.show_message("Status respecado - %d pontos devolvidos" % hero.status_points, Color(0.4, 1, 0.4), 1.5)
 	)
 	respec_row.add_child(respec_btn)
 	status_tab.add_child(respec_row)
@@ -204,7 +204,7 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 
 func refresh() -> void:
 	var diff: Dictionary = hero.difficulty_data()
-	_header.text = "[font_size=22][color=#e8c060]%s[/color][/font_size]\n%s %s — Nível %d\n[color=#999999]XP: %d / %d   •   [/color][color=#%s]%s%s[/color]" % [
+	_header.text = "[font_size=22][color=#e8c060]%s[/color][/font_size]\n%s %s - Nível %d\n[color=#999999]XP: %d / %d   •   [/color][color=#%s]%s%s[/color]" % [
 		hero.hero_name, hero.race.display_name, hero.cls.display_name, hero.level, hero.xp, hero.xp_to_next(),
 		diff.color.to_html(false), diff.name, " • Hardcore" if hero.hardcore else ""]
 	_points_label.text = ("Pontos de atributo disponíveis: %d" % hero.unspent_points) if hero.unspent_points > 0 else ""
@@ -272,7 +272,7 @@ func refresh() -> void:
 	d += _row("Ouro encontrado", "+%d%%" % roundi(hero.gold_find() * 100))
 	d += _row("Bônus de experiência", "+%d%%" % roundi((hero.xp_multiplier() - 1.0) * 100))
 	d += "[/table][/font_size]\n\n"
-	d += "[font_size=15][color=#e8c060]Raça: %s — %s[/color][/font_size]\n[color=#bbbbbb]%s[/color]\n\n" % [hero.race.display_name, hero.race.trait_name, hero.race.trait_description]
+	d += "[font_size=15][color=#e8c060]Raça: %s - %s[/color][/font_size]\n[color=#bbbbbb]%s[/color]\n\n" % [hero.race.display_name, hero.race.trait_name, hero.race.trait_description]
 	d += "[font_size=15][color=#e8c060]Classe: %s[/color][/font_size] [color=#999999](%s)[/color]\n[color=#bbbbbb]%s[/color]\n" % [hero.cls.display_name, hero.cls.role, hero.cls.description]
 	var weapons := PackedStringArray()
 	for c in hero.cls.allowed_weapons:

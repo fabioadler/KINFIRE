@@ -30,7 +30,7 @@ var _ground_src: TileSetAtlasSource
 var _time := 0.3
 var _last_day := -1
 var _last_hour := -1
-## Fase 7.2: lanterna do herói — acende no crepúsculo, sempre com sombra (§14.2)
+## Fase 7.2: lanterna do herói - acende no crepúsculo, sempre com sombra (#14.2)
 var _lantern: PointLight2D
 ## 7.3: timer da atualização de atmosfera por bioma
 var _atmos_timer := 0.0
@@ -40,7 +40,7 @@ var weather: WeatherLayer
 ## _spawn_content, usado pelo diálogo de despertar e reencontrável depois.
 var _cinzento: Cinzento
 
-# 7.1: color grading por keyframes (MECANICAS §14.1) — [fração do dia, tom]
+# 7.1: color grading por keyframes (MECANICAS #14.1) - [fração do dia, tom]
 # 0.0 = meia-noite, 0.5 = meio-dia; interpolado suavemente (sem saltos)
 const DAY_KEYFRAMES := [
 	[0.0, Color(0.22, 0.26, 0.45)],    # 00:00 azul-profundo
@@ -53,9 +53,9 @@ const DAY_KEYFRAMES := [
 	[1.0, Color(0.22, 0.26, 0.45)],  # 24:00 = 00:00 (fecha o ciclo)
 ]
 
-## Fase 7.3 (MECANICAS §14.3): vinheta + temperatura por bioma —
+## Fase 7.3 (MECANICAS #14.3): vinheta + temperatura por bioma -
 ## Tundra fria-azul, Areias quente, Pântano esverdeado, Terras Corrompidas
-## dessaturadas com vinheta roxa (LORE §16: "luz sem laço" desbota o mundo)
+## dessaturadas com vinheta roxa (LORE #16: "luz sem laço" desbota o mundo)
 const BIOME_ATMOS := {
 	&"planicie": {"tint": Color(1.0, 0.98, 0.94), "amount": 0.06, "desat": 0.0, "vig": 0.22},
 	&"floresta": {"tint": Color(0.94, 1.0, 0.92), "amount": 0.10, "desat": 0.0, "vig": 0.26},
@@ -70,15 +70,15 @@ const BIOME_ATMOS := {
 
 func _setup_map() -> void:
 	og = OverworldGen.new(Game.world_seed)
-	# 2.4: Voronoi determinístico por (semente + raça do jogador) — não é salvo.
-	# A capital da raça do jogador é o acampamento promovido (LORE §X).
+	# 2.4: Voronoi determinístico por (semente + raça do jogador) - não é salvo.
+	# A capital da raça do jogador é o acampamento promovido (LORE #X).
 	territories = Territories.new(Game.world_seed, Game.hero.race.id if Game.hero else &"humano")
 	_time = Game.world_time
-	# 7.4: o vento é coerente com a semente do mundo e sabe o bioma (§14.5)
+	# 7.4: o vento é coerente com a semente do mundo e sabe o bioma (#14.5)
 	WindField.world_seed = Game.world_seed
 	WindField.set_provider(func(p: Vector2) -> StringName:
 		return og.biome_at(world_to_cell(p)))
-	# 7.6: clima — partículas por bioma, névoa, chuva determinística (§14.4)
+	# 7.6: clima - partículas por bioma, névoa, chuva determinística (#14.4)
 	Weather.world_seed = Game.world_seed
 	weather = WeatherLayer.new()
 	add_child(weather)
@@ -115,10 +115,10 @@ func _intro() -> void:
 
 
 ## Despertar no acampamento após o prólogo: o Cinzento entrega as primeiras
-## palavras do mundo real (REGRAS §13, LORE §8–9). Ele é o node persistente
-## criado em _spawn_content — não se despede: quem fechar o diálogo antes
+## palavras do mundo real (REGRAS #13, LORE #8–9). Ele é o node persistente
+## criado em _spawn_content - não se despede: quem fechar o diálogo antes
 ## da escolha "(Partir)" pode reencontrá-lo perto da fogueira (fix da
-## missão inicial — a flag cinzento_primeiro_dialogo volta a ser alcançável).
+## missão inicial - a flag cinzento_primeiro_dialogo volta a ser alcançável).
 func _awakening() -> void:
 	if _cinzento == null:
 		return
@@ -131,8 +131,8 @@ func _awakening() -> void:
 
 
 func _spawn_content() -> void:
-	# Acampamento inicial = capital da raça do jogador, promovida (2.4, MECANICAS §3).
-	# O rótulo usa o nome da capital do território (LORE §X): "Porto Franco"...
+	# Acampamento inicial = capital da raça do jogador, promovida (2.4, MECANICAS #3).
+	# O rótulo usa o nome da capital do território (LORE #X): "Porto Franco"...
 	var terr: TerritoryData = DB.territory(Game.hero.race.id) if Game.hero else null
 	var capital := terr.capital_name if terr != null else "Acampamento"
 	var fire := Interactable.create(self, Interactable.Kind.CAMPFIRE, Vector2(TILE * 0.5, TILE * 0.5))
@@ -149,15 +149,15 @@ func _spawn_content() -> void:
 	Npc.create(self, DB.npc(&"bree_cozinheira"), fire.global_position + Vector2(-38, 16))
 	# O Cinzento permanece no acampamento, à esquerda da fogueira: quem
 	# fechar o diálogo de despertar antes da despedida (ou chegar ao estágio
-	# "volte ao Cinzento" de ato1_1) o reencontra aqui — a sombra que guia
-	# não se vai enquanto o Laço-Vivo precisar de rumo (LORE §8).
+	# "volte ao Cinzento" de ato1_1) o reencontra aqui - a sombra que guia
+	# não se vai enquanto o Laço-Vivo precisar de rumo (LORE #8).
 	_cinzento = Cinzento.new()
 	_cinzento.world = self
 	_cinzento.interactive = true
 	entities.add_child(_cinzento)
 	_cinzento.appear_at(fire.global_position + Vector2(0, -34))
 	# 2.5: líder racial + gente comum da capital do jogador (persistentes,
-	# como Marn/Bree — o acampamento não descarrega)
+	# como Marn/Bree - o acampamento não descarrega)
 	TerritoryNpcs.populate(self, Game.hero.race.id, fire.global_position)
 
 
@@ -177,7 +177,7 @@ func level() -> int:
 	return level_at(player.global_position) if player else 1
 
 
-## Nível da região: distância do Vale do Centro + modificador do território (REGRAS §11)
+## Nível da região: distância do Vale do Centro + modificador do território (REGRAS #11)
 func level_at(p: Vector2) -> int:
 	if territories != null:
 		return territories.region_level(world_to_cell(p))
@@ -196,12 +196,12 @@ func region_name() -> String:
 	var b: String = biome_at_pos(player.global_position) if player else "planicie"
 	if Vector2(world_to_cell(player.global_position)).length() < OverworldGen.SAFE_RADIUS:
 		return "Acampamento (área segura)"
-	return "%s — Nível %d" % [OverworldGen.BIOMES[b].name, level()]
+	return "%s - Nível %d" % [OverworldGen.BIOMES[b].name, level()]
 
 
 func time_label() -> String:
 	var hours := fmod(_time, 1.0) * 24.0
-	return "Dia %d — %02d:%02d" % [int(_time) + 1, int(hours), int(fmod(hours, 1.0) * 60)]
+	return "Dia %d - %02d:%02d" % [int(_time) + 1, int(hours), int(fmod(hours, 1.0) * 60)]
 
 
 func is_floor(c: Vector2i) -> bool:
@@ -268,7 +268,7 @@ func _update_daylight() -> void:
 	canvas_modulate.color = Color(c.r * b, c.g * b, c.b * b, 1.0)
 	if player:
 		player.light.energy = lerpf(1.6, 0.12, day)
-		# 7.2: lanterna do herói — acende sozinha no crepúsculo (§14.2),
+		# 7.2: lanterna do herói - acende sozinha no crepúsculo (#14.2),
 		# quente e curta (~90px), única luz que sempre projeta sombra;
 		# sem tremulação: a energia segue o ciclo do dia (_update_daylight)
 		if _lantern == null:
@@ -281,18 +281,18 @@ func _update_daylight() -> void:
 
 
 ## 7.3: aplica o preset de vinheta/temperatura do bioma sob os pés do
-## herói (MECANICAS §14.3) — chamado pelo _process a cada 0.5s
+## herói (MECANICAS #14.3) - chamado pelo _process a cada 0.5s
 func _update_atmos() -> void:
 	if player == null:
 		return
 	var biome: StringName = og.biome_at(world_to_cell(player.global_position))
 	_apply_atmos(BIOME_ATMOS.get(biome, {}))
-	# 7.6: clima por bioma (§14.4) — chuva determinística semente+dia
+	# 7.6: clima por bioma (#14.4) - chuva determinística semente+dia
 	if weather != null:
 		weather.configure(biome, _is_night(), Weather.rain_on(int(_time)), self)
 
 
-## 7.1: tom do mundo interpolado entre keyframes do dia (§14.1)
+## 7.1: tom do mundo interpolado entre keyframes do dia (#14.1)
 func _day_color(h: float) -> Color:
 	for i in DAY_KEYFRAMES.size() - 1:
 		var a: float = DAY_KEYFRAMES[i][0]
@@ -309,7 +309,7 @@ func _process(delta: float) -> void:
 	super._process(delta)
 	_time += delta / DAY_LENGTH
 	Game.world_time = _time
-	# 7.1: eventos por hora (MECANICAS §14.1) — signal na virada da hora
+	# 7.1: eventos por hora (MECANICAS #14.1) - signal na virada da hora
 	var hour := int(fmod(_time, 1.0) * 24.0)
 	if hour != _last_hour:
 		if _last_hour >= 0:
@@ -317,17 +317,17 @@ func _process(delta: float) -> void:
 			if hour == 0:
 				# "A Vela Virou": autosave na meia-noite
 				Game.save_game()
-				hud.show_message("A vela virou — o dia %d começa." % (int(_time) + 1),
+				hud.show_message("A vela virou - o dia %d começa." % (int(_time) + 1),
 					Color(0.55, 0.68, 1.0), 3.0)
 		_last_hour = hour
 	_update_daylight()
-	# 7.3: vinheta/temperatura do bioma sob os pés do herói (§14.3)
+	# 7.3: vinheta/temperatura do bioma sob os pés do herói (#14.3)
 	_atmos_timer -= delta
 	if _atmos_timer <= 0.0:
 		_atmos_timer = 0.5
 		_update_atmos()
-	# Fase 5.2: virada do dia às 06:00 — vendors re-estocam e a demanda
-	# recupera 5% rumo ao nível natural (REGRAS §10/§14)
+	# Fase 5.2: virada do dia às 06:00 - vendors re-estocam e a demanda
+	# recupera 5% rumo ao nível natural (REGRAS #10/#14)
 	var mday := Market.market_day()
 	if mday != _last_day:
 		if _last_day >= 0:
@@ -386,8 +386,8 @@ func _build_tileset() -> void:
 	ts.add_physics_layer()
 	ts.set_physics_layer_collision_layer(0, 1)
 	ts.set_physics_layer_collision_mask(0, 0)
-	# 7.2: camada de oclusão — árvores, rochas e muros de capital projetam
-	# sombras reais nas luzes com shadow_enabled (MECANICAS §14.2)
+	# 7.2: camada de oclusão - árvores, rochas e muros de capital projetam
+	# sombras reais nas luzes com shadow_enabled (MECANICAS #14.2)
 	ts.add_occlusion_layer()
 	_src = TileSetAtlasSource.new()
 	_src.texture = SHEET
@@ -414,7 +414,7 @@ func _alt(coords: Vector2i, mod: Color, solid: bool, is_top := false) -> int:
 		var r := 6.0 if not is_top else 8.0
 		td.set_collision_polygon_points(0, 0, PackedVector2Array([Vector2(-r, -r), Vector2(r, -r), Vector2(r, r), Vector2(-r, r)]))
 		# 7.2: oclusor de sombra do sólido (copas de árvore não bloqueiam
-		# a luz — só troncos/rochas/muros, daí o recorte menor sem is_top
+		# a luz - só troncos/rochas/muros, daí o recorte menor sem is_top
 		var occ := OccluderPolygon2D.new()
 		occ.polygon = PackedVector2Array([Vector2(-r, -r), Vector2(r, -r), Vector2(r, r), Vector2(-r, r)])
 		td.set_occluder(0, occ)
@@ -425,7 +425,7 @@ func _alt(coords: Vector2i, mod: Color, solid: bool, is_top := false) -> int:
 	return alt
 
 
-# ------------------------------------------------------------------ GERAÇÃO DE CHUNK
+# ------------------------------------------------------------------ GERAÇAO DE CHUNK
 
 func _generate_chunk(k: Vector2i) -> void:
 	if chunks.has(k):
@@ -578,9 +578,9 @@ func _spawn_chunk_content(k: Vector2i, data: Dictionary) -> void:
 		var p := _random_floor(k, rng, 2)
 		if p != Vector2.INF:
 			var f := Interactable.create(self, Interactable.Kind.CAMPFIRE, p)
-			f.label = "Fogueira — %s" % OverworldGen.BIOMES[og.biome_at(world_to_cell(p))].name
+			f.label = "Fogueira - %s" % OverworldGen.BIOMES[og.biome_at(world_to_cell(p))].name
 			nodes.append(f)
-	# 2.5: capital racial neste chunk — Fogueira Principal (waypoint) + líder
+	# 2.5: capital racial neste chunk - Fogueira Principal (waypoint) + líder
 	# + gente comum. A capital do jogador já é o acampamento (em _spawn_content).
 	if capital_race != &"" and Game.hero != null and capital_race != Game.hero.race.id:
 		var ct: TerritoryData = DB.territory(capital_race)
@@ -611,7 +611,7 @@ func _spawn_chunk_content(k: Vector2i, data: Dictionary) -> void:
 	# Monstros por bioma
 	var density: float = Game.settings.monster_density
 	var packs := int(round(rng.randi_range(1, 3) * density))
-	# REGRAS §6: noite (21:00–05:00) — mortos-vivos +50% peso em biomas sombrios,
+	# REGRAS #6: noite (21:00–05:00) - mortos-vivos +50% peso em biomas sombrios,
 	# todos os monstros +10% agressividade (raio de aggro)
 	var night: bool = _is_night()
 	var shadowy_biomes: Array[String] = ["corrompido", "pantano"]  # biomas sombrios
@@ -637,14 +637,14 @@ func _spawn_chunk_content(k: Vector2i, data: Dictionary) -> void:
 		var count := rng.randi_range(2, 4) if data_e.behavior != EnemyData.Behavior.SWARM else rng.randi_range(4, 7)
 		# 3.1: raridade do pack pelo rng do chunk (determinístico) + bônus de dificuldade
 		var pack_rarity := Enemy.roll_rarity(lvl, Game.hero.difficulty_data().loot if Game.hero else 0.0, rng)
-		# 3.2: afixos de Campeão pelo rng do chunk; Inferno dá +1 a Elite+ (REGRAS §7)
+		# 3.2: afixos de Campeão pelo rng do chunk; Inferno dá +1 a Elite+ (REGRAS #7)
 		var hell: bool = Game.hero != null and Game.hero.difficulty_data().loot >= 0.28
 		var pack_affixes: Array[int] = Enemy.affixes_for(pack_rarity, rng, hell)
 		for j in count:
 			var off := Vector2(rng.randf_range(-24, 24), rng.randf_range(-24, 24))
 			var pos := last_free_point(p, p + off)
 			var en := spawn_enemy(data_e, pos, pack_rarity if j == 0 else Enemy.Rarity.COMUM, lvl, pack_affixes if j == 0 else [])
-			# noite: +10% aggro (REGRAS §6)
+			# noite: +10% aggro (REGRAS #6)
 			if night:
 				en.aggro_range *= 1.1
 			nodes.append(en)
@@ -704,7 +704,7 @@ func _on_campfire_lit(fire: Interactable) -> void:
 		hud.open_waypoints()
 
 
-## 7.1: noite na fogueira = opção de dormir até o amanhecer (§14.1)
+## 7.1: noite na fogueira = opção de dormir até o amanhecer (#14.1)
 func _is_night() -> bool:
 	var h := fmod(_time, 1.0) * 24.0
 	return h >= 18.0 or h < 6.0
@@ -713,7 +713,7 @@ func _is_night() -> bool:
 func _offer_sleep() -> void:
 	var body := hud._open_popup("Fogueira acesa", 430)
 	body.add_child(UIKit.rich(
-		"[color=#9A917F]A noite cobre Eldara. As fogueiras afastam o frio — e o resto.[/color]"))
+		"[color=#9A917F]A noite cobre Eldara. As fogueiras afastam o frio - e o resto.[/color]"))
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 10)
 	body.add_child(row)
@@ -730,14 +730,14 @@ func _sleep_until_dawn() -> void:
 	var tw := create_tween()
 	tw.tween_property(bg, "color:a", 1.0, 0.8)
 	tw.tween_callback(func():
-		# 06:00 = 0.25 do dia (REGRAS §14) — o hook de virada re-estoca
+		# 06:00 = 0.25 do dia (REGRAS #14) - o hook de virada re-estoca
 		_time += fposmod(0.25 - fmod(_time, 1.0), 1.0)
 		Game.world_time = _time
 		player.heal(player.max_hp)
 		player.resource = player.max_resource
 		_update_daylight()
 		Game.save_game()
-		hud.show_message("Você acorda ao amanhecer — dia %d." % (int(_time) + 1),
+		hud.show_message("Você acorda ao amanhecer - dia %d." % (int(_time) + 1),
 			Color(1, 0.85, 0.5), 3.5)
 	)
 	tw.tween_property(bg, "color:a", 0.0, 0.9)

@@ -1,6 +1,6 @@
 class_name SkillTreePanel
 extends PanelContainer
-## Painel da Árvore de Habilidades (Fase 10.4)
+## Painel da Arvore de Habilidades (Fase 10.4)
 ## Mostra nós conectados, permite gastar pontos de árvore.
 
 ## Preloads para type hints funcionarem em parse time
@@ -26,7 +26,7 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 	hero = p_hero
 	
 	add_theme_stylebox_override("panel", StyleBoxEmpty.new())
-	var w := UIKit.window_panel("Árvore de Habilidades", Vector2(760, 520), func(): hud.toggle_skill_tree())
+	var w := UIKit.window_panel("Arvore de Habilidades", Vector2(760, 520), func(): hud.toggle_skill_tree())
 	add_child(w.panel)
 	var body: VBoxContainer = w.body
 	
@@ -60,14 +60,14 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 	body.add_child(scroll_container)
 	
 	_canvas = Control.new()
-	_canvas.custom_minimum_size = Vector2(1500, 800)  # Área grande para a árvore
+	_canvas.custom_minimum_size = Vector2(1500, 800)  # Area grande para a árvore
 	_canvas.mouse_filter = Control.MOUSE_FILTER_PASS
 	scroll_container.add_child(_canvas)
 	
 	# Carrega a árvore da classe
 	_tree = DB.get_skill_tree(hero.cls.id)
 	if not _tree:
-		var msg := UIKit.label("Árvore de habilidades não disponível para %s" % hero.cls.display_name, 16, UIKit.TEXT_DIM, true)
+		var msg := UIKit.label("Arvore de habilidades não disponível para %s" % hero.cls.display_name, 16, UIKit.TEXT_DIM, true)
 		msg.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		msg.size_flags_vertical = Control.SIZE_EXPAND_FILL
 		msg.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -329,7 +329,7 @@ func _update_node_ui(node_id: StringName) -> void:
 
 
 func _update_points() -> void:
-	_points_label.text = "Pontos de Árvore: [color=#e8c060]%d[/color]" % hero.tree_points
+	_points_label.text = "Pontos de Arvore: [color=#e8c060]%d[/color]" % hero.tree_points
 
 
 func _show_tooltip(node: SkillNodeData, btn: Button) -> void:

@@ -1,9 +1,9 @@
 extends Control
-## Criação de personagem em WIZARD sequencial (REGRAS §15, MECANICAS §11):
+## Criação de personagem em WIZARD sequencial (REGRAS #15, MECANICAS #11):
 ## raça → classe → atributos (com antecedente e dificuldade) → nome.
 ## Nenhum passo pode ser pulado; todos são obrigatórios.
 ## No fluxo do prólogo (Game.phase == PHASE_PROLOGUE), confirmar chama
-## Game.finish_prologue() — o herói acorda no acampamento da raça escolhida.
+## Game.finish_prologue() - o herói acorda no acampamento da raça escolhida.
 
 const STEPS := ["Raça", "Classe", "Atributos", "Nome & Aparência"]
 const POINT_BUY_TOTAL := 27
@@ -78,7 +78,7 @@ func _ready() -> void:
 	root.add_child(UIKit.title("Criação de Personagem", 30))
 	if Game.phase == Game.PHASE_PROLOGUE:
 		# Veio do espelho do prólogo: o vazio devolve não o que você era…
-		var sub := UIKit.label("O espelho não devolve o que você era — devolve o que você escolhe ser.", 15, UIKit.TEXT_DIM)
+		var sub := UIKit.label("O espelho não devolve o que você era - devolve o que você escolhe ser.", 15, UIKit.TEXT_DIM)
 		sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		root.add_child(sub)
 
@@ -105,7 +105,7 @@ func _ready() -> void:
 	_go_step(0)
 
 
-# ------------------------------------------------------------------ PÁGINAS (passo a passo)
+# ------------------------------------------------------------------ PAGINAS (passo a passo)
 
 func _build_page(i: int) -> Control:
 	var scroll := ScrollContainer.new()
@@ -187,7 +187,7 @@ func _build_attributes() -> Control:
 		n.tooltip_text = DB.ABILITY_DESC[a]
 		n.mouse_filter = Control.MOUSE_FILTER_PASS
 		r.add_child(n)
-		var minus := _small_button("−", func(): _change(a, -1))
+		var minus := _small_button("-", func(): _change(a, -1))
 		r.add_child(minus)
 		var base := UIKit.label("", 15, Color.WHITE, true)
 		base.custom_minimum_size.x = 26
@@ -270,7 +270,7 @@ func _build_attributes() -> Control:
 func _build_name_page() -> Control:
 	var v := VBoxContainer.new()
 	v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	v.add_child(_page_intro("Por fim, o nome. No Véu, o que não tem nome não pode ser lembrado — nem salvo."))
+	v.add_child(_page_intro("Por fim, o nome. No Véu, o que não tem nome não pode ser lembrado - nem salvo."))
 	var name_row := HBoxContainer.new()
 	name_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	v.add_child(name_row)
@@ -398,13 +398,13 @@ func _build_nav_bar() -> Control:
 	return bottom
 
 
-# ------------------------------------------------------------------ NAVEGAÇÃO
+# ------------------------------------------------------------------ NAVEGAÇAO
 
 func _go_step(s: int) -> void:
 	_step = clampi(s, 0, 3)
 	for i in _pages.size():
 		_pages[i].visible = i == _step
-	_step_label.text = "Passo %d de 4 — %s" % [_step + 1, STEPS[_step]]
+	_step_label.text = "Passo %d de 4 - %s" % [_step + 1, STEPS[_step]]
 	_refresh()
 
 
@@ -571,7 +571,7 @@ func _make_hero() -> Hero:
 	return Hero.create(n, race, cls, sex, TINTS[tint_idx], scores, free_bonus, background, difficulty, hardcore)
 
 
-# ------------------------------------------------------------------ ATUALIZAÇÃO
+# ------------------------------------------------------------------ ATUALIZAÇAO
 
 func _refresh() -> void:
 	for id in _race_buttons:
@@ -637,7 +637,7 @@ func _class_info_text() -> String:
 
 func _attr_info_text() -> String:
 	var left := POINT_BUY_TOTAL - _spent()
-	var tip := "[color=#80ff80]Todos os pontos gastos — pode continuar.[/color]" if left == 0 else \
+	var tip := "[color=#80ff80]Todos os pontos gastos - pode continuar.[/color]" if left == 0 else \
 		"[color=#ff9070]Distribua todos os %d pontos restantes para continuar.[/color]" % left
 	return "[color=#e8c060]Atributos[/color]\n%s\n\n[color=#999999]Compra de pontos (D&D 5e): cada atributo começa em 8 e vai até 15. Valores altos custam mais. O [color=#e8c060]atributo primário[/color] da classe aumenta seu dano.[/color]" % tip
 
@@ -698,7 +698,7 @@ func _on_start() -> void:
 	var h := _make_hero()
 	_start_btn.disabled = true
 	if Game.phase == Game.PHASE_PROLOGUE:
-		# Fim do prólogo: acorda no acampamento da raça escolhida (REGRAS §13)
+		# Fim do prólogo: acorda no acampamento da raça escolhida (REGRAS #13)
 		Game.finish_prologue(h)
 	else:
 		Game.delete_save()

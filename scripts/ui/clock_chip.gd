@@ -1,6 +1,6 @@
 class_name ClockChip
 extends Control
-## Chip de relógio da HUD (Fase 7.1, MECANICAS §14.1): hora HH:MM de
+## Chip de relógio da HUD (Fase 7.1, MECANICAS #14.1): hora HH:MM de
 ## Eldara em 24h + arco de progresso do dia com sol/lua. A meia-noite
 ## exata o arco fecha e a hora mostra 00:00 na virada.
 
@@ -28,12 +28,12 @@ func _init() -> void:
 	tooltip_text = "Ciclo de Eldara"
 
 
-## `frac` = fmod(world_time, 1.0) — 0.0 = meia-noite, 0.5 = meio-dia
+## `frac` = fmod(world_time, 1.0) - 0.0 = meia-noite, 0.5 = meio-dia
 func set_time(frac: float) -> void:
 	day_frac = frac
 	hour = int(frac * 24.0) % 24
 	minute = int(fmod(frac * 24.0, 1.0) * 60.0)
-	# dia = 06:00–18:00 (REGRAS §14: o dia vira às 06:00)
+	# dia = 06:00–18:00 (REGRAS #14: o dia vira às 06:00)
 	is_day = frac >= 0.25 and frac < 0.75
 
 

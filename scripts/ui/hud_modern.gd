@@ -1,6 +1,6 @@
 class_name HUDModern
 extends CanvasLayer
-## HUD moderna, responsiva e otimizada — layout fluido que se adapta a qualquer resolução
+## HUD moderna, responsiva e otimizada - layout fluido que se adapta a qualquer resolução
 ## Fase 12: Redesign completo para suportar múltiplas resoluções e estilo moderno
 
 const Hero := preload("res://scripts/core/hero.gd")
@@ -242,7 +242,7 @@ func _build_bottom_bar() -> void:
 		("I", "Inventário", Game.key_name("inv")),
 		("S", "Skills", Game.key_name("skills")),
 		("M", "Missões", Game.key_name("quest")),
-		("B", "Árvore", Game.key_name("skill_tree")),
+		("B", "Arvore", Game.key_name("skill_tree")),
 	]
 
 	for label_text: String in panel_shortcuts:
@@ -304,7 +304,7 @@ func _build_unified_panels() -> void:
 	_unified.add_page("Personagem", character)
 	_unified.add_page("Inventário", inventory)
 	_unified.add_page("Habilidades", skills)
-	_unified.add_page("Árvore", skill_tree)
+	_unified.add_page("Arvore", skill_tree)
 	_unified.add_page("Missões", questlog)
 
 	Game.quest_log.quest_started.connect(_on_quest_started)

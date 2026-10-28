@@ -1,6 +1,6 @@
 class_name Prologue
 extends World
-## Prólogo: a Reminiscência de Vale Cinzento (REGRAS §13, MECANICAS §11, LORE §9).
+## Prólogo: a Reminiscência de Vale Cinzento (REGRAS #13, MECANICAS #11, LORE #9).
 ## Vila de tutorial handcrafted: casa do jogador, clareira com fogueira,
 ## campo de treino com espantalho e floresta rala ao norte (além do portão de névoa).
 ## O Cinzento (Silhueta) guia os passos do tutorial; ao nível 1, o espelho chama.
@@ -12,7 +12,7 @@ enum TutStep { MOVE, ATTACK, COLLECT, EQUIP, POTION, CAMPFIRE, DONE }
 const MAP_W := 56
 const MAP_H := 44
 
-# Layout (células) — tudo determinístico, nada de RNG
+# Layout (células) - tudo determinístico, nada de RNG
 const FOREST := Rect2i(10, 3, 36, 15)       ## floresta rala ao norte
 const GATE := Rect2i(25, 17, 6, 8)         ## corredor da névoa (floresta ↔ clareira)
 const CLEARING := Rect2i(16, 24, 25, 17)   ## clareira central da vila
@@ -34,11 +34,11 @@ const GATE_ROW := 20                       ## linha do portão de névoa
 const WOLF_CELLS := [Vector2i(18, 7), Vector2i(28, 5), Vector2i(36, 9)]
 ## Para onde o Cinzento se move em cada passo
 const CINZENTO_ANCHORS := [
-	Vector2i(26, 36),  ## MOVE — dentro da casa
-	Vector2i(45, 30),  ## ATTACK — junto ao espantalho
-	Vector2i(46, 32),  ## COLLECT — onde cai a espada
+	Vector2i(26, 36),  ## MOVE - dentro da casa
+	Vector2i(45, 30),  ## ATTACK - junto ao espantalho
+	Vector2i(46, 32),  ## COLLECT - onde cai a espada
 	Vector2i(44, 33),  ## EQUIP
-	Vector2i(25, 34),  ## POTION — caminho até a fogueira
+	Vector2i(25, 34),  ## POTION - caminho até a fogueira
 	Vector2i(27, 33),  ## CAMPFIRE
 ]
 const CINZENTO_LINES := [
@@ -47,13 +47,13 @@ const CINZENTO_LINES := [
 	"Ferro de verdade para mãos de verdade. Apanhe.",
 	"Uma arma na mão vale mais que dez promessas no bolso. Vista-a.",
 	"Você vai se machucar. Todos se machucam. Aprenda a carregar a cura.",
-	"Fogo é memória que aquece as mãos. Acenda — e o sonho vai guardar você.",
+	"Fogo é memória que aquece as mãos. Acenda - e o sonho vai guardar você.",
 ]
 
-# Fase 6.4: onboarding visual (MECANICAS §9) — seta-guia, dicas contextuais
+# Fase 6.4: onboarding visual (MECANICAS #9) - seta-guia, dicas contextuais
 const GUIDE_MIN_DIST := 70.0   ## seta some quando o objetivo está perto
 const HINT_DELAY := 14.0       ## segundos no passo até a dica contextual
-## 9.3: flags que espelham cada passo concluído — o diário de missões
+## 9.3: flags que espelham cada passo concluído - o diário de missões
 ## (painel J + tracker da HUD) mostra o que fazer, em vez de depender
 ## só dos sussurros (que somem)
 const TUT_FLAGS := [
@@ -128,11 +128,11 @@ func _carve_rect(r: Rect2i) -> void:
 
 
 func _spawn_content() -> void:
-	# Espelho antigo da casa — vazio, sem reflexo (o Véu roubou; LORE §9)
+	# Espelho antigo da casa - vazio, sem reflexo (o Véu roubou; LORE #9)
 	Interactable.create(self, Interactable.Kind.MIRROR, cell_to_world(MIRROR_CELL))
 	# Fogueira central da vila
 	Interactable.create(self, Interactable.Kind.CAMPFIRE, cell_to_world(CAMPFIRE_CELL))
-	# Espantalho de treino (passivo — nunca agride)
+	# Espantalho de treino (passivo - nunca agride)
 	_espantalho = spawn_enemy(DB.get_enemy(&"espantalho"), cell_to_world(SCARECROW_CELL), Enemy.Rarity.COMUM)
 	# Baús didáticos
 	for c in CHEST_CELLS:
@@ -150,9 +150,9 @@ func _setup_tutorial() -> void:
 	_cinzento = Cinzento.new()
 	entities.add_child(_cinzento)
 	_cinzento.appear_at(cell_to_world(CINZENTO_ANCHORS[0]))
-	_whisper("Levante-se, cinza. Este lugar já foi casa — e vai querer ser de novo.")
+	_whisper("Levante-se, cinza. Este lugar já foi casa - e vai querer ser de novo.")
 	_whisper(CINZENTO_LINES[0])
-	# 9.3: o tutorial entra no diário de missões — "Primeiros Passos na
+	# 9.3: o tutorial entra no diário de missões - "Primeiros Passos na
 	# Névoa" (data/quests/prologo_tutorial.tres), visível no painel (J) e
 	# no tracker da HUD desde o primeiro segundo de jogo
 	Game.quest_log.notify_flag(&"tut_inicio")
@@ -171,12 +171,12 @@ func _process(delta: float) -> void:
 		_gate_fog[i].modulate.a = 0.45 + sin(_gate_t * 2.2 + i * 1.7) * 0.12
 	if player == null or player.is_dead():
 		return
-	# 6.4: onboarding visual — seta-guia e dica contextual
+	# 6.4: onboarding visual - seta-guia e dica contextual
 	_update_guide()
 	_step_time += delta
 	if not _hint_shown and _step_time > HINT_DELAY and tut_step in STEP_HINTS:
 		_hint_shown = true
-		# 9.3: 8s de leitura — dicas contextuais também somiam rápido demais
+		# 9.3: 8s de leitura - dicas contextuais também somiam rápido demais
 		hud.show_message("Dica: %s" % STEP_HINTS[tut_step], UIKit.TEXT_DIM, 8.0)
 	if tut_step == TutStep.MOVE:
 		_moved += player.global_position.distance_to(_last_player_pos)
@@ -215,7 +215,7 @@ func _advance() -> void:
 	tut_step += 1
 	tutorial_step_done.emit(tut_step)
 	Sfx.play(&"levelup", -8.0)
-	# 9.3: passo concluído vira flag — o diário de missões registra o
+	# 9.3: passo concluído vira flag - o diário de missões registra o
 	# progresso (a quest do tutorial avança de estágio junto com o jogo)
 	if finished < TUT_FLAGS.size():
 		Game.flags[TUT_FLAGS[finished]] = true
@@ -223,7 +223,7 @@ func _advance() -> void:
 	# 6.4: reinicia o relógio da dica contextual do passo novo
 	_step_time = 0.0
 	_hint_shown = false
-	# 6.4: destaque na HUD do controle que o passo pede (MECANICAS §9)
+	# 6.4: destaque na HUD do controle que o passo pede (MECANICAS #9)
 	match tut_step:
 		TutStep.EQUIP:
 			hud.pulse_hint("I")
@@ -283,7 +283,7 @@ func _guide_target() -> Vector2:
 				return drop.global_position
 			return cell_to_world(CINZENTO_ANCHORS[TutStep.COLLECT])
 		TutStep.EQUIP:
-			return Vector2.ZERO  # ação de inventário — o botão I pulsa na HUD
+			return Vector2.ZERO  # ação de inventário - o botão I pulsa na HUD
 		TutStep.POTION:
 			return cell_to_world(CINZENTO_ANCHORS[TutStep.POTION])
 		TutStep.CAMPFIRE:
@@ -320,7 +320,7 @@ func _nearest_sword_drop() -> LootDrop:
 	return best
 
 
-# ------------------------------------------------------------------ PORTÃO
+# ------------------------------------------------------------------ PORTAO
 
 func _build_gate() -> void:
 	_gate_wall = StaticBody2D.new()
@@ -352,14 +352,14 @@ func _open_gate() -> void:
 		tw.parallel().tween_property(f, "modulate:a", 0.0, 1.2)
 	_cinzento.appear_at(cell_to_world(Vector2i(27, 21)))
 	_whisper("A névoa guardava o que você ainda não podia enfrentar. Agora pode.")
-	_whisper("Lobos de sombra adiante — restos de uma noite que ninguém lembra. Lute.")
+	_whisper("Lobos de sombra adiante - restos de uma noite que ninguém lembra. Lute.")
 	var wall := _gate_wall
 	tw.tween_callback(func():
 		if is_instance_valid(wall):
 			wall.queue_free()
 	)
 	_gate_wall = null
-	# As duas lutas do prólogo (REGRAS §13)
+	# As duas lutas do prólogo (REGRAS #13)
 	for c in WOLF_CELLS:
 		spawn_enemy(DB.get_enemy(&"lobo_sombrio"), cell_to_world(c), Enemy.Rarity.COMUM)
 
@@ -369,12 +369,12 @@ func _on_hero_leveled_up(new_level: int) -> void:
 	if new_level == 1 and not _level1_seen:
 		_level1_seen = true
 		_cinzento.appear_at(cell_to_world(Vector2i(25, 36)))
-		_whisper("Você não é mais quem era quando acordou. Volte à casa — o espelho espera.")
+		_whisper("Você não é mais quem era quando acordou. Volte à casa - o espelho espera.")
 
 
 ## Olhar-se no espelho: antes do nível 1, só o vazio; depois, a Reminiscência
-## se dobra para dentro de si mesma e devolve não o que você era —
-## mas o que você escolhe ser (REGRAS §13, MECANICAS §11).
+## se dobra para dentro de si mesma e devolve não o que você era -
+## mas o que você escolhe ser (REGRAS #13, MECANICAS #11).
 func _on_mirror(_mirror: Interactable) -> void:
 	if _mirror_used:
 		return
@@ -385,13 +385,13 @@ func _on_mirror(_mirror: Interactable) -> void:
 		_whisper("O espelho espera. Termine o que a névoa pediu.")
 		return
 	_mirror_used = true
-	# 9.3: último objetivo do tutorial registrado no diário — a quest
+	# 9.3: último objetivo do tutorial registrado no diário - a quest
 	# "Primeiros Passos na Névoa" conclui ao encarar a própria escolha
 	Game.flags[&"tut_espelho"] = true
 	Game.quest_log.notify_flag(&"tut_espelho")
 	_cinzento.appear_at(player.global_position + Vector2(-24, -10))
 	_whisper("...")
-	_whisper("Vidro vazio. O Véu levou o reflexo — e guardou, em troca, uma escolha.")
+	_whisper("Vidro vazio. O Véu levou o reflexo - e guardou, em troca, uma escolha.")
 	_whisper("Quem?")
 	Sfx.play(&"levelup", -6.0)
 	# A memória se dobra para dentro de si mesma
@@ -413,14 +413,14 @@ func _intro() -> void:
 
 
 func _apply_brightness() -> void:
-	## Tom quente e levemente irreal — é uma memória, não um lugar.
+	## Tom quente e levemente irreal - é uma memória, não um lugar.
 	var b: float = Game.settings.brightness
 	var c := Color(0.52, 0.48, 0.46)
 	canvas_modulate.color = Color(c.r * b, c.g * b, c.b * b, 1.0)
 
 
 func _whisper(text: String) -> void:
-	# 9.3: 9s de leitura — antes 5s e o texto sumia antes de dar para ler
+	# 9.3: 9s de leitura - antes 5s e o texto sumia antes de dar para ler
 	hud.show_message(text, Cinzento.VOICE, 9.0)
 	Sfx.play(&"magic", -12.0)
 

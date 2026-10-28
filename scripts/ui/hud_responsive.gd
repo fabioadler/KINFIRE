@@ -1,6 +1,6 @@
 class_name HUDResponsive
 extends HUD
-## HUD moderna, responsiva e otimizada — extensão da HUD original com layout melhorado
+## HUD moderna, responsiva e otimizada - extensão da HUD original com layout melhorado
 ## Fase 12: Redesign para múltiplas resoluções com escala dinâmica
 
 var _screen_size: Vector2
@@ -245,7 +245,7 @@ func _build_unified_panels() -> void:
 	_unified.add_page("Personagem", character)
 	_unified.add_page("Inventário", inventory)
 	_unified.add_page("Habilidades", skills)
-	_unified.add_page("Árvore", skill_tree)
+	_unified.add_page("Arvore", skill_tree)
 	_unified.add_page("Missões", questlog)
 
 	Game.quest_log.quest_started.connect(_on_quest_started)

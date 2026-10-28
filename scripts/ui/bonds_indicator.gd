@@ -7,7 +7,7 @@ var label: Label
 func _ready() -> void:
 	label = Label.new()
 	add_child(label)
-	label.text = "⛓️ Laços: 0/7"
+	label.text = "[CHAIN]️ Laços: 0/7"
 	label.add_theme_font_size_override("font_size", 14)
 	update_display()
 
@@ -19,7 +19,7 @@ func update_display() -> void:
 	if not bonds_system:
 		return
 	var current = bonds_system.get_bond_count()
-	label.text = "⛓️ Laços: {0}/7".format([current])
+	label.text = "[CHAIN]️ Laços: {0}/7".format([current])
 	
 	# Color: gray → gold when all 7
 	if bonds_system.has_all_bonds():

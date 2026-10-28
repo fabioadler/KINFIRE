@@ -1,6 +1,6 @@
 class_name MainMenuModern
 extends Control
-## Menu Principal Moderno — Design premium dark fantasy com animações
+## Menu Principal Moderno - Design premium dark fantasy com animações
 ## Fase 13: Redesign completo do menu de início
 
 var _logo: Control

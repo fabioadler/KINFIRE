@@ -1,10 +1,10 @@
 class_name WeatherLayer
 extends Node2D
-## Fase 7.6 (MECANICAS §14.4 + §14.5.3): clima e partículas ambientais.
+## Fase 7.6 (MECANICAS #14.4 + #14.5.3): clima e partículas ambientais.
 ## Um emissor GPUParticles2D por bioma (folhas, neve, cinzas, esporos,
 ## poeira) + vagalumes noturnos + chuva global determinística com
 ## relâmpago e trovão; névoa volumétrica fake (parallax) no pântano e
-## nas Terras Corrompidas. As partículas herdam o vento (§14.5.3):
+## nas Terras Corrompidas. As partículas herdam o vento (#14.5.3):
 ## direção e velocidade vêm de WindField.at * massa da partícula.
 
 const VIEW := Vector2(1280, 720)
@@ -131,7 +131,7 @@ func _make_texture(kind: StringName) -> ImageTexture:
 	return ImageTexture.create_from_image(img)
 
 
-# ------------------------------------------------------------------ CONFIGURAÇÃO
+# ------------------------------------------------------------------ CONFIGURAÇAO
 
 ## Configura o clima: bioma, noite e chuva (o Overworld chama a cada 0.5s).
 func configure(biome: StringName, night: bool, raining: bool, world: World) -> void:
@@ -139,7 +139,7 @@ func configure(biome: StringName, night: bool, raining: bool, world: World) -> v
 	_biome = biome
 	_night = night
 	_raining = raining
-	# emissores: um por bioma + vagalumes à noite (§14.4)
+	# emissores: um por bioma + vagalumes à noite (#14.4)
 	var want: Array[StringName] = [Weather.emitter_of(biome)]
 	if Weather.fireflies_at(biome, night):
 		want.append(&"firefly")
@@ -151,7 +151,7 @@ func configure(biome: StringName, night: bool, raining: bool, world: World) -> v
 		_emitters[kind].visible = on
 		_emitters[kind].emitting = on
 	_active = want
-	# névoa parallax no pântano e Terras Corrompidas (§14.4)
+	# névoa parallax no pântano e Terras Corrompidas (#14.4)
 	var fog: bool = Weather.fog_at(biome)
 	_fog_layer.visible = fog
 	if fog:
@@ -161,7 +161,7 @@ func configure(biome: StringName, night: bool, raining: bool, world: World) -> v
 			var mat := _fog_rects[i].material as ShaderMaterial
 			mat.set_shader_parameter("fog_color", Color(base.r, base.g, base.b, density))
 			mat.set_shader_parameter("density", density)
-	# chuva molha o som (§14.4): ambiência de chuva no bus Ambience
+	# chuva molha o som (#14.4): ambiência de chuva no bus Ambience
 	Audio.set_rain(raining)
 
 
@@ -171,11 +171,11 @@ func _process(delta: float) -> void:
 	_time_sec += delta
 	# emissor segue o herói (partículas em coordenadas globais)
 	global_position = _world.player.global_position
-	# vento nas partículas (§14.5.3): direção * força * massa
+	# vento nas partículas (#14.5.3): direção * força * massa
 	var w := WindField.at(_world.player.global_position)
 	for kind in _active:
 		if kind == &"firefly":
-			continue  # vagalumes voam contra o vento — são vivos
+			continue  # vagalumes voam contra o vento - são vivos
 		var mat: ParticleProcessMaterial = _materials[kind]
 		var mass: float = Weather.EMITTER_MASS[kind]
 		if kind == &"rain":

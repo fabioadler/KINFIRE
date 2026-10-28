@@ -26,7 +26,7 @@ var player: Player
 var hero: Hero
 
 var _root: Control
-## Fase 6.1: barras segmentadas (MECANICAS §9.2) no lugar dos orbes
+## Fase 6.1: barras segmentadas (MECANICAS #9.2) no lugar dos orbes
 var _hp_bar: VitalsBar
 var _res_bar: VitalsBar
 var _badge: LevelBadge
@@ -66,7 +66,7 @@ var questlog: QuestPanel
 var skill_tree: SkillTreePanel
 ## Fase 6.2: janela unificada (abas Personagem/Inventário/Habilidades/Missões)
 var _unified: UnifiedPanel
-## Fase 7.1: chip de relógio HH:MM + arco do dia (MECANICAS §14.1)
+## Fase 7.1: chip de relógio HH:MM + arco do dia (MECANICAS #14.1)
 var _clock: ClockChip
 var _pause_layer: Control
 var _death_layer: Control
@@ -127,13 +127,13 @@ func _build() -> void:
 # Fase 10.4: painel da árvore de habilidades
 	skill_tree = SkillTreePanel.new()
 	skill_tree.setup(self, hero)
-	# Fase 6.2: painel unificado — os painéis viram abas da mesma janela
+	# Fase 6.2: painel unificado - os painéis viram abas da mesma janela
 	_unified = UnifiedPanel.new()
 	_root.add_child(_unified)
 	_unified.add_page("Personagem", character)
 	_unified.add_page("Inventário", inventory)
 	_unified.add_page("Habilidades", skills)
-	_unified.add_page("Árvore", skill_tree)
+	_unified.add_page("Arvore", skill_tree)
 	_unified.add_page("Missões", questlog)
 	_setup_quest_tracker()
 	Game.quest_log.quest_started.connect(_on_quest_started)
@@ -183,7 +183,7 @@ func _build_bottom_bar() -> void:
 		h.add_child(cs)
 	h.add_child(_spacer(8))
 
-	# Cura simples (Q) — sempre disponível
+	# Cura simples (Q) - sempre disponível
 	_heal_slot = SkillSlot.new(-2, Game.key_name("heal"))
 	_heal_slot.is_potion = true
 	_heal_slot.player = player
@@ -191,7 +191,7 @@ func _build_bottom_bar() -> void:
 	h.add_child(_heal_slot)
 	h.add_child(_spacer(8))
 
-	# Fase 6.1: barras segmentadas de vida/recurso (MECANICAS §9.2)
+	# Fase 6.1: barras segmentadas de vida/recurso (MECANICAS #9.2)
 	var vitals := VBoxContainer.new()
 	vitals.add_theme_constant_override("separation", 4)
 	h.add_child(vitals)
@@ -232,7 +232,7 @@ func _build_bottom_bar() -> void:
 		h.add_child(btn)
 	h.add_child(_spacer(8))
 
-	# Fase 6.1: emblema de nível com anel de XP (MECANICAS §9.2)
+	# Fase 6.1: emblema de nível com anel de XP (MECANICAS #9.2)
 	_badge = LevelBadge.new()
 	_badge.tooltip_text = "Nível e experiência"
 	h.add_child(_badge)
@@ -282,7 +282,7 @@ func _build_top() -> void:
 	_target_bar.show_percentage = false
 	_target_bar.custom_minimum_size = Vector2(0, 12)
 	_target_bar.add_theme_stylebox_override("background", UIKit.box(Color(0.1, 0.02, 0.02), Color(0.3, 0.1, 0.1), 1, 2))
-	# Fase 6.1: cor do preenchimento muda com a raridade do inimigo (§9.2)
+	# Fase 6.1: cor do preenchimento muda com a raridade do inimigo (#9.2)
 	_target_fill = UIKit.box(Color(0.75, 0.08, 0.06), Color(0.75, 0.08, 0.06), 0, 2)
 	_target_fill.content_margin_top = 0
 	_target_fill.content_margin_bottom = 0
@@ -298,7 +298,7 @@ func _build_top() -> void:
 	_location.add_theme_color_override("font_outline_color", Color.BLACK)
 	_location.add_theme_constant_override("outline_size", 4)
 	info.add_child(_location)
-	# Fase 6.1: chips de moeda (MECANICAS §9.2) — pílulas escuras com borda
+	# Fase 6.1: chips de moeda (MECANICAS #9.2) - pílulas escuras com borda
 	_gold_chip = _make_chip(Color(1, 0.85, 0.3), Color(0.16, 0.12, 0.05))
 	_gold = _chip_label(_gold_chip)
 	_essence_chip = _make_chip(Color(0.75, 0.55, 1.0), Color(0.10, 0.08, 0.16))
@@ -307,7 +307,7 @@ func _build_top() -> void:
 	var mm := Minimap.new(world)
 	mm.name = "Minimap"
 	_root.add_child(mm)
-	# Fase 7.1: chip de relógio sob o minimapa — HH:MM de Eldara + arco do dia
+	# Fase 7.1: chip de relógio sob o minimapa - HH:MM de Eldara + arco do dia
 	_clock = ClockChip.new()
 	_clock.name = "ClockChip"
 	_root.add_child(_clock)
@@ -342,11 +342,11 @@ func _layout() -> void:
 	mm.modulate.a = float(Game.settings.minimap_opacity)
 	mm.visible = mm.modulate.a > 0.01
 	mm.size = Vector2(190, 190)
-	# Fase 7.1: relógio colado sob o minimapa (§14.1)
+	# Fase 7.1: relógio colado sob o minimapa (#14.1)
 	_clock.reset_size()
 	_clock.position = Vector2(vs.x - _clock.size.x - 14, 14 + 190 + 8)
 	_messages.position = Vector2(vs.x * 0.5 - 300, vs.y * 0.22)
-	# Fase 6.1: chips de moeda no canto inferior esquerdo (§9.2)
+	# Fase 6.1: chips de moeda no canto inferior esquerdo (#9.2)
 	_gold_chip.reset_size()
 	_gold_chip.position = Vector2(14, vs.y - _gold_chip.size.y - 14)
 	_essence_chip.reset_size()
@@ -363,7 +363,7 @@ func _layout() -> void:
 func _process(delta: float) -> void:
 	if player == null:
 		return
-	# Fase 6.1: barras segmentadas + emblema com anel de XP (§9.2)
+	# Fase 6.1: barras segmentadas + emblema com anel de XP (#9.2)
 	_hp_bar.value = clampf(player.hp / player.max_hp, 0, 1)
 	_hp_bar.text = "%d" % ceili(player.hp)
 	if hero.cls.costs_life:
@@ -373,11 +373,11 @@ func _process(delta: float) -> void:
 		_res_bar.value = clampf(player.resource / player.max_resource, 0, 1)
 		_res_bar.text = "%d" % player.resource
 	_badge.set_progress(hero.level, hero.xp, hero.xp_to_next())
-	_badge.tooltip_text = "Nível %d  —  %d / %d XP" % [hero.level, hero.xp, hero.xp_to_next()]
+	_badge.tooltip_text = "Nível %d  -  %d / %d XP" % [hero.level, hero.xp, hero.xp_to_next()]
 	_location.text = world.region_name()
 	_gold.text = "● %d" % hero.gold
 	_essence.text = "◆ %d" % hero.essence
-	# Fase 7.1: o chip de relógio assume o HH:MM (§14.1) — Game.world_time
+	# Fase 7.1: o chip de relógio assume o HH:MM (#14.1) - Game.world_time
 	# é a fonte da verdade; em masmorra congela no valor salvo
 	_clock.set_time(fmod(Game.world_time, 1.0))
 	if _popup and is_instance_valid(_popup) and world.player.global_position.distance_to(_popup.get_meta("anchor")) > 40.0:
@@ -444,16 +444,16 @@ func _unhandled_input(event: InputEvent) -> void:
 ## 3.4: extraído de _update_target para ser testável e reutilizado pelo smoke.
 func show_target(e: Enemy) -> void:
 	_target_box.visible = true
-	# Fase 6.1: coroa para campeão+ (§9.2 — "ornamento de coroa")
+	# Fase 6.1: coroa para campeão+ (#9.2 - "ornamento de coroa")
 	var crown := "♛ " if e.rarity >= Enemy.Rarity.ELITE else ""
 	_target_name.text = crown + e.display_name
 	_target_name.add_theme_color_override("font_color", Color(1, 0.6, 0.2) if e.is_boss() else Enemy.RARITY_COLORS[e.rarity])
 	_target_bar.max_value = e.max_hp
 	_target_bar.value = e.hp
-	# Fase 6.1: barra do inimigo colorida pela raridade (§9.2)
+	# Fase 6.1: barra do inimigo colorida pela raridade (#9.2)
 	var col: Color = Color(1, 0.6, 0.2) if e.is_boss() else Enemy.RARITY_COLORS[e.rarity]
 	_target_fill.bg_color = col
-	# 3.4: afixos do Campeão/Lendário sob o nome (REGRAS §6)
+	# 3.4: afixos do Campeão/Lendário sob o nome (REGRAS #6)
 	var afx := e.affix_names()
 	_target_affixes.visible = not afx.is_empty()
 	if not afx.is_empty():
@@ -481,7 +481,7 @@ func _update_target() -> void:
 
 
 func _update_buffs() -> void:
-	# Fase 6.1: strip de buffs como chips com anel de tempo restante (§9.2)
+	# Fase 6.1: strip de buffs como chips com anel de tempo restante (#9.2)
 	var names := player.buffs.keys()
 	while _buff_row.get_child_count() < names.size():
 		var chip := BuffChip.new()
@@ -529,7 +529,7 @@ func damage_vignette() -> void:
 	_vignette.color.a = 0.22
 
 
-## Fase 6.4: pulsa o controle da barra indicado — o onboarding aponta onde olhar (MECANICAS §9).
+## Fase 6.4: pulsa o controle da barra indicado - o onboarding aponta onde olhar (MECANICAS #9).
 ## Suporta: Q (cura simples), 1-9 (consumíveis), Tab/P/H/M (painéis), Z/X/C/V (skills)
 func pulse_hint(key: String) -> void:
 	var target: Control
@@ -548,8 +548,8 @@ func pulse_hint(key: String) -> void:
 	tw.tween_property(target, "modulate", Color.WHITE, 0.35)
 
 
-## Fase 6.2: teclas I/C/K/J abrem o painel unificado na aba certa —
-## abrir na mesma aba fecha, abrir em outra troca (MECANICAS §9.3)
+## Fase 6.2: teclas I/C/K/J abrem o painel unificado na aba certa -
+## abrir na mesma aba fecha, abrir em outra troca (MECANICAS #9.3)
 func _toggle_unified(idx: int, on_open: Callable = Callable()) -> void:
 	if _unified.is_open() and _unified.current == idx:
 		if idx == 1 and inventory.held:
@@ -599,7 +599,7 @@ func _setup_quest_tracker() -> void:
 	var v := VBoxContainer.new()
 	v.add_theme_constant_override("separation", 2)
 	_quest_tracker.add_child(v)
-	# Fase 6.1: cabeçalho clicável recolhe o objetivo (§9.2)
+	# Fase 6.1: cabeçalho clicável recolhe o objetivo (#9.2)
 	_quest_title = Button.new()
 	_quest_title.flat = true
 	_quest_title.alignment = HORIZONTAL_ALIGNMENT_LEFT
@@ -669,7 +669,7 @@ func close_popup() -> void:
 	_popup = null
 
 
-## Abre um diálogo (NPC/Guia) — pausa o mundo enquanto a caixa estiver aberta
+## Abre um diálogo (NPC/Guia) - pausa o mundo enquanto a caixa estiver aberta
 func open_dialogue(data: DialogueData, speaker_name: String = "") -> DialogueBox:
 	if _dialogue_box and is_instance_valid(_dialogue_box):
 		_dialogue_box.queue_free()
@@ -701,7 +701,7 @@ func _open_popup(title_text: String, width: float) -> VBoxContainer:
 	return w.body
 
 
-## Fase 5.5: comércio unificado (Comprar/Vender/Leilão) — o diálogo do
+## Fase 5.5: comércio unificado (Comprar/Vender/Leilão) - o diálogo do
 ## líder da capital abre via efeito `comercio` (Game.trade_requested)
 func _on_trade_requested(p_race: StringName) -> void:
 	open_trade(p_race)
@@ -738,7 +738,7 @@ func open_merchant() -> void:
 	]
 	var refresh := func(): gold_label.text = "Seu ouro: %d" % hero.gold
 	for o in offers:
-		var b := UIKit.button("%s — %d ouro" % [o[0], o[2]], func():
+		var b := UIKit.button("%s - %d ouro" % [o[0], o[2]], func():
 			if hero.gold < o[2]:
 				show_message("Ouro insuficiente", Color(1, 0.5, 0.4))
 				return

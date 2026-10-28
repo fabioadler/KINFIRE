@@ -1,7 +1,7 @@
 class_name SkillTrees
 extends RefCounted
 ## Dados das árvores de habilidades por classe (definidos em código para evitar problemas de parsing .tres).
-## Fase 10.4 - Árvore de habilidades
+## Fase 10.4 - Arvore de habilidades
 
 const SkillTreeData := preload("res://scripts/data/skill_tree_data.gd")
 const SkillNodeData := preload("res://scripts/data/skill_node_data.gd")
@@ -287,7 +287,7 @@ static func _monge_nodes() -> Array[Dictionary]:
 	var n: Array[Dictionary] = []
 	n.append({"id": "monge_estilo_bebado", "skill_id": "estilo_bebado", "is_new_skill": true, "max_rank": 1, "requires": [], "per_rank": {}, "display_name": "Estilo Bêbado", "description": "Desbloqueia: Movimentos imprevisíveis. +50% esquiva, contra-ataca ao esquivar. Dura 10s. Custa 30 Chi.", "icon": "S_Buff07"})
 	n.append({"id": "monge_palma_coracao", "skill_id": "palma_do_coracao", "is_new_skill": true, "max_rank": 1, "requires": ["monge_estilo_bebado"], "per_rank": {}, "display_name": "Palma do Coração", "description": "Desbloqueia: Golpe que para o coração. 3x dano, atordoa 2s, se matar recupera todo Chi. Custa 50 Chi.", "icon": "S_Sword03"})
-	n.append({"id": "monge_vo_dragao", "skill_id": "vo_dragao", "is_new_skill": true, "max_rank": 1, "requires": ["monge_palma_coracao"], "per_rank": {}, "display_name": "Vôo do Dragão", "description": "Desbloqueia: Salta e cai como meteoro. Área 10m, 4x dano, onda de choque atordoa 3s. Custa 60 Chi.", "icon": "S_Fire03"})
+	n.append({"id": "monge_vo_dragao", "skill_id": "vo_dragao", "is_new_skill": true, "max_rank": 1, "requires": ["monge_palma_coracao"], "per_rank": {}, "display_name": "Vôo do Dragão", "description": "Desbloqueia: Salta e cai como meteoro. Area 10m, 4x dano, onda de choque atordoa 3s. Custa 60 Chi.", "icon": "S_Fire03"})
 	n.append({"id": "monge_mestre_artes", "skill_id": "mestre_das_artes", "is_new_skill": true, "max_rank": 1, "requires": ["monge_vo_dragao"], "per_rank": {}, "display_name": "Mestre das Artes", "description": "Desbloqueia: Estado de fluxo 20s. Todos golpes críticos, Chi infinito, imune a controle. Custa 100 Chi.", "icon": "S_Buff10"})
 	n.append({"id": "monge_palma_1", "skill_id": "palma_do_dragao", "is_new_skill": false, "max_rank": 3, "requires": [], "per_rank": {"damage": 0.15, "cooldown": -0.07, "heal": 0.05}, "display_name": "Palma do Dragão I-III", "description": "Melhora: +15% dano, -7% cooldown, +5% cura por rank.", "icon": "S_Magic01"})
 	n.append({"id": "monge_palma_2", "skill_id": "palma_do_dragao", "is_new_skill": false, "max_rank": 2, "requires": ["monge_palma_1"], "per_rank": {"projectile_count": 1, "radius": 0.1}, "display_name": "Palma do Dragão IV-V", "description": "Melhora: +1 onda de choque, +10% raio por rank.", "icon": "S_Magic01"})

@@ -1,5 +1,5 @@
 extends Node
-## Fase 7.5 (MECANICAS §15): áudio adaptativo — o jogador sente a noite
+## Fase 7.5 (MECANICAS #15): áudio adaptativo - o jogador sente a noite
 ## antes de vê-la no relógio. Música em camadas com crossfade, ambiência
 ## por bioma, ducking de diálogo, cues posicionais, reverb de masmorra
 ## e bus Ambience controlado por WindField.strength.
@@ -24,8 +24,8 @@ var _base_path: String = ""
 var _amb_path: String = ""
 var _layer_path: String = ""
 var _layer_fade_out: float = 4.0
-var _duck_db: float = 0.0          # diálogo: música −6dB (§15.1)
-var _amb_duck_db: float = 0.0      # fogueira à noite: ambience −3dB
+var _duck_db: float = 0.0          # diálogo: música -6dB (#15.1)
+var _amb_duck_db: float = 0.0      # fogueira à noite: ambience -3dB
 var _reverb_on: bool = false
 var _raining := false
 var _wind_db: float = 0.0
@@ -64,7 +64,7 @@ func _ready() -> void:
 	_sting = AudioStreamPlayer.new()
 	_sting.bus = "SFX"
 	add_child(_sting)
-	# chuva (bus Ambience, fade 3s) e trovão (bus SFX, one-shot) — 7.6
+	# chuva (bus Ambience, fade 3s) e trovão (bus SFX, one-shot) - 7.6
 	_rain = AudioStreamPlayer.new()
 	_rain.bus = "Ambience"
 	add_child(_rain)
@@ -160,7 +160,7 @@ func set_ambience(path: String) -> void:
 	_tweens[leaving] = t
 
 func update_wind_gain(pos: Vector2) -> void:
-	# §15.1: bus Ambience respira com o vento (−7dB na calmaria… +3dB na ventania)
+	# #15.1: bus Ambience respira com o vento (-7dB na calmaria… +3dB na ventania)
 	_wind_db = lerpf(-7.0, 3.0, clampf(WindField.at(pos).length(), 0.0, 1.0))
 	_apply_amb_bus()
 
@@ -213,7 +213,7 @@ func sting(rarity: int) -> bool:
 
 # ------------------------------------------------------------------ DUCKING / REVERB
 
-## 7.6: chuva molha o som (§14.4) — loop de chuva no bus Ambience, fade 3s
+## 7.6: chuva molha o som (#14.4) - loop de chuva no bus Ambience, fade 3s
 func set_rain(on: bool) -> void:
 	if on == _raining:
 		return
@@ -228,7 +228,7 @@ func set_rain(on: bool) -> void:
 	if not on:
 		t.chain().tween_callback(_rain.stop)
 
-## 7.6: trovão — one-shot no bus SFX
+## 7.6: trovão - one-shot no bus SFX
 func play_thunder() -> void:
 	if _thunder_stream == null:
 		return
@@ -329,10 +329,10 @@ func update_world(world: World) -> void:
 		if layer == "" and ow._is_night():
 			layer = AMB + "mus_noite.wav"
 	elif pro != null:
-		# Prólogo: clareira na floresta à noite — sem reverb, ambiência de floresta
+		# Prólogo: clareira na floresta à noite - sem reverb, ambiência de floresta
 		amb = AMB + "amb_floresta.wav"
 	else:
-		# Masmorra: reverb fake + ping (§15.3); música base vem do Game.play_music
+		# Masmorra: reverb fake + ping (#15.3); música base vem do Game.play_music
 		amb = AMB + "amb_masmorra.wav"
 		reverb = true
 	if _combat_near(world):

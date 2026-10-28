@@ -1,12 +1,12 @@
 class_name TerritoryNpcs
 extends RefCounted
-## Moradores das capitais raciais (tarefa 2.5, MECANICAS §3, LORE §X/§6):
+## Moradores das capitais raciais (tarefa 2.5, MECANICAS #3, LORE #X/#6):
 ## o líder + 3 gente comum com ganho-de-vida próprio por raça.
 ## Os diálogos são GERADOS POR TEMPLATE a partir do TerritoryData
-## (economia, cultura, líder, capital) e registrados no cache do DB —
+## (economia, cultura, líder, capital) e registrados no cache do DB -
 ## nada de 56 .tres escritos à mão; o Npc resolve o resto por duck-typing.
 
-## Nome e sexo da gente comum de cada capital (LORE §X) — determinístico
+## Nome e sexo da gente comum de cada capital (LORE #X) - determinístico
 const COMMONERS := {
 	&"humano": [["Tomas", "m"], ["Isabel", "f"], ["Roderick", "m"]],
 	&"alto_elfo": [["Caelwyn", "m"], ["Seraphina", "f"], ["Elirion", "m"]],
@@ -24,7 +24,7 @@ const COMMONERS := {
 	&"golias": [["Kavaki", "m"], ["Aunaki", "f"], ["Thalai", "m"]],
 }
 
-## Ganho-de-vida por raça (LORE §X — coluna "Economia", §6 cultura viva)
+## Ganho-de-vida por raça (LORE #X - coluna "Economia", #6 cultura viva)
 const ROLES := {
 	&"humano": ["Contratante da Guilda", "Leiloeira do Porto", "Carregador do Cais"],
 	&"alto_elfo": ["Engarrafador de Mana", "Encantadora sob Encomenda", "Pesquisador Arcano"],
@@ -42,7 +42,7 @@ const ROLES := {
 	&"golias": ["Carregador de Carga", "Mineira de Altitude", "Guardião das Pedras"],
 }
 
-## Sexo do líder de cada capital (LORE §X) — só afeta sprite/retrato
+## Sexo do líder de cada capital (LORE #X) - só afeta sprite/retrato
 const LEADER_SEX := {
 	&"humano": "f", &"alto_elfo": "f", &"elfo_floresta": "f", &"drow": "f",
 	&"anao_montanha": "m", &"anao_colinas": "f", &"halfling": "f", &"meio_orc": "m",
@@ -125,7 +125,7 @@ static func _leader_dialogue(race: StringName, t: TerritoryData) -> DialogueData
 			[
 				_choice("(Continuar)", &"menu"),
 			],
-			"Você tem nome, forasteiro? Aqui os nomes pesam menos que os laços — mas pesam."),
+			"Você tem nome, forasteiro? Aqui os nomes pesam menos que os laços - mas pesam."),
 		_node(&"menu",
 			"O que traz cinza à %s?" % t.capital_name,
 			[
@@ -166,7 +166,7 @@ static func _commoner_dialogue(race: StringName, t: TerritoryData, i: int) -> Di
 	d.start_id = &"inicio"
 	d.nodes = [
 		_node(&"inicio",
-			"%s para o que tem que fazer — %s não espera ninguém." % [person[0], t.capital_name],
+			"%s para o que tem que fazer - %s não espera ninguém." % [person[0], t.capital_name],
 			[
 				_choice("No que você trabalha?", &"trabalho"),
 				_choice("O que é este lugar?", &"lugar", "ignorancia > 5", "ignorancia -1"),
@@ -174,7 +174,7 @@ static func _commoner_dialogue(race: StringName, t: TerritoryData, i: int) -> Di
 				_choice("(Partir)", &""),
 			]),
 		_node(&"trabalho",
-			"Aqui a gente vive de %s. %s não é título — é o que sobrou pra gente ser." % [t.economy, role],
+			"Aqui a gente vive de %s. %s não é título - é o que sobrou pra gente ser." % [t.economy, role],
 			[_back(&"inicio"), _leave()]),
 		_node(&"lugar",
 			"Este é o território %s, e esta é a capital: %s. Quatorze povos, quatorze jeitos de não morrer." % [race_name, t.capital_name],

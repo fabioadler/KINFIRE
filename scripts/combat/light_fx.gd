@@ -1,12 +1,12 @@
 class_name LightFx
 extends RefCounted
-## Fase 7.2: gestão de luzes 2D — tremulação por fonte (fogueira oscila, lava
+## Fase 7.2: gestão de luzes 2D - tremulação por fonte (fogueira oscila, lava
 ## pulsa, tocha crepita) e ORÇAMENTO DE SOMBRA: no máx. 8 luzes com sombra
-## ativas perto da tela; o resto degrada para luz sem sombra (MECANICAS §14.2).
-## Sombras reais vêm dos occlusores de tile (paredes, árvores, lápides) — cada
+## ativas perto da tela; o resto degrada para luz sem sombra (MECANICAS #14.2).
+## Sombras reais vêm dos occlusores de tile (paredes, árvores, lápides) - cada
 ## luz com sombra os projeta conforme se move. Luz sagrada ignora oclusores
-## e luz sombria não projeta sombra (LORE §16): ambas simplesmente registram
-## sem sombra — em 2D, occlusores só afetam luzes COM sombra ligada.
+## e luz sombria não projeta sombra (LORE #16): ambas simplesmente registram
+## sem sombra - em 2D, occlusores só afetam luzes COM sombra ligada.
 
 enum Flicker { NONE, FIRE, LAVA, TORCH }
 
@@ -74,7 +74,7 @@ static func shadow_candidates() -> int:
 	return n
 
 
-## Tremulação registrada para uma luz (-1 = não registrada) — smoke/inspeção
+## Tremulação registrada para uma luz (-1 = não registrada) - smoke/inspeção
 static func flicker_of(light: PointLight2D) -> int:
 	for e in _reg:
 		if e.light == light:

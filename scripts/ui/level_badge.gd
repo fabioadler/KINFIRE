@@ -1,7 +1,7 @@
 class_name LevelBadge
 extends Control
 ## Emblema de nível com anel de XP da HUD moderna (Fase 6.1, MECANICAS
-## §9.2): círculo "vidro escuro" com o número do nível ao centro e o anel
+## #9.2): círculo "vidro escuro" com o número do nível ao centro e o anel
 ## dourado externo preenchendo com o progresso da experiência.
 
 var level := 1:

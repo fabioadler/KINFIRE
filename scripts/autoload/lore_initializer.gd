@@ -3,4 +3,4 @@ extends Node
 ## Lore system autoload - minimal version for testing
 
 func _ready() -> void:
-	print("✅ Lore system initialized")
+	print("[OK] Lore system initialized")

@@ -116,7 +116,7 @@ func _carve_line(a: Vector2i, b: Vector2i) -> void:
 		c += step
 
 
-## Paredes de 1 célula entre dois chãos (vertical) ficam estranhas — vira chão
+## Paredes de 1 célula entre dois chãos (vertical) ficam estranhas - vira chão
 func _remove_thin_walls() -> void:
 	for pass_i in 2:
 		for y in range(1, height - 1):

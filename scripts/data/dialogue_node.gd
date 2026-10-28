@@ -1,11 +1,11 @@
 class_name DialogueNode
 extends Resource
-## Nó de um diálogo (MECANICAS §7): páginas de texto + escolhas ramificadas.
+## Nó de um diálogo (MECANICAS #7): páginas de texto + escolhas ramificadas.
 
 @export var id: StringName = &""
 ## Texto em página única (ignorado quando `pages` está preenchido)
 @export_multiline var text: String = ""
-## Páginas alternativas — cada elemento é uma página; a UI avança uma a uma
+## Páginas alternativas - cada elemento é uma página; a UI avança uma a uma
 @export var pages: PackedStringArray = PackedStringArray()
 ## Retrato próprio do nó (expressão/emção); vazio usa o retrato do diálogo
 @export var portrait: String = ""

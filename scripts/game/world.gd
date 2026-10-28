@@ -49,13 +49,13 @@ var _minion_frame := -1
 var _minion_list: Array[Minion] = []
 var _shake := 0.0
 var _explore_timer := 0.0
-## Fase 7.5 (§15): áudio adaptativo — tick de atualização
+## Fase 7.5 (#15): áudio adaptativo - tick de atualização
 var _audio_timer := 0.0
-## Fase 7.3 (§14.3): bloom (HDR 2D) + camada de vinheta/temperatura
+## Fase 7.3 (#14.3): bloom (HDR 2D) + camada de vinheta/temperatura
 var _world_env: WorldEnvironment
 var _atmos_layer: CanvasLayer
 var _atmos: ColorRect
-## Último preset aplicado (inspeção/smoke — headless não lê uniforms de shader)
+## Último preset aplicado (inspeção/smoke - headless não lê uniforms de shader)
 var _atmos_preset: Dictionary = {}
 
 
@@ -90,7 +90,7 @@ func _setup_map() -> void:
 	explored.fill(0)
 	_build_tiles()
 	_build_astar()
-	# 7.4: masmorras não consultam bioma — vento de base planície
+	# 7.4: masmorras não consultam bioma - vento de base planície
 	WindField.set_provider(Callable())
 
 
@@ -113,7 +113,7 @@ func level() -> int:
 
 
 func region_name() -> String:
-	return "%s — Andar %d" % [Game.dungeon_name, Game.depth]
+	return "%s - Andar %d" % [Game.dungeon_name, Game.depth]
 
 
 func is_floor(c: Vector2i) -> bool:
@@ -150,18 +150,18 @@ func respawn_position() -> Vector2:
 	return cell_to_world(gen.start_room.get_center())
 
 
-## Acender uma fogueira (hook — sobrescrito por Overworld/Prologue)
+## Acender uma fogueira (hook - sobrescrito por Overworld/Prologue)
 func _on_campfire_lit(_fire: Interactable) -> void:
 	hud.show_message("Fogueira acesa: você renascerá aqui.", Color(1, 0.7, 0.3))
 	hud.open_waypoints()
 
 
-## Olhar-se no espelho (hook — sobrescrito pelo Prologue)
+## Olhar-se no espelho (hook - sobrescrito pelo Prologue)
 func _on_mirror(_mirror: Interactable) -> void:
 	hud.show_message("Só o escuro olha de volta.", Color(0.68, 0.64, 0.82))
 
 
-## Fase 7.3 (MECANICAS §14.3): pós-processo do mundo — bloom/glow via
+## Fase 7.3 (MECANICAS #14.3): pós-processo do mundo - bloom/glow via
 ## WorldEnvironment sobre HDR 2D (fogueiras, lava, orbes, feixes de loot Raro+
 ## e auras de Campeão/Lendário têm energia >1 e florescem) e camada de
 ## vinheta/temperatura entre o mundo (base) e a HUD (layer 10).
@@ -191,12 +191,12 @@ func _setup_post() -> void:
 	_atmos_layer.add_child(_atmos)
 	# masmorra: vinheta mais fechada e fria (o Overworld sobrepõe pelo bioma)
 	_apply_atmos({"tint": Color(0.9, 0.88, 1.0), "amount": 0.1, "desat": 0.05, "vig": 0.32})
-	# 7.7: presets de qualidade (§14.6) — glow liga/desliga em runtime
+	# 7.7: presets de qualidade (#14.6) - glow liga/desliga em runtime
 	_apply_glow()
 	Game.quality_changed.connect(_apply_glow)
 
 
-## 7.7: glow do preset — Baixo desliga o bloom (§14.6), Médio/Alto mantêm
+## 7.7: glow do preset - Baixo desliga o bloom (#14.6), Médio/Alto mantêm
 func _apply_glow() -> void:
 	if _world_env != null and _world_env.environment != null:
 		_world_env.environment.glow_enabled = bool(Game.settings.get("glow", true))
@@ -229,7 +229,7 @@ func _process(delta: float) -> void:
 	# 7.2: tremulação das luzes + orçamento de sombra em torno do herói
 	if player:
 		LightFx.update(player.global_position, Time.get_ticks_msec() * 0.001)
-	# 7.5: áudio adaptativo (MECANICAS §15) — ambiência por bioma, camadas de
+	# 7.5: áudio adaptativo (MECANICAS #15) - ambiência por bioma, camadas de
 	# combate/noite/chefe/descanso, vento controla o bus Ambience, reverb de
 	# masmorra (Overworld sobrescreve super._process, então isto cobre ambos)
 	_audio_timer -= delta
@@ -243,7 +243,7 @@ func _process(delta: float) -> void:
 	for z in slow_zones:
 		z.time -= delta
 	slow_zones = slow_zones.filter(func(z): return z.time > 0.0)
-	# 3.2: piso em chamas (afixo ARDENTE) — queimadura enquanto o jogador fica dentro
+	# 3.2: piso em chamas (afixo ARDENTE) - queimadura enquanto o jogador fica dentro
 	for z in fire_zones:
 		z.time -= delta
 		if z.time > 0.0 and player and not player.is_dead() and player.global_position.distance_to(z.pos) <= z.radius:
@@ -276,8 +276,8 @@ func _build_tiles() -> void:
 	ts.add_physics_layer()
 	ts.set_physics_layer_collision_layer(0, 1)
 	ts.set_physics_layer_collision_mask(0, 0)
-	# 7.2: camada de oclusão — cada tile sólido projeta sombra nas luzes
-	# com shadow_enabled (paredes de masmorra, árvores, lápides, muros — §14.2)
+	# 7.2: camada de oclusão - cada tile sólido projeta sombra nas luzes
+	# com shadow_enabled (paredes de masmorra, árvores, lápides, muros - #14.2)
 	ts.add_occlusion_layer()
 	var src := TileSetAtlasSource.new()
 	src.texture = ImageTexture.create_from_image(img)
@@ -622,7 +622,7 @@ func _weighted_pick(pool: Array[EnemyData]) -> EnemyData:
 func spawn_enemy(data: EnemyData, pos: Vector2, rarity: int, lvl := -1, p_affixes: Array = []) -> Enemy:
 	var e: Enemy = ENEMY_SCENE.instantiate()
 	# 3.2: afixos explícitos (determinismo do chunk) ou rolagem pela raridade;
-	# Inferno dá +1 afixo a Elite+ (REGRAS §7)
+	# Inferno dá +1 afixo a Elite+ (REGRAS #7)
 	var aff: Array[int] = []
 	aff.assign(p_affixes)
 	if aff.is_empty():
@@ -632,13 +632,13 @@ func spawn_enemy(data: EnemyData, pos: Vector2, rarity: int, lvl := -1, p_affixe
 	e.position = pos
 	entities.add_child(e)
 	e.killed.connect(_on_enemy_killed)
-	# 3.4: Lendário anuncia o spawn — sting + aviso na HUD (REGRAS §6)
+	# 3.4: Lendário anuncia o spawn - sting + aviso na HUD (REGRAS #6)
 	if rarity == Enemy.Rarity.LENDARIO:
 		Sfx.play(&"levelup", -8.0)
 		if hud:
 			hud.show_message("✦ %s surge nas redondezas..." % e.display_name,
 				Enemy.RARITY_COLORS[Enemy.Rarity.LENDARIO], 4.0)
-	# 7.5: sting adaptativo (MECANICAS §15.2) — Campeão avisa, Lendário assombra
+	# 7.5: sting adaptativo (MECANICAS #15.2) - Campeão avisa, Lendário assombra
 	Audio.sting(rarity)
 	return e
 
@@ -651,8 +651,8 @@ func _on_enemy_killed(e: Enemy) -> void:
 	var pos := e.global_position
 	if hero.cls.gain_on_kill > 0 and player and pos.distance_to(player.global_position) < 220.0:
 		player.gain_resource(hero.cls.gain_on_kill)
-	# 3.3: LootTableData por raridade (REGRAS §6); HP/XP do chefe já vêm tuned
-	# no EnemyData — a tabela carrega só os drops/ouro
+	# 3.3: LootTableData por raridade (REGRAS #6); HP/XP do chefe já vêm tuned
+	# no EnemyData - a tabela carrega só os drops/ouro
 	var t: LootTableData = DB.loot_tables[e.rarity]
 	if randf() < t.gold_chance:
 		LootDrop.drop_gold(self, pos, gold_amount() * t.gold_mult)
@@ -672,7 +672,7 @@ func _on_enemy_killed(e: Enemy) -> void:
 		LootDrop.drop_item(self, pos, DB.create_item(e.data.unique_drop, item_level() + 2, Item.Rarity.LEGENDARY))
 	elif randf() < t.unique_chance:
 		LootDrop.drop_item(self, pos, DB.roll_item_of(item_level() + 2, Item.Rarity.LEGENDARY, hero.cls))
-	# Essência: moeda rara, só Campeão/Lendário/Chefe (REGRAS §9)
+	# Essência: moeda rara, só Campeão/Lendário/Chefe (REGRAS #9)
 	if t.essence_chance > 0.0 and randf() < t.essence_chance:
 		LootDrop.drop_essence(self, pos, t.essence_amount)
 	# 3.4: kill de Lendário anunciado na HUD (chefe já tem mensagem própria)

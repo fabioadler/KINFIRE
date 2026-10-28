@@ -1,6 +1,6 @@
 class_name CharacterPanelModern
 extends PanelContainer
-## Painel de Personagem Moderno — Design premium dark fantasy
+## Painel de Personagem Moderno - Design premium dark fantasy
 ## Fase 13: Redesign completo com animações e hierarquia visual
 
 const Hero := preload("res://scripts/core/hero.gd")

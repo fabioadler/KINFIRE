@@ -1,6 +1,6 @@
 class_name Npc
 extends Node2D
-## NPC conversável (tarefa 2.3, MECANICAS §7): gente viva no mundo —
+## NPC conversável (tarefa 2.3, MECANICAS #7): gente viva no mundo -
 ## respira, cumprimenta e conversa via DialogueData ramificado.
 ## Diálogos mudam com ignorância/reputação/flags (ConditionResolver);
 ## efeitos aplicam rep/ignorância/flags no save (DialogueEngine).
@@ -50,13 +50,13 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	_t += _delta
-	# Respiração sutil — ninguém fica parado como estátua
+	# Respiração sutil - ninguém fica parado como estátua
 	_sprite.position.y = -8.0 + sin(_t * 1.8 + _phase) * 0.7
 	_light.energy = 0.4 + sin(_t * 2.4 + _phase) * 0.07
 	_sprite.modulate = _tint() * Color(1.4, 1.3, 1.1) if _hover else _tint()
 
 
-# ------------------------------------------------------------------ INTERAÇÃO (duck-typed)
+# ------------------------------------------------------------------ INTERAÇAO (duck-typed)
 
 func hover_check(mouse: Vector2) -> bool:
 	_hover = (global_position + Vector2(0, -8)).distance_to(mouse) < HOVER_RADIUS
@@ -68,7 +68,7 @@ func display_name() -> String:
 		return "???"
 	if data.role == "":
 		return data.display_name
-	return "%s — %s" % [data.display_name, data.role]
+	return "%s - %s" % [data.display_name, data.role]
 
 
 func interact(player: Player) -> void:

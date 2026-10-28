@@ -1,6 +1,6 @@
 class_name SkillTreeData
 extends Resource
-## Árvore de habilidades de uma classe (data-driven).
+## Arvore de habilidades de uma classe (data-driven).
 ## Fica em res://data/trees/<classe>.tres
 
 ## Preload para type hint funcionar em parse time

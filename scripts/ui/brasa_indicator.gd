@@ -8,7 +8,7 @@ var label: Label
 func _ready() -> void:
 	label = Label.new()
 	add_child(label)
-	label.text = "🔥 Brasa: 0/{0}".format([MAX_BRASA])
+	label.text = "[FIRE] Brasa: 0/{0}".format([MAX_BRASA])
 	label.add_theme_font_size_override("font_size", 14)
 	update_display()
 
@@ -20,7 +20,7 @@ func update_display() -> void:
 	if not brasa_system:
 		return
 	var current = brasa_system.get_brasa()
-	label.text = "🔥 Brasa: {0}/{1}".format([current, MAX_BRASA])
+	label.text = "[FIRE] Brasa: {0}/{1}".format([current, MAX_BRASA])
 	
 	# Color gradient: blue → red
 	var ratio = float(current) / MAX_BRASA

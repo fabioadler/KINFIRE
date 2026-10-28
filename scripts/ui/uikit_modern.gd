@@ -1,6 +1,6 @@
 class_name UIKitModern
 extends Node
-## UIKit Moderno — Componentes reutilizáveis com design system premium
+## UIKit Moderno - Componentes reutilizáveis com design system premium
 ## Fase 13: Sistema visual coeso dark fantasy
 
 # Paleta Premium
@@ -41,7 +41,7 @@ const ANIM_SPEED_NORMAL = 0.3
 const ANIM_SPEED_SLOW = 0.6
 
 
-# COMPONENTES ESTÁTICOS
+# COMPONENTES ESTATICOS
 
 static func modern_button(text: String, callback: Callable = Callable(), width: int = 120, height: int = 40) -> Button:
 	var btn := Button.new()

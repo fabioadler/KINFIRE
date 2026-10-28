@@ -28,7 +28,7 @@ func _on_territory_changed(territory_id: StringName) -> void:
 	# Entering Kinfire zone
 	if territory_id in kinfire_zones:
 		lore_manager.add_brasa(1)
-		print("🔥 Brasa +1! (Kinfire zone entered)")
+		print("[FIRE] Brasa +1! (Kinfire zone entered)")
 
 func _on_boss_defeated(zone_id: StringName) -> void:
 	if not lore_manager:
@@ -37,7 +37,7 @@ func _on_boss_defeated(zone_id: StringName) -> void:
 	# Defeated boss in Kinfire zone
 	if zone_id == &"kinfire_core":
 		lore_manager.brasa_system.clear_brasa()
-		print("🔥 Brasa cleared! (Maldrach defeated)")
+		print("[FIRE] Brasa cleared! (Maldrach defeated)")
 
 func _on_zone_exit(zone_id: StringName) -> void:
 	if not lore_manager:
@@ -46,4 +46,4 @@ func _on_zone_exit(zone_id: StringName) -> void:
 	# Left zone without defeating boss
 	if zone_id in kinfire_zones and zone_id != &"kinfire_core":
 		lore_manager.remove_brasa(1)
-		print("🔥 Brasa -1 (zone exited without boss clear)")
+		print("[FIRE] Brasa -1 (zone exited without boss clear)")

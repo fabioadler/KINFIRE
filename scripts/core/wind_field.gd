@@ -1,19 +1,19 @@
 class_name WindField
 extends RefCounted
-## Fase 7.4 (MECANICAS §14.5): campo de vento global — o mundo respira.
-## Vento é INFORMAÇÃO (direção, mudança de tempo, calmaria que pressagia
+## Fase 7.4 (MECANICAS #14.5): campo de vento global - o mundo respira.
+## Vento é INFORMAÇAO (direção, mudança de tempo, calmaria que pressagia
 ## chefes) e MECÂNICA (desvia projéteis, inclina fogueiras, empurra
 ## partículas, muda o custo de rotas).
 ## Coerência espacial e temporal: value-noise sobre (semente do mundo,
-## tick de 10s) interpolado com smoothstep — o vento nunca vira do nada.
+## tick de 10s) interpolado com smoothstep - o vento nunca vira do nada.
 ## Determinístico por (semente, tempo): mesma consulta = mesmo vento.
 
-const TICK := 10.0         ## segundos por amostra de noise (§14.5.1)
+const TICK := 10.0         ## segundos por amostra de noise (#14.5.1)
 const MAX_DEVIATION_DEG := 15.0
 
-## Base por bioma (§14.5.1): rumo predominante + força média.
+## Base por bioma (#14.5.1): rumo predominante + força média.
 ## Pantano sobe bolhas de gás e Vulcânico tem ascensão térmica (tela: -y é
-## "para cima"); Corrompidas são erráticas — o rumo muda sem aviso.
+## "para cima"); Corrompidas são erráticas - o rumo muda sem aviso.
 const BIOME_WIND := {
 	&"planicie": {"dir": Vector2(1, 0), "strength": 0.4},
 	&"floresta": {"dir": Vector2(0.87, 0.5), "strength": 0.3},
@@ -31,7 +31,7 @@ static var override := Vector2.ZERO
 ## Callable(pos) -> bioma (o Overworld registra o seu)
 static var _provider: Callable
 ## Zonas de calmaria sobrenatural: chefes/campeões PARAM o vento ao redor
-## (§14.5.2 — cue visual/auditiva gratuita de perigo). id -> {pos, radius}
+## (#14.5.2 - cue visual/auditiva gratuita de perigo). id -> {pos, radius}
 static var _calms: Dictionary = {}
 
 
@@ -63,14 +63,14 @@ static func direction_at(pos: Vector2, t := -1.0) -> Vector2:
 	return w.normalized() if w.length() > 0.001 else Vector2.ZERO
 
 
-## Bônus de deslocamento a favor do vento (ventania §14.5.1): até ±10%.
+## Bônus de deslocamento a favor do vento (ventania #14.5.1): até ±10%.
 static func speed_factor(pos: Vector2, move_dir: Vector2) -> float:
 	if move_dir == Vector2.ZERO or strength_at(pos) < 0.8:
 		return 1.0
 	return 1.0 + move_dir.normalized().dot(direction_at(pos)) * 0.1
 
 
-## Custo de rota (§14.5.4): contra o vento +5%, a favor -5% (sutil).
+## Custo de rota (#14.5.4): contra o vento +5%, a favor -5% (sutil).
 static func path_factor(from: Vector2, to: Vector2) -> float:
 	var d := to - from
 	if d == Vector2.ZERO:
@@ -79,7 +79,7 @@ static func path_factor(from: Vector2, to: Vector2) -> float:
 	return 1.0 - d.normalized().dot(w) * 0.05
 
 
-## Evento do dia, determinístico por (semente, dia) — §14.5.1:
+## Evento do dia, determinístico por (semente, dia) - #14.5.1:
 ## calmaria (<0.1: presságio), ventania (>0.8), frente (rumo vira), normal.
 static func forecast(day := -1) -> StringName:
 	if day < 0:
@@ -94,12 +94,12 @@ static func forecast(day := -1) -> StringName:
 	return &"normal"
 
 
-## Calmaria pressagia: 30% de chance de chefe nas próximas 2h (§14.5.1)
+## Calmaria pressagia: 30% de chance de chefe nas próximas 2h (#14.5.1)
 static func presagio(day := -1) -> bool:
 	return forecast(day) == &"calmaria" and _rand(day * 917 + 137) < 0.3
 
 
-# ------------------------------------------------------------------ CALMÁRIA
+# ------------------------------------------------------------------ CALMARIA
 
 ## Chefes/campeões registram a calmaria ao redor de si (id = instance id)
 static func add_calm(id: int, pos: Vector2, radius := 320.0) -> void:
@@ -115,7 +115,7 @@ static func remove_calm(id: int) -> void:
 	_calms.erase(id)
 
 
-## A calmaria deste id está viva? (smoke — robusto ao streaming de chunks)
+## A calmaria deste id está viva? (smoke - robusto ao streaming de chunks)
 static func has_calm(id: int) -> bool:
 	return _calms.has(id)
 

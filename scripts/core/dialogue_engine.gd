@@ -1,17 +1,17 @@
 class_name DialogueEngine
 extends RefCounted
-## Motor de diálogo (MECANICAS §7): percorre o grafo de `DialogueData`,
+## Motor de diálogo (MECANICAS #7): percorre o grafo de `DialogueData`,
 ## pagina o texto, filtra escolhas por condição e aplica efeitos.
-## Não desenha UI — emite sinais; a UI (tarefa 2.2) consome.
+## Não desenha UI - emite sinais; a UI (tarefa 2.2) consome.
 ## Efeitos (um por linha em `DialogueChoice.effects`):
-##   flag nome | flag nome=valor   — flag narrativa (Game.flags)
-##   gold n | gold -n              — ouro do herói
-##   xp n                          — experiência
-##   item id_base [qtd]            — adiciona itens comuns
-##   rep raca +n | -n              — reputação (0–4)
-##   ignorancia -n                 — ignorância do Laço-Vivo (0–10)
-##   quest id=estagio              — define estágio da quest (Fase 4)
-##   comercio raca                 — abre a UI de comércio no território (Fase 5.5)
+##   flag nome | flag nome=valor   - flag narrativa (Game.flags)
+##   gold n | gold -n              - ouro do herói
+##   xp n                          - experiência
+##   item id_base [qtd]            - adiciona itens comuns
+##   rep raca +n | -n              - reputação (0–4)
+##   ignorancia -n                 - ignorância do Laço-Vivo (0–10)
+##   quest id=estagio              - define estágio da quest (Fase 4)
+##   comercio raca                 - abre a UI de comércio no território (Fase 5.5)
 
 signal page_shown(text: String, portrait: String)
 signal choices_shown(choices: Array[DialogueChoice])
@@ -142,7 +142,7 @@ static func apply_effects(effects: String) -> void:
 					var kv := parts[1].split("=", false)
 					Game.quests[kv[0]] = {"stage": _int(kv[1]) if kv.size() > 1 else 0}
 			"comercio":
-				# Fase 5.5: o líder libera a negociação — o HUD abre o TradePanel
+				# Fase 5.5: o líder libera a negociação - o HUD abre o TradePanel
 				if parts.size() >= 2:
 					Game.trade_requested.emit(StringName(parts[1]))
 			_:

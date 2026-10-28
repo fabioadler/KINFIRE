@@ -77,7 +77,7 @@ var _last_streak_hit := 0
 var _melee_cdr_done := false
 var _shape := ""
 var _base_scale := 1.0
-# 3.2: veneno (afixo VENENOSO / piso ardente) — dano por segundo direto
+# 3.2: veneno (afixo VENENOSO / piso ardente) - dano por segundo direto
 var _poison_dps := 0.0
 var _poison_time := 0.0
 var _poison_tick := 0.0
@@ -197,7 +197,7 @@ func _physics_process(delta: float) -> void:
 
 	_state_time += delta
 	hero.play_time += delta
-	# 3.2: veneno — tique de 1s; dano direto no HP (ignora armadura/resistências)
+	# 3.2: veneno - tique de 1s; dano direto no HP (ignora armadura/resistências)
 	if _poison_time > 0.0:
 		_poison_time -= delta
 		_poison_tick -= delta
@@ -220,10 +220,10 @@ func _physics_process(delta: float) -> void:
 	# Esquiva cancela recuperação e movimento (cancelamento de animação)
 	if Input.is_action_just_pressed("dodge") and dodge_cd <= 0.0 and state in [State.IDLE, State.MOVE, State.RECOVERY]:
 		_start_dodge(mouse)
-	# Cura simples (Q) — sempre recarrega, sem custo de recurso
+	# Cura simples (Q) - sempre recarrega, sem custo de recurso
 	if Input.is_action_just_pressed("heal"):
 		_use_simple_heal()
-	# Interagir (E) — contextual: fogueira, baú, NPC, portal, item no chão
+	# Interagir (E) - contextual: fogueira, baú, NPC, portal, item no chão
 	if Input.is_action_just_pressed("interact"):
 		_try_interact()
 
@@ -232,7 +232,7 @@ func _physics_process(delta: float) -> void:
 			_request_cast(i + 2, mouse)
 	if Input.is_action_just_pressed("racial"):
 		_request_cast(RACIAL_SLOT, mouse)
-	# Ataque pesado (botão direito do mouse) — skill genérica
+	# Ataque pesado (botão direito do mouse) - skill genérica
 	if _rmb_down:
 		_request_cast(1, mouse)
 
@@ -314,7 +314,7 @@ func _free_movement(mouse: Vector2) -> void:
 			_path.remove_at(0)
 		if not _path.is_empty():
 			dir = global_position.direction_to(_path[0])
-	# 7.4: ventania empurra quem anda a favor do vento (±10%, §14.5.1)
+	# 7.4: ventania empurra quem anda a favor do vento (±10%, #14.5.1)
 	velocity = dir * hero.move_speed() * WindField.speed_factor(global_position, dir)
 	if dir != Vector2.ZERO:
 		facing = dir
@@ -524,7 +524,7 @@ func use_potion() -> void:
 	Fx.burst(world.fx_layer, global_position + Vector2(0, -6), Color(1, 0.2, 0.2), 16, 40.0, 0.7)
 
 
-## Cura simples (Q) — sempre disponível, sem custo, CD 8s
+## Cura simples (Q) - sempre disponível, sem custo, CD 8s
 var _simple_heal_cd := 0.0
 const SIMPLE_HEAL_CD := 8.0
 const SIMPLE_HEAL_PERCENT := 0.15
@@ -540,7 +540,7 @@ func _use_simple_heal() -> void:
 	world.hud.show_message("Cura Simples (+%d%% HP)" % int(SIMPLE_HEAL_PERCENT * 100), Color(0.4, 1, 0.4), 1.2)
 
 
-## Interagir (E) — contextual: fogueira, baú, NPC, portal, item no chão
+## Interagir (E) - contextual: fogueira, baú, NPC, portal, item no chão
 func _try_interact() -> void:
 	# Prioridade: item no chão (LootDrop) > Interactable (fogueira, baú, NPC) > Portal
 	var mouse_pos := get_global_mouse_position()

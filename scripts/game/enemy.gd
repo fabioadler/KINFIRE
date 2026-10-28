@@ -6,11 +6,11 @@ signal killed(enemy: Enemy)
 
 enum State { IDLE, CHASE, WINDUP, ATTACK, RECOVER, STUNNED, DEAD }
 
-## Raridade de monstro (MECANICAS §5.2, REGRAS §6). Chefe é roteirizado:
+## Raridade de monstro (MECANICAS #5.2, REGRAS #6). Chefe é roteirizado:
 ## vira CHEFE no spawn; os dados do EnemyData já são tuned de chefe.
 enum Rarity { COMUM, ELITE, CAMPEAO, LENDARIO, CHEFE }
 
-## Afixos de Campeão/Lendário, estilo Diablo (MECANICAS §5.2).
+## Afixos de Campeão/Lendário, estilo Diablo (MECANICAS #5.2).
 ## Sorteados sem repetição pelo RNG do chunk (determinístico pela semente).
 enum Affix {
 	FURIOSO,              # +30% velocidade de ataque
@@ -27,7 +27,7 @@ const AFFIX_NAMES := [
 	"Mestre-de-Enxame", "Ardente", "Campeão-das-Sombras",
 ]
 
-## Multiplicadores por raridade (REGRAS §6): HP, dano, XP/ouro, escala visual
+## Multiplicadores por raridade (REGRAS #6): HP, dano, XP/ouro, escala visual
 const RARITY_HP := [1.0, 2.5, 5.0, 10.0, 1.0]
 const RARITY_DMG := [1.0, 1.3, 1.8, 2.5, 1.0]
 const RARITY_REWARD := [1, 3, 6, 15, 1]
@@ -78,7 +78,7 @@ var _wander_target := Vector2.ZERO
 var _shader: ShaderMaterial
 var _hp_bar_visible := 0.0
 var _aura: PointLight2D
-## 3.4: beam vertical de spawn do Lendário — visível de longe (REGRAS §6)
+## 3.4: beam vertical de spawn do Lendário - visível de longe (REGRAS #6)
 var _spawn_beam: Polygon2D
 var _home := Vector2.ZERO
 var _target: Node2D
@@ -86,7 +86,7 @@ var _telegraph_target := Vector2.ZERO
 var _frame_h := 16.0
 var _single_frame := false
 var _sprite_y := 0.0
-# 3.2: estado dos afixos (MECANICAS §5.2)
+# 3.2: estado dos afixos (MECANICAS #5.2)
 var affixes: Array[int] = []
 var _shield := 0.0
 var _shield_max := 0.0
@@ -107,8 +107,8 @@ func setup(p_data: EnemyData, p_world: World, p_depth: int, p_rarity: int, p_aff
 
 func _ready() -> void:
 	add_to_group("enemies")
-	# 7.4: Campeões/chefes PARAM o vento ao redor — calmaria sobrenatural
-	# (§14.5.2): cue grátis de perigo, as chamas param de crepitar
+	# 7.4: Campeões/chefes PARAM o vento ao redor - calmaria sobrenatural
+	# (#14.5.2): cue grátis de perigo, as chamas param de crepitar
 	if rarity >= Rarity.CAMPEAO:
 		WindField.add_calm(get_instance_id(), global_position)
 	var diff: Dictionary = Game.hero.difficulty_data() if Game.hero else DB.DIFFICULTIES[0]
@@ -121,7 +121,7 @@ func _ready() -> void:
 	xp = int(data.xp * (1.0 + 0.3 * (depth - 1)))
 	display_name = data.display_name
 	var sc := data.scale
-	# 3.1: raridades (REGRAS §6) — multiplicadores, título e escala.
+	# 3.1: raridades (REGRAS #6) - multiplicadores, título e escala.
 	# Chefe é roteirizado: tabelas valem 1.0/1 no índice CHEFE (dados já tuned).
 	if rarity != Rarity.COMUM:
 		max_hp *= RARITY_HP[rarity]
@@ -136,7 +136,7 @@ func _ready() -> void:
 			Rarity.LENDARIO:
 				display_name = "%s, o Lendário" % data.display_name
 	hp = max_hp
-	# 3.2: Escudo Arcano — escudo inicial de 10% do HP máximo, regenera a cada 5s
+	# 3.2: Escudo Arcano - escudo inicial de 10% do HP máximo, regenera a cada 5s
 	if has_affix(Affix.ESCUDO_ARCANO):
 		_shield_max = max_hp * 0.1
 		_shield = _shield_max
@@ -158,11 +158,11 @@ func _ready() -> void:
 		_shader.set_shader_parameter("outline_color", RARITY_COLORS[rarity])
 	# Aura pulsante: Campeão/Lendário se destacam à primeira vista (aceitação 3.1)
 	if rarity >= Rarity.CAMPEAO and not is_boss():
-		# 7.3: energia >1 para a aura florescer no glow (HDR 2D, §14.3)
+		# 7.3: energia >1 para a aura florescer no glow (HDR 2D, #14.3)
 		_aura = Fx.make_light(RARITY_COLORS[rarity], 1.4, 1.3)
 		_aura.position = Vector2(0, -10)
 		add_child(_aura)
-	# 3.4: Lendário anuncia o spawn com beam visível de longe (REGRAS §6);
+	# 3.4: Lendário anuncia o spawn com beam visível de longe (REGRAS #6);
 	# afunilado (largo na base, estreino no topo) com gradiente até transparente
 	if rarity == Rarity.LENDARIO and not is_boss():
 		_spawn_beam = Polygon2D.new()
@@ -189,8 +189,8 @@ func is_dead() -> bool:
 	return state == State.DEAD
 
 
-## Sorteia a raridade do pack (REGRAS §6): Elite 8% +1%/nível, Campeão 2%,
-## Lendário 0,3%. `bonus` = dificuldade (diff.loot: 0/8/16/28%) — cada
+## Sorteia a raridade do pack (REGRAS #6): Elite 8% +1%/nível, Campeão 2%,
+## Lendário 0,3%. `bonus` = dificuldade (diff.loot: 0/8/16/28%) - cada
 ## dificuldade aumenta as chances de raridade. `rng` opcional para
 ## determinismo por chunk; null usa o RNG global.
 static func roll_rarity(level: int, bonus := 0.0, rng: RandomNumberGenerator = null) -> int:
@@ -207,7 +207,7 @@ static func roll_rarity(level: int, bonus := 0.0, rng: RandomNumberGenerator = n
 	return Rarity.COMUM
 
 
-## Sorteia `count` afixos sem repetição (MECANICAS §5.2). `rng` opcional para
+## Sorteia `count` afixos sem repetição (MECANICAS #5.2). `rng` opcional para
 ## determinismo por chunk; null usa o RNG global.
 static func roll_affixes(rng: RandomNumberGenerator, count: int) -> Array[int]:
 	var pool: Array[int] = [
@@ -224,8 +224,8 @@ static func roll_affixes(rng: RandomNumberGenerator, count: int) -> Array[int]:
 	return out
 
 
-## Afixos por raridade: Campeão 1–2, Lendário 2–3 (MECANICAS §5.2).
-## Inferno dá +1 a Elite+ (REGRAS §7). Comum e Chefe (roteirizado) não ganham.
+## Afixos por raridade: Campeão 1–2, Lendário 2–3 (MECANICAS #5.2).
+## Inferno dá +1 a Elite+ (REGRAS #7). Comum e Chefe (roteirizado) não ganham.
 static func affixes_for(rarity: int, rng: RandomNumberGenerator = null, hell_bonus := false) -> Array[int]:
 	var count := 0
 	match rarity:
@@ -271,7 +271,7 @@ func body_radius() -> float:
 # ------------------------------------------------------------------ DANO E STATUS
 
 ## Retorna o dano efetivamente causado
-## 8.2: multiplicador de dano por tipo elemental (REGRAS §3) — estático
+## 8.2: multiplicador de dano por tipo elemental (REGRAS #3) - estático
 ## para o smoke conferir os números sem instanciar inimigo.
 static func _resist_calc(amount: float, element: String, edata: EnemyData) -> float:
 	if element == "holy" and edata.elemental_type == EnemyData.ElementalType.UNDEAD:
@@ -279,19 +279,19 @@ static func _resist_calc(amount: float, element: String, edata: EnemyData) -> fl
 	if element == "holy" and edata.elemental_type == EnemyData.ElementalType.DEMON:
 		return amount * 1.5  # demônios fracos a Sagrado
 	if element == "shadow" and edata.elemental_type == EnemyData.ElementalType.DEMON:
-		return 0.0  # demônios imunes a Sombrio (não têm laço — LORE)
+		return 0.0  # demônios imunes a Sombrio (não têm laço - LORE)
 	return amount
 
 
 func take_damage(amount: float, crit: bool, from_pos: Vector2, knockback: float, element := "physical", ignore_armor := false) -> float:
 	if is_dead():
 		return 0.0
-	# FANTASMA: 20% de esquiva (MECANICAS §5.2)
+	# FANTASMA: 20% de esquiva (MECANICAS #5.2)
 	if has_affix(Affix.FANTASMA) and randf() < 0.2:
 		DamageNumber.spawn_text(world.fx_layer, hit_center(), "Esquiva", Color(0.65, 0.85, 1.0))
 		return 0.0
 	var final := amount if ignore_armor else amount * (100.0 / (100.0 + armor))
-	# REGRAS §3: resistências/vulnerabilidades por tipo elemental
+	# REGRAS #3: resistências/vulnerabilidades por tipo elemental
 	final = _resist_calc(final, element, data)
 	if final <= 0.0:
 		DamageNumber.spawn_text(world.fx_layer, hit_center(), "Imune", Color(0.75, 0.5, 1))
@@ -311,7 +311,7 @@ func take_damage(amount: float, crit: bool, from_pos: Vector2, knockback: float,
 	hp -= final
 	DamageNumber.spawn(world.fx_layer, hit_center(), final, crit, DB.ELEMENT_COLORS.get(element, Color.WHITE))
 	Fx.burst(world.fx_layer, hit_center(), Color(0.7, 0.05, 0.05) if element == "physical" else DB.ELEMENT_COLORS.get(element, Color.WHITE), 5 if not crit else 10, 50.0, 0.35, 1.5)
-	# TELÚRICO: imune a knockback (MECANICAS §5.2)
+	# TELÚRICO: imune a knockback (MECANICAS #5.2)
 	if not is_boss() and knockback > 0 and not has_affix(Affix.TELURICO):
 		_knock = from_pos.direction_to(global_position) * knockback * (0.4 if rarity >= Rarity.ELITE else 1.0)
 	if state == State.IDLE:
@@ -393,7 +393,7 @@ func _summon_swarm() -> void:
 			m.state = State.CHASE
 
 
-## CAMPEÃO-DAS-SOMBRAS: reaparece a ~60px do alvo, em solo livre
+## CAMPEAO-DAS-SOMBRAS: reaparece a ~60px do alvo, em solo livre
 func _teleport_to_target() -> void:
 	var p := _target.global_position + Vector2.from_angle(randf() * TAU) * 64.0
 	if world.is_solid(p):
@@ -403,7 +403,7 @@ func _teleport_to_target() -> void:
 	Fx.burst(world.fx_layer, hit_center(), Color(0.45, 0.25, 0.9), 12, 70.0, 0.4, 2.0)
 
 
-## FURIOSO: recarga de ataque 30% mais rápida (MECANICAS §5.2)
+## FURIOSO: recarga de ataque 30% mais rápida (MECANICAS #5.2)
 func _reset_attack_cd(base: float) -> float:
 	_attack_cd = base * (0.7 if has_affix(Affix.FURIOSO) else 1.0)
 	return _attack_cd
@@ -412,7 +412,7 @@ func _reset_attack_cd(base: float) -> float:
 # ------------------------------------------------------------------ IA
 
 func _exit_tree() -> void:
-	# 7.4: a calmaria morre com o campeão (§14.5.2)
+	# 7.4: a calmaria morre com o campeão (#14.5.2)
 	if rarity >= Rarity.CAMPEAO:
 		WindField.remove_calm(get_instance_id())
 
@@ -424,10 +424,10 @@ func _physics_process(delta: float) -> void:
 	delta *= tscale
 	_state_time += delta
 	if _aura:
-		# 7.3/7.4: pulsa ATRAVESSANDO o threshold do glow (1.0) — a aura
+		# 7.3/7.4: pulsa ATRAVESSANDO o threshold do glow (1.0) - a aura
 		# de Campeão/Lendário floresce e apaga com a respiração
 		_aura.energy = 1.15 + sin(_state_time * 3.2) * 0.3
-	# 7.4: a calmaria segue o campeão (§14.5.2)
+	# 7.4: a calmaria segue o campeão (#14.5.2)
 	if rarity >= Rarity.CAMPEAO:
 		WindField.move_calm(get_instance_id(), global_position)
 	if _spawn_beam:
@@ -443,7 +443,7 @@ func _physics_process(delta: float) -> void:
 	_shader.set_shader_parameter("flash", _flash)
 	queue_redraw()
 
-	# 3.2: afixos com pulso contínuo (MECANICAS §5.2) — antes da economia de CPU
+	# 3.2: afixos com pulso contínuo (MECANICAS #5.2) - antes da economia de CPU
 	# do "sono", para que os efeitos rodam mesmo longe do jogador (teste/despawn)
 	if has_affix(Affix.ESCUDO_ARCANO) and _shield < _shield_max:
 		_shield_timer -= delta
@@ -559,7 +559,7 @@ func _hit_target(t: Node2D, dmg: float) -> void:
 		(t as Enemy).take_damage(dmg, false, global_position, 40.0, data.element)
 	elif t.has_method("take_damage"):
 		t.take_damage(dmg, global_position, data.element, self)
-		# VENENOSO: o golpe aplica veneno (não em outros inimigos; MECANICAS §5.2)
+		# VENENOSO: o golpe aplica veneno (não em outros inimigos; MECANICAS #5.2)
 		if has_affix(Affix.VENENOSO) and t.has_method("apply_poison"):
 			t.apply_poison(dmg * 0.25, 3.0)
 

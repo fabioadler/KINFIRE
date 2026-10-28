@@ -1,8 +1,8 @@
 class_name UnifiedPanel
 extends PanelContainer
-## Painel do jogador unificado (Fase 6.2, MECANICAS §9.3): abas
+## Painel do jogador unificado (Fase 6.2, MECANICAS #9.3): abas
 ## Personagem | Inventário | Habilidades | Missões em uma só janela.
-## Os painéis existentes viram páginas — cada tecla (I/C/K/J) abre direto
+## Os painéis existentes viram páginas - cada tecla (I/C/K/J) abre direto
 ## na aba correspondente; abrir outra aba troca, abrir na mesma fecha.
 
 const WIDTH := 760.0
@@ -69,7 +69,7 @@ func close() -> void:
 	current = -1
 	for i in panels.size():
 		(panels[i]["panel"] as Control).visible = false
-	# 6.5: fecha com pop_out — a janela some quando a animação termina;
+	# 6.5: fecha com pop_out - a janela some quando a animação termina;
 	# reabrir no meio mata o tween e cancela o callback
 	_kill_pop()
 	_pop = UIKit.pop_out(self, func():
@@ -107,5 +107,5 @@ func toggle(idx: int, on_open: Callable = Callable()) -> void:
 
 func _refresh_tabs() -> void:
 	for i in _tab_buttons.size():
-		# aba ativa com underline dourado (§9.3)
+		# aba ativa com underline dourado (#9.3)
 		_tab_buttons[i].modulate = UIKit.ACCENT_GOLD if i == current else UIKit.TEXT_DIM

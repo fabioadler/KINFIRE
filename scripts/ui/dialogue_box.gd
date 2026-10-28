@@ -1,6 +1,6 @@
 class_name DialogueBox
 extends Control
-## UI de diálogo (MECANICAS §7, tarefa 2.2): caixa inferior com retrato animado,
+## UI de diálogo (MECANICAS #7, tarefa 2.2): caixa inferior com retrato animado,
 ## texto paginado com efeito máquina-de-escrever e botões de escolha.
 ## Consome `DialogueEngine` por sinais; pausa o mundo enquanto aberta.
 ## Tokens de texto: {heroi}, {raca}, {classe} são substituídos ao exibir.
@@ -29,7 +29,7 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	process_mode = Node.PROCESS_MODE_ALWAYS
 
-	# Dim suave por trás — o mundo pausa, a caixa respira
+	# Dim suave por trás - o mundo pausa, a caixa respira
 	_dim = ColorRect.new()
 	_dim.color = Color(0, 0, 0, 0.0)
 	_dim.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -103,7 +103,7 @@ func open(data: DialogueData, speaker_name: String = "") -> void:
 	get_tree().paused = true
 	UIKit.pop_in(_panel)
 	Sfx.play(&"ui_open", -8.0)
-	# 7.5: música abaixa −6dB durante o diálogo (MECANICAS §15.1)
+	# 7.5: música abaixa -6dB durante o diálogo (MECANICAS #15.1)
 	Audio.duck_music(true)
 	engine.start(data)
 
@@ -120,7 +120,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 
 
-# ------------------------------------------------------------------ PÁGINAS/ESCOLHAS
+# ------------------------------------------------------------------ PAGINAS/ESCOLHAS
 
 func _show_page(text: String, portrait: String) -> void:
 	_choices_box.visible = false
@@ -170,7 +170,7 @@ func _close() -> void:
 		_type_tween.kill()
 	get_tree().paused = false
 	Sfx.play(&"ui_close", -10.0)
-	# 7.5: diálogo acabou — música volta ao volume (MECANICAS §15.1)
+	# 7.5: diálogo acabou - música volta ao volume (MECANICAS #15.1)
 	Audio.duck_music(false)
 	var tw := create_tween()
 	tw.tween_property(_dim, "color:a", 0.0, 0.18)

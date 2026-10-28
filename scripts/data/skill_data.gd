@@ -6,7 +6,7 @@ enum Kind {
 	MELEE_ARC,      ## Golpe em cone na frente do herói
 	PROJECTILE,     ## Projétil(eis) em direção ao mouse
 	AOE_SELF,       ## Explosão/aura ao redor do herói
-	AOE_TARGET,     ## Área no ponto do mouse (após atraso)
+	AOE_TARGET,     ## Area no ponto do mouse (após atraso)
 	DASH,           ## Avanço causando dano no caminho (ou teleporte se dano = 0)
 	HEAL,           ## Cura
 	BUFF,           ## Bônus temporário

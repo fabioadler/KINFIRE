@@ -1,19 +1,19 @@
 class_name Market
 extends RefCounted
-## Economia dinâmica (Fase 5.2): preços por oferta/demanda — REGRAS §10,
-## MECANICAS §10. Estado no Game.market: {território: {"demand": {cat: float},
+## Economia dinâmica (Fase 5.2): preços por oferta/demanda - REGRAS #10,
+## MECANICAS #10. Estado no Game.market: {território: {"demand": {cat: float},
 ## "sold": [índices do estoque do dia]}}.
 ##
 ## - Demanda por categoria ∈ [0.6, 1.5], inicia 1.0.
 ## - Vender N itens da categoria reduz 3% por item; comprar eleva 3% por item.
-## - A cada virada de dia (06:00, REGRAS §14) a demanda recupera 5% rumo ao
+## - A cada virada de dia (06:00, REGRAS #14) a demanda recupera 5% rumo ao
 ##   nível natural: 0.7 para o que o território PRODUZ (inundado), 1.3 para
-##   o que não produz (escasso) — "cada território paga mais pelo que não
+##   o que não produz (escasso) - "cada território paga mais pelo que não
 ##   produz e menos pelo que produz".
 ## - Preço de compra = valor base × demanda × fator da especialidade
-##   (produto local ×0.7) × (1 − desconto de reputação, 5.3).
-## - Preço de venda = valor base × 40% (REGRAS §8) × demanda × fator de
-##   escassez (categoria que o território NÃO produz ×1.25; produz ×0.8).
+##   (produto local ×0.7) × (1 - desconto de reputação, 5.3).
+## - Preço de venda = valor base × 40% (REGRAS #8) × demanda × fator de
+##   escassez (categoria que o território NAO produz ×1.25; produz ×0.8).
 ##   Rotas comerciais emergem: comprar barato no produtor, vender caro
 ##   em quem não produz.
 
@@ -27,10 +27,10 @@ const NATURAL_SCARCE := 1.3    ## nível natural do que não produz
 const PRODUCER_BUY := 0.45    ## produto local sai barato na compra (dump do produtor)
 const SCARCE_SELL := 1.25      ## o que falta paga premium na venda
 const FLOODED_SELL := 0.8      ## o que sobra paga pouco na venda
-const VENDOR_BUYS_AT := 0.40   ## REGRAS §8: vendor compra a 40% do valor
+const VENDOR_BUYS_AT := 0.40   ## REGRAS #8: vendor compra a 40% do valor
 
 
-## Dia de mercado: vira às 06:00 (REGRAS §14) — dia do estoque dos vendors
+## Dia de mercado: vira às 06:00 (REGRAS #14) - dia do estoque dos vendors
 static func market_day() -> int:
 	return floori(Game.world_time - 0.25)
 
@@ -102,9 +102,9 @@ static func sell_price(race: StringName, item: Item) -> int:
 	return base_price
 
 
-## Desconto por reputação (REGRAS §10, MECANICAS §10): 0/5/10/15/20% por tier
+## Desconto por reputação (REGRAS #10, MECANICAS #10): 0/5/10/15/20% por tier
 ## 0–4. Sem `reputation` explícito, usa a reputação do herói COM O
-## TERRITÓRIO do vendor (não a raça do herói — cada território lembra).
+## TERRITÓRIO do vendor (não a raça do herói - cada território lembra).
 static func rep_discount(reputation := -1, race := &"") -> float:
 	var rep := 0
 	if reputation >= 0:
@@ -116,7 +116,7 @@ static func rep_discount(reputation := -1, race := &"") -> float:
 	return 0.05 * rep
 
 
-## Nome do tier de reputação (MECANICAS §10) — exibido na UI de comércio
+## Nome do tier de reputação (MECANICAS #10) - exibido na UI de comércio
 static func tier_name(rep: int) -> String:
 	return ["Estranho", "Conhecido", "Respeitado", "Honrado", "Laço"][clampi(rep, 0, 4)]
 

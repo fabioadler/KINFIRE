@@ -30,7 +30,7 @@ var free_bonus := {}
 var level: int = 1
 var xp: int = 0
 var gold: int = 0
-## Moeda "dura" da economia (REGRAS §9): só dropa de Campeão/Lendário/Chefe
+## Moeda "dura" da economia (REGRAS #9): só dropa de Campeão/Lendário/Chefe
 var essence: int = 0
 var unspent_points: int = 0
 ## Status ARPG (pontos livres distribuíveis + base da classe)
@@ -38,7 +38,7 @@ var unspent_points: int = 0
 var status := {"forca": 10, "agilidade": 10, "mente": 10, "vitalidade": 10}
 ## Pontos de status não gastos (ganhos ao subir de nível: +2/nível)
 var status_points: int = 0
-## Árvore de habilidades: pontos não gastos (+1/nível) e nós desbloqueados
+## Arvore de habilidades: pontos não gastos (+1/nível) e nós desbloqueados
 var tree_points: int = 0
 var tree_unlocked: Array[StringName] = []
 var inventory: InventoryGrid
@@ -65,7 +65,7 @@ var guild_rank: String = "F"  # Rank dentro da guilda (ainda não usado, delegad
 var guild_xp: int = 0  # XP dentro da guilda
 var contracts_active: Array[StringName] = []  # Contratos em andamento
 var contracts_completed: int = 0  # Total de contratos concluídos
-var rank_f_s: String = "F"  # Rank global F-S (REGRAS §18)
+var rank_f_s: String = "F"  # Rank global F-S (REGRAS #18)
 var player_guild_id: StringName = &""  # ID da guilda criada pelo jogador (se houver)
 var membro_guilda_jogador: StringName = &""  # ID da guilda do jogador que o herói é membro (não fundador)
 
@@ -106,8 +106,8 @@ static func create(p_name: String, p_race: RaceData, p_cls: ClassData, p_sex: St
 	return h
 
 
-## Herói provisório do prólogo: aldeão nível 0, raça/classe ocultas (REGRAS §13,
-## MECANICAS §11). Ao criar o personagem de verdade, o objeto é reconstruído.
+## Herói provisório do prólogo: aldeão nível 0, raça/classe ocultas (REGRAS #13,
+## MECANICAS #11). Ao criar o personagem de verdade, o objeto é reconstruído.
 static func create_villager() -> Hero:
 	var h := Hero.new()
 	h.hero_name = "Aldeão"
@@ -129,7 +129,7 @@ func _make_inventory() -> void:
 	inventory = InventoryGrid.new(10 + race.extra_inventory_cols, 6)
 
 
-## Quantos itens-base o herói possui (inventário + equipados) — condições de diálogo (MECANICAS §7)
+## Quantos itens-base o herói possui (inventário + equipados) - condições de diálogo (MECANICAS #7)
 func count_item(base: StringName) -> int:
 	var n := 0
 	for it in inventory.items:
@@ -310,10 +310,10 @@ func roll_damage(mult: float) -> Array:
 	return [maxf(dmg, 1.0), crit]
 
 
-# ------------------------------------------------------------ PROGRESSÃO
+# ------------------------------------------------------------ PROGRESSAO
 
 func xp_to_next() -> int:
-	## Nível 0 (prólogo do aldeão) usa o mesmo requisito do nível 1 — REGRAS §13
+	## Nível 0 (prólogo do aldeão) usa o mesmo requisito do nível 1 - REGRAS #13
 	if level <= 0:
 		return 20
 	return int(20 * pow(level, 1.5))
@@ -326,11 +326,11 @@ func add_xp(amount: int) -> void:
 	while xp >= xp_to_next() and level < MAX_LEVEL:
 		xp -= xp_to_next()
 		level += 1
-		## +1 ponto de atributo D&D a cada 4 níveis (1, 5, 9, 13…) — REGRAS §2
+		## +1 ponto de atributo D&D a cada 4 níveis (1, 5, 9, 13…) - REGRAS #2
 		unspent_points += 1 if level % 4 == 1 else 0
-		## +2 pontos de status ARPG por nível (livres para distribuir) — REGRAS §2/Fase 10
+		## +2 pontos de status ARPG por nível (livres para distribuir) - REGRAS #2/Fase 10
 		status_points += 2
-		## +1 ponto de árvore de habilidades por nível — Fase 10.4
+		## +1 ponto de árvore de habilidades por nível - Fase 10.4
 		tree_points += 1
 		## Base da classe escala com o nível (status_growth)
 		_recalc_status()
@@ -703,7 +703,7 @@ static func from_dict(d: Dictionary) -> Hero:
 	for s in ["forca", "agilidade", "mente", "vitalidade"]:
 		h.status[s] = int(st.get(s, h.cls.base_status.get(s, 10)))
 	h.status_points = int(d.get("status_points", 0))
-	# Árvore de habilidades
+	# Arvore de habilidades
 	h.tree_points = int(d.get("tree_points", 0))
 	var tree_unlocked_str: Array = d.get("tree_unlocked", [])
 	for sid in tree_unlocked_str:

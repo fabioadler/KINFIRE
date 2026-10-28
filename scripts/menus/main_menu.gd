@@ -95,7 +95,7 @@ func _ready() -> void:
 	lm.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
 	_logo.material = lm
 	center.add_child(_logo)
-	# 6.3: brasas que sobem do próprio logo — o Kinfire que ainda arde
+	# 6.3: brasas que sobem do próprio logo - o Kinfire que ainda arde
 	_logo_embers = CPUParticles2D.new()
 	_logo_embers.amount = 24
 	_logo_embers.lifetime = 2.2
@@ -139,7 +139,7 @@ func _ready() -> void:
 	var links := []
 	for a in AUTHORS:
 		links.append("[url=%s][color=#e8c060]%s[/color][/url]" % [a.url, a.name])
-	_byline.text = "[color=#8a7a6a]Criado por[/color] %s [color=#8a7a6a]e[/color] %s   [color=#5a4f45]•  v%s — Godot 4[/color]" % [links[0], links[1], Game.VERSION]
+	_byline.text = "[color=#8a7a6a]Criado por[/color] %s [color=#8a7a6a]e[/color] %s   [color=#5a4f45]•  v%s - Godot 4[/color]" % [links[0], links[1], Game.VERSION]
 	_byline.meta_clicked.connect(func(meta): OS.shell_open(str(meta)))
 	add_child(_byline)
 
@@ -184,7 +184,7 @@ func _build_summary() -> PanelContainer:
 		pv.custom_minimum_size = Vector2(150, 70)
 		pv.set_sprite(r.sprite_f if h.get("sex", "m") == "f" else r.sprite_m, Color.html(h.get("tint", "ffffffff")) * r.tint)
 		v.add_child(pv)
-		var l := UIKit.rich("[center][color=#e8c060]%s[/color]\n%s %s — nv %d\n[color=#999999]Profundidade %d[/color][/center]" % [
+		var l := UIKit.rich("[center][color=#e8c060]%s[/color]\n%s %s - nv %d\n[color=#999999]Profundidade %d[/color][/center]" % [
 			h.get("name", "?"), r.display_name, c.display_name, int(h.get("level", 1)), int(data.get("depth", 1))])
 		l.custom_minimum_size.x = 170
 		v.add_child(l)
@@ -216,7 +216,7 @@ void fragment() {
 
 
 ## Gradiente das brasas: nasce laranja translúcido, acende no pico e
-## morre vermelho apagado — a mesma rampa do rodapé e do logo (§9.1:
+## morre vermelho apagado - a mesma rampa do rodapé e do logo (#9.1:
 ## "brasa viva" do tema dark fantasy premium).
 func _ember_ramp() -> Gradient:
 	var ramp := Gradient.new()
@@ -287,7 +287,7 @@ func _process(delta: float) -> void:
 
 
 func _on_new_game() -> void:
-	# Todo novo jogo começa no prólogo: o aldeão e o espelho (REGRAS §13)
+	# Todo novo jogo começa no prólogo: o aldeão e o espelho (REGRAS #13)
 	if Game.has_save():
 		_confirm("Iniciar um novo jogo apagará o personagem salvo. Continuar?", func(): Game.new_prologue())
 	else:
@@ -310,7 +310,7 @@ func _on_help() -> void:
 [cell][color=#aaaaaa]Atacar   [/color][/cell][cell]Clique esquerdo no inimigo (segure para continuar)[/cell]
 [cell][color=#aaaaaa]Atacar parado   [/color][/cell][cell]Shift + clique esquerdo[/cell]
 [cell][color=#aaaaaa]Habilidades   [/color][/cell][cell]Botão direito, 1, 2, 3, 4 e R (racial)[/cell]
-[cell][color=#aaaaaa]Esquiva   [/color][/cell][cell]Espaço — cancela a recuperação do ataque[/cell]
+[cell][color=#aaaaaa]Esquiva   [/color][/cell][cell]Espaço - cancela a recuperação do ataque[/cell]
 [cell][color=#aaaaaa]Poção   [/color][/cell][cell]Q (recarga de 20s)[/cell]
 [cell][color=#aaaaaa]Painéis   [/color][/cell][cell]I inventário • C personagem • K habilidades • Esc menu[/cell]
 [cell][color=#aaaaaa]Itens no chão   [/color][/cell][cell]Clique no nome para pegar; Alt mostra todos[/cell][/table]
@@ -357,23 +357,23 @@ func _on_credits() -> void:
 	var r := UIKit.rich("""[center][font_size=15][color=#999999]Um RPG de ação top-down com raças e classes de D&D
 e combate inspirado em Diablo.[/color][/font_size]
 
-[font_size=20][color=#e8c060]— Criação e Desenvolvimento —[/color][/font_size]
+[font_size=20][color=#e8c060]- Criação e Desenvolvimento -[/color][/font_size]
 
-%s[font_size=20][color=#e8c060]— Arte —[/color][/font_size]
-Personagens, monstros e masmorra: [color=#ffffff]0x72[/color] — DungeonTileset II (CC0)
-Ícones de itens e habilidades: [color=#ffffff]Henrique Lazarini (7Soul1)[/color] — 496 RPG Icons (CC0)
-Mundo aberto, tiles e UI: [color=#ffffff]Kenney[/color] — Roguelike RPG Pack, Tiny Dungeon, UI Pack RPG (CC0)
+%s[font_size=20][color=#e8c060]- Arte -[/color][/font_size]
+Personagens, monstros e masmorra: [color=#ffffff]0x72[/color] - DungeonTileset II (CC0)
+Ícones de itens e habilidades: [color=#ffffff]Henrique Lazarini (7Soul1)[/color] - 496 RPG Icons (CC0)
+Mundo aberto, tiles e UI: [color=#ffffff]Kenney[/color] - Roguelike RPG Pack, Tiny Dungeon, UI Pack RPG (CC0)
 
-[font_size=20][color=#e8c060]— Áudio —[/color][/font_size]
-Efeitos: [color=#ffffff]Kenney[/color] — RPG Audio, Impact Sounds (CC0)
-"Cave Theme" — OpenGameArt.org (CC0)
-"Dark Ambience Loop" — [color=#ffffff]Iwan Gabovitch (qubodup)[/color] (CC-BY 3.0)
+[font_size=20][color=#e8c060]- Audio -[/color][/font_size]
+Efeitos: [color=#ffffff]Kenney[/color] - RPG Audio, Impact Sounds (CC0)
+"Cave Theme" - OpenGameArt.org (CC0)
+"Dark Ambience Loop" - [color=#ffffff]Iwan Gabovitch (qubodup)[/color] (CC-BY 3.0)
 
-[font_size=20][color=#e8c060]— Fontes —[/color][/font_size]
-Cinzel — Natanael Gama (SIL OFL)
-Alegreya — Huerta Tipográfica (SIL OFL)
+[font_size=20][color=#e8c060]- Fontes -[/color][/font_size]
+Cinzel - Natanael Gama (SIL OFL)
+Alegreya - Huerta Tipográfica (SIL OFL)
 
-[font_size=20][color=#e8c060]— Motor —[/color][/font_size]
+[font_size=20][color=#e8c060]- Motor -[/color][/font_size]
 [url=https://godotengine.org][color=#8a9bd0]Godot Engine[/color][/url]
 
 [font_size=15][color=#999999]Obrigado por jogar![/color][/font_size][/center]""" % dev)

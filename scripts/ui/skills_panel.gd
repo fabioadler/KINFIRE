@@ -15,7 +15,7 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 	hud = p_hud
 	hero = p_hero
 	add_theme_stylebox_override("panel", StyleBoxEmpty.new())
-	var w := UIKit.window_panel("Habilidades — %s" % hero.cls.display_name, Vector2(620, 0), func(): hud.toggle_skills())
+	var w := UIKit.window_panel("Habilidades - %s" % hero.cls.display_name, Vector2(620, 0), func(): hud.toggle_skills())
 	add_child(w.panel)
 	var body: VBoxContainer = w.body
 

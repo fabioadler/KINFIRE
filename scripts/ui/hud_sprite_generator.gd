@@ -12,7 +12,7 @@ static func create_hud_sprites() -> void:
 	_create_bar_backgrounds()
 	_create_skill_slots()
 	_create_icons()
-	print("✅ Sprites HUD modernos criados")
+	print("[OK] Sprites HUD modernos criados")
 
 
 static func _create_panel_frame() -> void:
@@ -141,6 +141,6 @@ static func _save_svg(path: String, content: String) -> void:
 	var file = FileAccess.open(path, FileAccess.WRITE)
 	if file:
 		file.store_string(content)
-		print("✅ Criado: %s" % path)
+		print("[OK] Criado: %s" % path)
 	else:
-		print("❌ Erro ao criar: %s" % path)
+		print("[ERROR] Erro ao criar: %s" % path)

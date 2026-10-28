@@ -1,6 +1,6 @@
 class_name OptionsPanel
 extends PanelContainer
-## Tela de opções com abas (Áudio, Vídeo, Jogabilidade, Controles). Usada no menu e na pausa.
+## Tela de opções com abas (Audio, Vídeo, Jogabilidade, Controles). Usada no menu e na pausa.
 
 signal closed
 
@@ -24,7 +24,7 @@ func _build(tab: int) -> void:
 	_tabs.custom_minimum_size = Vector2(620, 440)
 	body.add_child(_tabs)
 
-	var audio := _page("Áudio")
+	var audio := _page("Audio")
 	_slider(audio, "Volume Geral", "master_volume", 0.0, 1.0, 0.05, true)
 	_slider(audio, "Música", "music_volume", 0.0, 1.0, 0.05, true)
 	_slider(audio, "Efeitos Sonoros", "sfx_volume", 0.0, 1.0, 0.05, true)
@@ -48,7 +48,7 @@ func _build(tab: int) -> void:
 	_slider(video, "Brilho da Masmorra", "brightness", 0.6, 1.8, 0.05, true)
 	_check(video, "Mostrar FPS", "show_fps")
 	_option(video, "Sombras", "shadows", ["Desligadas", "Suaves (PCF5)", "Nítidas (PCF13)"])
-	# 7.7: FSR 2.2 / MSAA / presets de qualidade (§14.6)
+	# 7.7: FSR 2.2 / MSAA / presets de qualidade (#14.6)
 	_preset_option(video)
 	_option(video, "FSR 2.2 (ampliação)", "fsr_mode", ["Desligado", "Qualidade", "Equilibrado", "Desempenho"])
 	_option(video, "MSAA", "msaa", ["Desligado", "2×", "4×"])
@@ -173,7 +173,7 @@ func _option(parent: Control, text: String, key: String, items: Array) -> void:
 	parent.add_child(row)
 
 
-## 7.7: Preset de Qualidade (§14.6) — aplica uma combinação de settings de
+## 7.7: Preset de Qualidade (#14.6) - aplica uma combinação de settings de
 ## uma vez (Baixo/Médio/Alto) e reconstrói o painel para os controles
 ## individuais refletirem o novo estado.
 func _preset_option(parent: Control) -> void:

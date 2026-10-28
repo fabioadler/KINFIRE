@@ -47,7 +47,7 @@ func refresh() -> void:
 		elif ql.is_completed(q.id):
 			done.append(q)
 	if actives.is_empty() and done.is_empty():
-		_list.add_child(UIKit.label("Nenhuma missão ainda — fale com os habitantes do mundo.", 15, UIKit.TEXT_DIM))
+		_list.add_child(UIKit.label("Nenhuma missão ainda - fale com os habitantes do mundo.", 15, UIKit.TEXT_DIM))
 		_frags.text = ""
 		return
 	for q in actives:
@@ -55,7 +55,7 @@ func refresh() -> void:
 	for q in done:
 		_add_quest(q, false)
 	_frags.text = "◆ Fragmentos da Verdade: %d/8%s" % [ql.fragments(),
-		"" if ql.golden_ending_unlocked() else "  —  reúna todos para o Final Dourado"]
+		"" if ql.golden_ending_unlocked() else "  -  reúna todos para o Final Dourado"]
 
 
 func _add_quest(q: QuestData, active: bool) -> void:

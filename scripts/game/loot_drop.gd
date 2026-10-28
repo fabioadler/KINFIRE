@@ -38,7 +38,7 @@ static func drop_globe(w: World, pos: Vector2) -> LootDrop:
 	return _spawn(w, l, pos)
 
 
-## Essência: moeda rara de Campeão/Lendário/Chefe (REGRAS §9)
+## Essência: moeda rara de Campeão/Lendário/Chefe (REGRAS #9)
 static func drop_essence(w: World, pos: Vector2, amount: int) -> LootDrop:
 	var l := LootDrop.new()
 	l.kind = Kind.ESSENCE
@@ -82,7 +82,7 @@ func _ready() -> void:
 		_label.reset_size()
 		_label.position = Vector2(-_label.size.x / 6.0, -24)
 		if item.rarity >= Item.Rarity.RARE:
-			# 7.3: energia >1 para florescer no glow (HDR 2D, §14.3)
+			# 7.3: energia >1 para florescer no glow (HDR 2D, #14.3)
 			_beam = Fx.make_light(item.rarity_color(), 0.5, 1.35)
 			_beam.position = Vector2(0, -6)
 			add_child(_beam)
@@ -92,7 +92,7 @@ func _ready() -> void:
 	elif kind == Kind.GOLD:
 		Sfx.play(&"coins", -10.0)
 	elif kind == Kind.ESSENCE:
-		# Beam roxo — visível de longe (drop raro)
+		# Beam roxo - visível de longe (drop raro)
 		_beam = Fx.make_light(Color(0.75, 0.5, 1.0), 0.7, 0.9)
 		_beam.position = Vector2(0, -6)
 		add_child(_beam)

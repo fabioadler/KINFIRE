@@ -28,7 +28,7 @@ static func make_light(color: Color, scale: float, energy: float = 1.0,
 	l.color = color
 	l.texture_scale = scale
 	l.energy = energy
-	# 7.2: tremulação por fonte + candidatura ao orçamento de sombra (§14.2)
+	# 7.2: tremulação por fonte + candidatura ao orçamento de sombra (#14.2)
 	if flicker != LightFx.Flicker.NONE or shadow:
 		LightFx.register(l, flicker, shadow)
 	return l

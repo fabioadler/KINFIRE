@@ -1,7 +1,7 @@
 class_name BuffChip
 extends Control
-## Chip do strip de buffs da HUD moderna (Fase 6.1, MECANICAS §9.2):
-## disco colorido com anel de tempo restante e contagem em segundos —
+## Chip do strip de buffs da HUD moderna (Fase 6.1, MECANICAS #9.2):
+## disco colorido com anel de tempo restante e contagem em segundos -
 ## expira com fade quando o buff acaba.
 
 var color := Color.WHITE:

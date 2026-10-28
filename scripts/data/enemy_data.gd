@@ -3,7 +3,7 @@ extends Resource
 ## Definição de monstro. Fica em res://data/enemies/*.tres
 
 enum Behavior { MELEE, RANGED, CHARGER, SWARM, BOSS }
-## Tipo elemental para resistências/vulnerabilidades (REGRAS §3):
+## Tipo elemental para resistências/vulnerabilidades (REGRAS #3):
 ## "undead" = fraco a holy (×1.5), "demon" = imune a shadow + fraco a holy
 enum ElementalType { NONE, UNDEAD, DEMON }
 
@@ -16,7 +16,7 @@ enum ElementalType { NONE, UNDEAD, DEMON }
 @export var damage: float = 6.0
 ## physical, fire, ice, poison, shadow, arcane, holy
 @export var element: String = "physical"
-@export var elemental_type: ElementalType = ElementalType.NONE  ## REGRAS §3
+@export var elemental_type: ElementalType = ElementalType.NONE  ## REGRAS #3
 @export var armor: float = 0.0
 @export var move_speed: float = 55.0
 @export var attack_range: float = 18.0
@@ -35,6 +35,6 @@ enum ElementalType { NONE, UNDEAD, DEMON }
 @export var habitats: PackedStringArray = PackedStringArray(["dungeon"])
 ## Chefe de mundo (aparece raramente em regiões distantes)
 @export var world_boss: bool = false
-## 3.3 — eixo por inimigo do LootTableData: base_id de um item único
+## 3.3 - eixo por inimigo do LootTableData: base_id de um item único
 ## (lendário nomeado) garantido ao matar este inimigo; vazio = nenhum
 @export var unique_drop: StringName = &""
