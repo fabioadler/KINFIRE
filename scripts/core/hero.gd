@@ -411,13 +411,9 @@ func status_bonus() -> Dictionary:
 
 
 ## Retorna o rank atual de um nó da árvore de habilidades
+## Conta quantas vezes o nó foi comprado (cada compra = +1 rank)
 func get_tree_node_rank(node_id: StringName) -> int:
-	if node_id in tree_unlocked:
-		# Conta quantas vezes o nó foi "comprado" (simplificado: 1 rank por compra)
-		# Para ranks > 1, precisaríamos um dict node_id -> rank
-		# Por enquanto retorna 1 se desbloqueado
-		return 1
-	return 0
+	return tree_unlocked.count(node_id)
 
 
 ## Gasta 1 ponto de árvore no nó indicado
