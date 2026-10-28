@@ -197,7 +197,7 @@ func _build_bottom_bar() -> void:
 
 	# Botões de painéis
 	_bar_buttons = {}
-	var shortcuts := [
+	var shortcuts: Array = [
 		("C", "character", Game.key_name("char")),
 		("I", "inventory", Game.key_name("inv")),
 		("S", "skills", Game.key_name("skills")),

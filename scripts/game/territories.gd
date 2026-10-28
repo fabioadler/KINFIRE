@@ -88,7 +88,7 @@ func region_name_at(c: Vector2i) -> String:
 	return "Terra de Ninguém"
 
 
-# ------------------------------------------------------------------ GERAÇAO
+# ------------------------------------------------------------------ GERACAO
 
 func _build() -> void:
 	# A capital do jogador é o acampamento promovido (origem)

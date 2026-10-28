@@ -1,7 +1,7 @@
 class_name LightFx
 extends RefCounted
 ## Fase 7.2: gestão de luzes 2D - tremulação por fonte (fogueira oscila, lava
-## pulsa, tocha crepita) e ORÇAMENTO DE SOMBRA: no máx. 8 luzes com sombra
+## pulsa, tocha crepita) e ORCAMENTO DE SOMBRA: no máx. 8 luzes com sombra
 ## ativas perto da tela; o resto degrada para luz sem sombra (MECANICAS #14.2).
 ## Sombras reais vêm dos occlusores de tile (paredes, árvores, lápides) - cada
 ## luz com sombra os projeta conforme se move. Luz sagrada ignora oclusores

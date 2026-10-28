@@ -204,9 +204,9 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 
 func refresh() -> void:
 	var diff: Dictionary = hero.difficulty_data()
-	_header.text = "[font_size=22][color=#e8c060]%s[/color][/font_size]\n%s %s - Nível %d\n[color=#999999]XP: %d / %d   •   [/color][color=#%s]%s%s[/color]" % [
+	_header.text = "[font_size=22][color=#e8c060]%s[/color][/font_size]\n%s %s - Nível %d\n[color=#999999]XP: %d / %d   -   [/color][color=#%s]%s%s[/color]" % [
 		hero.hero_name, hero.race.display_name, hero.cls.display_name, hero.level, hero.xp, hero.xp_to_next(),
-		diff.color.to_html(false), diff.name, " • Hardcore" if hero.hardcore else ""]
+		diff.color.to_html(false), diff.name, " - Hardcore" if hero.hardcore else ""]
 	_points_label.text = ("Pontos de atributo disponíveis: %d" % hero.unspent_points) if hero.unspent_points > 0 else ""
 	for a in DB.ABILITIES:
 		var row: Dictionary = _ability_rows[a]
@@ -221,7 +221,7 @@ func refresh() -> void:
 		row.score.add_theme_color_override("font_color", UIKit.GOLD if primary else Color.WHITE)
 	var t := "[font_size=14][table=2]"
 	var wd := hero.weapon_damage()
-	t += _row("Dano da arma", "%d – %d" % [wd.x * hero.damage_multiplier(), wd.y * hero.damage_multiplier()])
+	t += _row("Dano da arma", "%d - %d" % [wd.x * hero.damage_multiplier(), wd.y * hero.damage_multiplier()])
 	t += _row("DPS estimado", "%.1f" % hero.dps_estimate())
 	t += _row("Velocidade de ataque", "%.2f/s" % hero.attack_speed())
 	t += _row("Chance de crítico", "%.1f%%" % (hero.crit_chance() * 100))
@@ -284,7 +284,7 @@ func refresh() -> void:
 	var bg := hero.background_data()
 	d += "[font_size=15][color=#e8c060]Antecedente: %s[/color][/font_size]\n[color=#bbbbbb]%s[/color]\n\n" % [bg.name, bg.desc]
 	var mins := int(hero.play_time / 60.0)
-	d += "[color=#999999]Abates: %d   •   Profundidade máxima: %d   •   Tempo de jogo: %dh%02dm[/color]" % [hero.kills, hero.deepest, mins / 60, mins % 60]
+	d += "[color=#999999]Abates: %d   -   Profundidade máxima: %d   -   Tempo de jogo: %dh%02dm[/color]" % [hero.kills, hero.deepest, mins / 60, mins % 60]
 	_details.text = d
 
 

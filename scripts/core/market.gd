@@ -103,7 +103,7 @@ static func sell_price(race: StringName, item: Item) -> int:
 
 
 ## Desconto por reputação (REGRAS #10, MECANICAS #10): 0/5/10/15/20% por tier
-## 0–4. Sem `reputation` explícito, usa a reputação do herói COM O
+## 0-4. Sem `reputation` explícito, usa a reputação do herói COM O
 ## TERRITÓRIO do vendor (não a raça do herói - cada território lembra).
 static func rep_discount(reputation := -1, race := &"") -> float:
 	var rep := 0

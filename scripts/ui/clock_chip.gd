@@ -33,7 +33,7 @@ func set_time(frac: float) -> void:
 	day_frac = frac
 	hour = int(frac * 24.0) % 24
 	minute = int(fmod(frac * 24.0, 1.0) * 60.0)
-	# dia = 06:00–18:00 (REGRAS #14: o dia vira às 06:00)
+	# dia = 06:00-18:00 (REGRAS #14: o dia vira às 06:00)
 	is_day = frac >= 0.25 and frac < 0.75
 
 

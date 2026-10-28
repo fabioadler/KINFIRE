@@ -118,7 +118,7 @@ static func _bruxo_nodes() -> Array[Dictionary]:
 
 
 # ----------------------------------------------------------------------
-# CAÇADOR
+# CACADOR
 # ----------------------------------------------------------------------
 static func _cacador_nodes() -> Array[Dictionary]:
 	var n: Array[Dictionary] = []
@@ -159,7 +159,7 @@ static func _clerigo_nodes() -> Array[Dictionary]:
 
 
 # ----------------------------------------------------------------------
-# DRUÍDA
+# DRUIDA
 # ----------------------------------------------------------------------
 static func _druida_nodes() -> Array[Dictionary]:
 	var n: Array[Dictionary] = []

@@ -91,7 +91,7 @@ func _show_tab(tab: int) -> void:
 	for c in _tab_bar.get_children():
 		c.queue_free()
 	var vendor: VendorData = DB.vendor(race)
-	var tabs := {"Comprar": TAB_BUY, "Vender": TAB_SELL}
+	var tabs: Dictionary = {"Comprar": TAB_BUY, "Vender": TAB_SELL}
 	if race == AUCTION_RACE:
 		tabs["Leilão"] = TAB_AUCTION
 	for label in tabs:

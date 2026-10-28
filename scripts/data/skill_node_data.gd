@@ -11,7 +11,7 @@ extends Resource
 @export var per_rank: Dictionary[String, float] = {}   # {"damage": 0.15, "cooldown": -0.07, "projectile_count": 1, "duration": 0.2, ...}
 @export var display_name: String = ""   # Nome mostrado na UI
 @export var description: String = ""    # Descrição mostrada no tooltip
-@export var icon: String = "S_Sword01"  # Ícone do nó
+@export var icon: String = "S_Sword01"  # Icone do nó
 
 
 ## Verifica se o nó está disponível para compra (pré-requisitos atendidos)

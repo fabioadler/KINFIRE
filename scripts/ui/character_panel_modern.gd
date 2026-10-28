@@ -95,10 +95,10 @@ func _build_header() -> Control:
 	var name_lbl := UIKitModern.modern_label(hero.hero_name, 18, UIKitModern.GOLD, true)
 	info.add_child(name_lbl)
 	
-	var class_race := UIKitModern.modern_label("%s • %s" % [hero.cls.display_name, hero.race.display_name], 12, UIKitModern.TEXT_SECONDARY)
+	var class_race := UIKitModern.modern_label("%s - %s" % [hero.cls.display_name, hero.race.display_name], 12, UIKitModern.TEXT_SECONDARY)
 	info.add_child(class_race)
 	
-	var level_xp := UIKitModern.modern_label("Nível %d • XP %d" % [hero.level, hero.experience], 11, UIKitModern.GOLD_DIM)
+	var level_xp := UIKitModern.modern_label("Nível %d - XP %d" % [hero.level, hero.experience], 11, UIKitModern.GOLD_DIM)
 	info.add_child(level_xp)
 	
 	# Badges de dificuldade

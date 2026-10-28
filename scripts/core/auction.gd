@@ -36,7 +36,7 @@ static func min_bid(slot_index: int) -> int:
 ## {"result": "won"|"outbid"|"broke"|"full"|"sold", "item": Item?}
 static func place_bid(slot_index: int) -> Dictionary:
 	var s: Dictionary = slots()[slot_index]
-	var out := {"result": "", "item": null}
+	var out: Dictionary = {"result": "", "item": null}
 	if bool(s["sold"]):
 		out["result"] = "sold"
 		return out

@@ -139,7 +139,7 @@ func _ready() -> void:
 	var links: Array = []
 	for a in AUTHORS:
 		links.append("[url=%s][color=#e8c060]%s[/color][/url]" % [a.url, a.name])
-	_byline.text = "[color=#8a7a6a]Criado por[/color] %s [color=#8a7a6a]e[/color] %s   [color=#5a4f45]•  v%s - Godot 4[/color]" % [links[0], links[1], Game.VERSION]
+	_byline.text = "[color=#8a7a6a]Criado por[/color] %s [color=#8a7a6a]e[/color] %s   [color=#5a4f45]-  v%s - Godot 4[/color]" % [links[0], links[1], Game.VERSION]
 	_byline.meta_clicked.connect(func(meta): OS.shell_open(str(meta)))
 	add_child(_byline)
 
@@ -312,16 +312,16 @@ func _on_help() -> void:
 [cell][color=#aaaaaa]Habilidades   [/color][/cell][cell]Botão direito, 1, 2, 3, 4 e R (racial)[/cell]
 [cell][color=#aaaaaa]Esquiva   [/color][/cell][cell]Espaço - cancela a recuperação do ataque[/cell]
 [cell][color=#aaaaaa]Poção   [/color][/cell][cell]Q (recarga de 20s)[/cell]
-[cell][color=#aaaaaa]Painéis   [/color][/cell][cell]I inventário • C personagem • K habilidades • Esc menu[/cell]
+[cell][color=#aaaaaa]Painéis   [/color][/cell][cell]I inventário - C personagem - K habilidades - Esc menu[/cell]
 [cell][color=#aaaaaa]Itens no chão   [/color][/cell][cell]Clique no nome para pegar; Alt mostra todos[/cell][/table]
 
 [font_size=17][color=#e8c060]Dicas[/color][/font_size]
-• Cada classe usa um recurso diferente: Fúria enche ao bater e apanhar, Energia volta rápido se você parar de gastar, Concentração só regenera parado, o Bruxo paga com a própria vida.
-• Raças têm passivas: o Meio-Orc sobrevive a um golpe fatal, o Elfo da Floresta esquiva automaticamente, o Draconato tem um sopro de fogo (R).
-• Monstros com contorno [color=#6090ff]azul[/color] são elites e sempre deixam itens. A cada 3 profundidades, um chefe guarda a escada.
-• O mundo é aberto e infinito: quanto mais longe do acampamento, mais fortes os inimigos. Acenda fogueiras para viajar rápido e renascer nelas. Entradas de masmorra levam a andares com chefes.
-• Globos vermelhos no chão curam. Santuários dão bônus de 30s. Cuidado com baús: alguns são Mímicos!
-• No inventário, clique direito equipa e Shift + clique direito vende. Itens em vermelho não podem ser usados pela sua classe.""")
+- Cada classe usa um recurso diferente: Fúria enche ao bater e apanhar, Energia volta rápido se você parar de gastar, Concentração só regenera parado, o Bruxo paga com a própria vida.
+- Raças têm passivas: o Meio-Orc sobrevive a um golpe fatal, o Elfo da Floresta esquiva automaticamente, o Draconato tem um sopro de fogo (R).
+- Monstros com contorno [color=#6090ff]azul[/color] são elites e sempre deixam itens. A cada 3 profundidades, um chefe guarda a escada.
+- O mundo é aberto e infinito: quanto mais longe do acampamento, mais fortes os inimigos. Acenda fogueiras para viajar rápido e renascer nelas. Entradas de masmorra levam a andares com chefes.
+- Globos vermelhos no chão curam. Santuários dão bônus de 30s. Cuidado com baús: alguns são Mímicos!
+- No inventário, clique direito equipa e Shift + clique direito vende. Itens em vermelho não podem ser usados pela sua classe.""")
 	r.custom_minimum_size = Vector2(620, 0)
 	w.body.add_child(r)
 	w.body.add_child(UIKit.button("Fechar", c.get_parent().queue_free))
@@ -361,7 +361,7 @@ e combate inspirado em Diablo.[/color][/font_size]
 
 %s[font_size=20][color=#e8c060]- Arte -[/color][/font_size]
 Personagens, monstros e masmorra: [color=#ffffff]0x72[/color] - DungeonTileset II (CC0)
-Ícones de itens e habilidades: [color=#ffffff]Henrique Lazarini (7Soul1)[/color] - 496 RPG Icons (CC0)
+Icones de itens e habilidades: [color=#ffffff]Henrique Lazarini (7Soul1)[/color] - 496 RPG Icons (CC0)
 Mundo aberto, tiles e UI: [color=#ffffff]Kenney[/color] - Roguelike RPG Pack, Tiny Dungeon, UI Pack RPG (CC0)
 
 [font_size=20][color=#e8c060]- Audio -[/color][/font_size]
@@ -384,7 +384,7 @@ Alegreya - Huerta Tipográfica (SIL OFL)
 	end_spacer.custom_minimum_size.y = 200
 	v.add_child(end_spacer)
 	# Rolagem automática estilo filme (o mouse/roda interrompe)
-	var state := {"auto": true, "pos": 0.0}
+	var state: Dictionary = {"auto": true, "pos": 0.0}
 	scroll.gui_input.connect(func(e):
 		if e is InputEventMouseButton:
 			state.auto = false

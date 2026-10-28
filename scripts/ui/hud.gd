@@ -206,7 +206,7 @@ func _build_bottom_bar() -> void:
 	h.add_child(_spacer(10))
 
 	# Skills: Ataque básico (LMB), Ataque pesado (RMB), Skills 1-4 (Z, X, C, V)
-	var keys := ["LMB", "RMB", Game.key_name("skill_1"), Game.key_name("skill_2"), Game.key_name("skill_3"), Game.key_name("skill_4")]
+	var keys: Array = ["LMB", "RMB", Game.key_name("skill_1"), Game.key_name("skill_2"), Game.key_name("skill_3"), Game.key_name("skill_4")]
 	for i in 6:
 		var s := SkillSlot.new(i, keys[i])
 		s.player = player
@@ -457,7 +457,7 @@ func show_target(e: Enemy) -> void:
 	var afx := e.affix_names()
 	_target_affixes.visible = not afx.is_empty()
 	if not afx.is_empty():
-		_target_affixes.text = " • ".join(afx)
+		_target_affixes.text = " - ".join(afx)
 
 
 func _update_target() -> void:
@@ -731,7 +731,7 @@ func open_merchant() -> void:
 	var gold_label := UIKit.label("", 18, Color(1, 0.85, 0.3), true)
 	body.add_child(gold_label)
 	var lvl := maxi(hero.level, world.level())
-	var offers := [
+	var offers: Array = [
 		["Arma misteriosa", "weapon", 60 + lvl * 25],
 		["Armadura misteriosa", "armor", 50 + lvl * 20],
 		["Joia misteriosa", "jewel", 80 + lvl * 30],
@@ -863,7 +863,7 @@ func show_death_screen() -> void:
 	v.add_child(sub)
 	if hero.hardcore:
 		var hc := UIKit.label("Modo Hardcore: seu herói se foi para sempre.
-Nível %d • %d abates • Profundidade máxima %d" % [hero.level, hero.kills, hero.deepest], 16, Color(1, 0.5, 0.4))
+Nível %d - %d abates - Profundidade máxima %d" % [hero.level, hero.kills, hero.deepest], 16, Color(1, 0.5, 0.4))
 		hc.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		v.add_child(hc)
 		v.add_child(UIKit.button("Voltar ao Menu", func(): Game.change_scene(Game.MAIN_MENU), 380))

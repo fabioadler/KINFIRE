@@ -314,7 +314,7 @@ func tracked_quest() -> QuestData:
 	return best
 
 
-## Linha resumida do objetivo atual ("Derrote 3 goblin  •  1/3")
+## Linha resumida do objetivo atual ("Derrote 3 goblin  -  1/3")
 func tracker_line() -> String:
 	var q := tracked_quest()
 	if q == null:

@@ -224,7 +224,7 @@ static func roll_affixes(rng: RandomNumberGenerator, count: int) -> Array[int]:
 	return out
 
 
-## Afixos por raridade: Campeão 1–2, Lendário 2–3 (MECANICAS #5.2).
+## Afixos por raridade: Campeão 1-2, Lendário 2-3 (MECANICAS #5.2).
 ## Inferno dá +1 a Elite+ (REGRAS #7). Comum e Chefe (roteirizado) não ganham.
 static func affixes_for(rarity: int, rng: RandomNumberGenerator = null, hell_bonus := false) -> Array[int]:
 	var count := 0

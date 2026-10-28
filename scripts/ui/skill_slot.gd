@@ -45,7 +45,7 @@ func _make_custom_tooltip(_for_text: String) -> Object:
 	var r := UIKit.rich()
 	r.custom_minimum_size = Vector2(300, 0)
 	if is_potion:
-		r.text = "[font_size=18][color=#ff6060]Poção de Vida[/color][/font_size]\nRestaura 50% da vida.\n[color=#999999]Recarga: 20s  •  Tecla Q[/color]"
+		r.text = "[font_size=18][color=#ff6060]Poção de Vida[/color][/font_size]\nRestaura 50% da vida.\n[color=#999999]Recarga: 20s  -  Tecla Q[/color]"
 		return r
 	if s == null:
 		r.text = "[color=#999999]Slot vazio.\nAbra Habilidades (K) para atribuir.[/color]"

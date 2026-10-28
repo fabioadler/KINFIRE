@@ -7,7 +7,7 @@ extends Resource
 @export var id: StringName = &""
 @export var title: String = ""
 @export_multiline var summary: String = ""
-## Ato da história principal (1–3); define a raridade mínima do item de recompensa
+## Ato da história principal (1-3); define a raridade mínima do item de recompensa
 @export var act := 1
 ## Nível nominal da quest (XP = 40 x nível x ato)
 @export var quest_level := 1

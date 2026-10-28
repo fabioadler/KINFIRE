@@ -28,7 +28,7 @@ var race: RaceData
 var cls: ClassData
 var sex := "m"
 var tint_idx := 0
-var scores := {"str": 8, "dex": 8, "con": 8, "int": 8, "wis": 8, "cha": 8}
+var scores: Dictionary = {"str": 8, "dex": 8, "con": 8, "int": 8, "wis": 8, "cha": 8}
 var free_bonus: Dictionary = {}
 var background := "soldado"
 var difficulty := 0
@@ -168,7 +168,7 @@ func _build_class_list() -> Control:
 func _build_attributes() -> Control:
 	var attr := VBoxContainer.new()
 	attr.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	attr.add_child(_page_intro("Distribua os 27 pontos (compra D&D 5e: 8–15). Depois, escolha antecedente e dificuldade."))
+	attr.add_child(_page_intro("Distribua os 27 pontos (compra D&D 5e: 8-15). Depois, escolha antecedente e dificuldade."))
 	_points_label = UIKit.label("", 15, UIKit.GOLD, true)
 	_points_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	attr.add_child(_points_label)
@@ -398,7 +398,7 @@ func _build_nav_bar() -> Control:
 	return bottom
 
 
-# ------------------------------------------------------------------ NAVEGAÇAO
+# ------------------------------------------------------------------ NAVEGACAO
 
 func _go_step(s: int) -> void:
 	_step = clampi(s, 0, 3)
@@ -503,7 +503,7 @@ func _apply_recommended() -> void:
 	for a in DB.ABILITIES:
 		if not order.has(a):
 			order.append(a)
-	var arr := [15, 14, 13, 12, 10, 8]
+	var arr: Array = [15, 14, 13, 12, 10, 8]
 	for i in order.size():
 		scores[order[i]] = arr[i]
 
@@ -571,7 +571,7 @@ func _make_hero() -> Hero:
 	return Hero.create(n, race, cls, sex, TINTS[tint_idx], scores, free_bonus, background, difficulty, hardcore)
 
 
-# ------------------------------------------------------------------ ATUALIZAÇAO
+# ------------------------------------------------------------------ ATUALIZACAO
 
 func _refresh() -> void:
 	for id in _race_buttons:
@@ -630,7 +630,7 @@ func _race_info_text() -> String:
 
 func _class_info_text() -> String:
 	var res_hex := cls.resource_color.to_html(false)
-	return "[font_size=19][color=#e8c060]%s[/color][/font_size]  [color=#999999]%s[/color]\n%s\n[color=#cccccc]Dado de Vida: d%d  •  Primário: %s  •  Recurso: [color=#%s]%s[/color][/color]\n\n%s" % [
+	return "[font_size=19][color=#e8c060]%s[/color][/font_size]  [color=#999999]%s[/color]\n%s\n[color=#cccccc]Dado de Vida: d%d  -  Primário: %s  -  Recurso: [color=#%s]%s[/color][/color]\n\n%s" % [
 		cls.display_name, cls.role, cls.description, cls.hit_die, DB.ABILITY_NAMES[cls.primary_ability],
 		res_hex, cls.resource_label, _skills_text()]
 
@@ -645,7 +645,7 @@ func _attr_info_text() -> String:
 func _summary_text() -> String:
 	var h := _make_hero()
 	var res_hex := cls.resource_color.to_html(false)
-	return "[font_size=19][color=#e8c060]%s[/color][/font_size]  [color=#80ff80]%s[/color]  •  [font_size=19][color=#e8c060]%s[/color][/font_size]\n[color=#e8c060]%s:[/color] %s\n\n[color=#cccccc]Vida: %d  •  %s: %d  •  Dano: %.1f  •  Armadura: %d  •  Crítico: %.1f%%[/color]\n\n%s" % [
+	return "[font_size=19][color=#e8c060]%s[/color][/font_size]  [color=#80ff80]%s[/color]  -  [font_size=19][color=#e8c060]%s[/color][/font_size]\n[color=#e8c060]%s:[/color] %s\n\n[color=#cccccc]Vida: %d  -  %s: %d  -  Dano: %.1f  -  Armadura: %d  -  Crítico: %.1f%%[/color]\n\n%s" % [
 		race.display_name, _bonus_text(), cls.display_name, race.trait_name, race.trait_description,
 		h.max_hp(), cls.resource_label, h.max_resource(), h.dps_estimate(), h.armor(), h.crit_chance() * 100,
 		_skills_text()]

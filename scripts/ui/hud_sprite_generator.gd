@@ -112,7 +112,7 @@ static func _create_skill_slots() -> void:
 
 
 static func _create_icons() -> void:
-	# Ícone de vida
+	# Icone de vida
 	var hp_icon = """<?xml version="1.0" encoding="UTF-8"?>
 <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
   <path d="M 16 2 C 16 2, 24 6, 24 12 C 24 18, 16 28, 16 28 C 16 28, 8 18, 8 12 C 8 6, 16 2, 16 2 Z" 
@@ -120,7 +120,7 @@ static func _create_icons() -> void:
 </svg>"""
 	_save_svg("res://assets/sprites/hud/icon_health.svg", hp_icon)
 	
-	# Ícone de mana
+	# Icone de mana
 	var mana_icon = """<?xml version="1.0" encoding="UTF-8"?>
 <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
   <path d="M 16 4 L 24 12 L 24 24 C 24 26.2, 22.2 28, 20 28 L 12 28 C 9.8 28, 8 26.2, 8 24 L 8 12 Z" 
@@ -128,7 +128,7 @@ static func _create_icons() -> void:
 </svg>"""
 	_save_svg("res://assets/sprites/hud/icon_mana.svg", mana_icon)
 	
-	# Ícone de XP
+	# Icone de XP
 	var xp_icon = """<?xml version="1.0" encoding="UTF-8"?>
 <svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
   <circle cx="16" cy="16" r="12" fill="none" stroke="#ffdd00" stroke-width="2"/>

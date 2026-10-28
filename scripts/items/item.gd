@@ -107,7 +107,7 @@ func tooltip_bbcode(compare: Item = null, hero: Hero = null) -> String:
 		t += "\n[font_size=22][color=#ffffff]%.1f[/color][/font_size] [color=#aaaaaa]Dano por Segundo[/color]" % dps()
 		if compare and compare.is_weapon():
 			t += _diff(dps() - compare.dps(), "%.1f")
-		t += "\n[color=#cccccc]%d–%d de Dano\n%.2f Ataques por Segundo[/color]\n" % [min_damage, max_damage, attack_speed]
+		t += "\n[color=#cccccc]%d-%d de Dano\n%.2f Ataques por Segundo[/color]\n" % [min_damage, max_damage, attack_speed]
 	if armor > 0:
 		t += "\n[font_size=22][color=#ffffff]%d[/color][/font_size] [color=#aaaaaa]Armadura[/color]" % armor
 		if compare:

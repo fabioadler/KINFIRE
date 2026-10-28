@@ -97,7 +97,7 @@ var world_opened: Dictionary = {}
 ## Masmorra atual
 var dungeon_level: int = 1
 var dungeon_name: String = "Masmorra" 
-var settings := {
+var settings: Dictionary = {
 	# Audio
 	"master_volume": 0.8,
 	"music_volume": 0.6,
@@ -332,7 +332,7 @@ func save_game() -> void:
 	var w := get_tree().get_first_node_in_group("world") if is_inside_tree() else null
 	if w and not in_dungeon and w.player and not w.player.is_dead():
 		overworld_pos = w.player.global_position
-	var data := {
+	var data: Dictionary = {
 		"version": SAVE_VERSION, "depth": depth, "hero": hero.to_dict(),
 		"phase": phase, "ignorance": ignorance, "reputation": reputation,
 		"quests": quests, "flags": flags, "fragmentos": fragmentos,
@@ -426,7 +426,7 @@ func save_summary() -> String:
 		where, diff.name, ", Hardcore" if h.get("hardcore", false) else ""]
 
 
-# ------------------------------------------------------------------ CONFIGURAÇÕES
+# ------------------------------------------------------------------ CONFIGURACÕES
 
 func apply_settings() -> void:
 	AudioServer.set_bus_volume_db(0, linear_to_db(settings.master_volume))
@@ -438,7 +438,7 @@ func apply_settings() -> void:
 	# aplicado no viewport raiz via API nativa (fsr_sharpness + scaling_3d)
 	var vp := get_viewport()
 	var fsr_mode := int(settings.fsr_mode)
-	var fsr_scales := [1.0, 0.77, 0.67, 0.5]
+	var fsr_scales: Array = [1.0, 0.77, 0.67, 0.5]
 	if fsr_mode == 0:
 		vp.scaling_3d_mode = Viewport.SCALING_3D_MODE_BILINEAR
 	else:
@@ -479,7 +479,7 @@ func save_settings() -> void:
 
 
 func reset_settings_section(keys: Array) -> void:
-	var defaults := {
+	var defaults: Dictionary = {
 		"master_volume": 0.8, "music_volume": 0.6, "sfx_volume": 0.8, "ambience_volume": 0.7, "ui_volume": 0.8, "mute_unfocused": true,
 		"fullscreen": false, "vsync": true, "max_fps": 1, "window_size": 0, "ui_scale": 1.0, "brightness": 1.0, "show_fps": false, "shadows": 1,
 		"fsr_mode": 2, "msaa": 1, "texture_filter": 0, "particle_amount": 1, "glow": true,
@@ -536,7 +536,7 @@ func _setup_input() -> void:
 		if not InputMap.has_action(action):
 			InputMap.add_action(action)
 	_apply_bindings()
-	var mouse := {"primary": MOUSE_BUTTON_LEFT, "secondary": MOUSE_BUTTON_RIGHT}
+	var mouse: Dictionary = {"primary": MOUSE_BUTTON_LEFT, "secondary": MOUSE_BUTTON_RIGHT}
 	for action in mouse:
 		if not InputMap.has_action(action):
 			InputMap.add_action(action)

@@ -102,7 +102,7 @@ func _intro() -> void:
 	Game.play_music("res://assets/audio/music_dungeon.ogg")
 	var diff: Dictionary = Game.hero.difficulty_data()
 	hud.show_message(region_name(), UIKit.GOLD, 3.0)
-	hud.show_message("Dificuldade: %s%s" % [diff.name, "  •  HARDCORE" if Game.hero.hardcore else ""], diff.color, 3.0)
+	hud.show_message("Dificuldade: %s%s" % [diff.name, "  -  HARDCORE" if Game.hero.hardcore else ""], diff.color, 3.0)
 	if boss:
 		hud.show_message("%s aguarda nas profundezas..." % boss.display_name, Color(1, 0.4, 0.2), 3.0)
 

@@ -19,7 +19,7 @@ static func get_guild(guild_id: StringName) -> GuildData:
 ## Retorna todas as guildas
 static func all_guilds() -> Array[GuildData]:
 	var result: Array[GuildData] = []
-	var ids := ["aventureiros", "mercadores", "artesaos", "sombras"]
+	var ids: Array = ["aventureiros", "mercadores", "artesaos", "sombras"]
 	for gid in ids:
 		var g := get_guild(StringName(gid))
 		if g:

@@ -45,7 +45,7 @@ static func execute(skill: SkillData, player: Player, target_pos: Vector2, hero:
 	var dir := (target_pos - origin).normalized()
 	if dir == Vector2.ZERO:
 		dir = player.facing
-	var gen_state := {"done": false}
+	var gen_state: Dictionary = {"done": false}
 	var hit_cb := func(enemy: Enemy, _src: Variant) -> void:
 		if skill.damage_mult > 0.0:
 			player.deal_damage(enemy, skill.damage_mult, skill)

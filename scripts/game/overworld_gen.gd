@@ -67,8 +67,8 @@ var _corrupt := FastNoiseLite.new()
 
 func _init(p_seed: int) -> void:
 	seed_value = p_seed
-	var noises := [_height, _river, _temp, _moist, _corrupt]
-	var freqs := [0.03, 0.006, 0.0045, 0.006, 0.004]
+	var noises: Array = [_height, _river, _temp, _moist, _corrupt]
+	var freqs: Array = [0.03, 0.006, 0.0045, 0.006, 0.004]
 	for i in noises.size():
 		var n: FastNoiseLite = noises[i]
 		n.seed = p_seed + i * 1013

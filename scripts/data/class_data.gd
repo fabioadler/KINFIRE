@@ -6,7 +6,7 @@ extends Resource
 @export var display_name: String = ""
 @export_multiline var description: String = ""
 @export var role: String = ""
-## Ícone da classe (nome do arquivo em assets/icons, sem .png)
+## Icone da classe (nome do arquivo em assets/icons, sem .png)
 @export var icon: String = "S_Sword01"
 
 @export_group("Vida e atributos")

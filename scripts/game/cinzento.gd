@@ -53,7 +53,7 @@ func appear_at(pos: Vector2) -> void:
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 
-# ------------------------------------------------------------------ INTERAÇAO (duck-typed, opt-in)
+# ------------------------------------------------------------------ INTERACAO (duck-typed, opt-in)
 
 func hover_check(mouse: Vector2) -> bool:
 	_hover = interactive and (global_position + Vector2(0, -8)).distance_to(mouse) < HOVER_RADIUS

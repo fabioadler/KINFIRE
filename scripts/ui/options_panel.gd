@@ -86,7 +86,7 @@ func _build(tab: int) -> void:
 		b.pressed.connect(_start_rebind.bind(action))
 		grid.add_child(b)
 		_bind_buttons[action] = b
-	controls.add_child(UIKit.label("Mouse: botão esquerdo = mover/atacar • botão direito = habilidade secundária", 13, UIKit.TEXT_DIM))
+	controls.add_child(UIKit.label("Mouse: botão esquerdo = mover/atacar - botão direito = habilidade secundária", 13, UIKit.TEXT_DIM))
 	_reset_button(controls, ["bindings"])
 	_refresh_bindings()
 
@@ -188,7 +188,7 @@ func _preset_option(parent: Control) -> void:
 	o.selected = 0
 	o.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	o.item_selected.connect(func(i: int):
-		var presets := {
+		var presets: Dictionary = {
 			1: {"shadows": 0, "fsr_mode": 3, "msaa": 0, "glow": false, "particle_amount": 0},
 			2: {"shadows": 1, "fsr_mode": 2, "msaa": 1, "glow": true, "particle_amount": 1},
 			3: {"shadows": 2, "fsr_mode": 1, "msaa": 2, "glow": true, "particle_amount": 2},

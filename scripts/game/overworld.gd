@@ -106,7 +106,7 @@ func _intro() -> void:
 	# 7.5: música base do mundo aberto vem do Audio adaptativo (mus_overworld)
 	var diff: Dictionary = Game.hero.difficulty_data()
 	hud.show_message("Mundo de Kinfire", UIKit.GOLD, 3.0)
-	hud.show_message("Dificuldade: %s%s" % [diff.name, "  •  HARDCORE" if Game.hero.hardcore else ""], diff.color, 3.0)
+	hud.show_message("Dificuldade: %s%s" % [diff.name, "  -  HARDCORE" if Game.hero.hardcore else ""], diff.color, 3.0)
 	if Game.awakened_from_prologue:
 		Game.awakened_from_prologue = false
 		_awakening()
@@ -115,7 +115,7 @@ func _intro() -> void:
 
 
 ## Despertar no acampamento após o prólogo: o Cinzento entrega as primeiras
-## palavras do mundo real (REGRAS #13, LORE #8–9). Ele é o node persistente
+## palavras do mundo real (REGRAS #13, LORE #8-9). Ele é o node persistente
 ## criado em _spawn_content - não se despede: quem fechar o diálogo antes
 ## da escolha "(Partir)" pode reencontrá-lo perto da fogueira (fix da
 ## missão inicial - a flag cinzento_primeiro_dialogo volta a ser alcançável).
@@ -162,7 +162,7 @@ func _spawn_content() -> void:
 
 
 func _place_tent(c: Vector2i) -> void:
-	var tent := [[Vector2i(46, 10), Vector2i(47, 10)], [Vector2i(46, 11), Vector2i(47, 11)]]
+	var tent: Array = [[Vector2i(46, 10), Vector2i(47, 10)], [Vector2i(46, 11), Vector2i(47, 11)]]
 	for y in 2:
 		for x in 2:
 			var cc := c + Vector2i(x, y)
@@ -425,7 +425,7 @@ func _alt(coords: Vector2i, mod: Color, solid: bool, is_top := false) -> int:
 	return alt
 
 
-# ------------------------------------------------------------------ GERAÇAO DE CHUNK
+# ------------------------------------------------------------------ GERACAO DE CHUNK
 
 func _generate_chunk(k: Vector2i) -> void:
 	if chunks.has(k):
@@ -436,7 +436,7 @@ func _generate_chunk(k: Vector2i) -> void:
 	biomes.resize(CHUNK * CHUNK)
 	var liquid := PackedByteArray()
 	liquid.resize(CHUNK * CHUNK)
-	var data := {"solid": solid, "biome": biomes, "liquid": liquid, "nodes": []}
+	var data: Dictionary = {"solid": solid, "biome": biomes, "liquid": liquid, "nodes": []}
 	chunks[k] = data
 	var origin := k * CHUNK
 	for ly in CHUNK:
@@ -611,7 +611,7 @@ func _spawn_chunk_content(k: Vector2i, data: Dictionary) -> void:
 	# Monstros por bioma
 	var density: float = Game.settings.monster_density
 	var packs := int(round(rng.randi_range(1, 3) * density))
-	# REGRAS #6: noite (21:00–05:00) - mortos-vivos +50% peso em biomas sombrios,
+	# REGRAS #6: noite (21:00-05:00) - mortos-vivos +50% peso em biomas sombrios,
 	# todos os monstros +10% agressividade (raio de aggro)
 	var night: bool = _is_night()
 	var shadowy_biomes: Array[String] = ["corrompido", "pantano"]  # biomas sombrios

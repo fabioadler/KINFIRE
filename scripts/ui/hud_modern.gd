@@ -237,7 +237,7 @@ func _build_bottom_bar() -> void:
 	panel_h.add_theme_constant_override("separation", 4)
 	skills_h.add_child(panel_h)
 
-	var panel_shortcuts := [
+	var panel_shortcuts: Array = [
 		("C", "Personagem", Game.key_name("char")),
 		("I", "Inventário", Game.key_name("inv")),
 		("S", "Skills", Game.key_name("skills")),

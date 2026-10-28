@@ -56,7 +56,7 @@ func _process(_delta: float) -> void:
 	_sprite.modulate = _tint() * Color(1.4, 1.3, 1.1) if _hover else _tint()
 
 
-# ------------------------------------------------------------------ INTERAÇAO (duck-typed)
+# ------------------------------------------------------------------ INTERACAO (duck-typed)
 
 func hover_check(mouse: Vector2) -> bool:
 	_hover = (global_position + Vector2(0, -8)).distance_to(mouse) < HOVER_RADIUS

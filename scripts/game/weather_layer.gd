@@ -131,7 +131,7 @@ func _make_texture(kind: StringName) -> ImageTexture:
 	return ImageTexture.create_from_image(img)
 
 
-# ------------------------------------------------------------------ CONFIGURAÇAO
+# ------------------------------------------------------------------ CONFIGURACAO
 
 ## Configura o clima: bioma, noite e chuva (o Overworld chama a cada 0.5s).
 func configure(biome: StringName, night: bool, raining: bool, world: World) -> void:

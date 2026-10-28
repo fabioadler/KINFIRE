@@ -38,7 +38,7 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 	doll.custom_minimum_size = Vector2(CELL * 7.5, CELL * 5.3)
 	doll.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	scroll.add_child(doll)
-	var layout := {
+	var layout: Dictionary = {
 		"helm": Rect2(2.75, 0.0, 2.0, 1.6), "amulet": Rect2(5.0, 0.3, 1.1, 1.1),
 		"weapon": Rect2(0.2, 1.3, 2.0, 2.8), "chest": Rect2(2.6, 1.8, 2.3, 2.3), "offhand": Rect2(5.3, 1.3, 2.0, 2.8),
 		"ring": Rect2(0.6, 4.2, 1.1, 1.1), "boots": Rect2(2.75, 4.2, 2.0, 1.1),
@@ -69,7 +69,7 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 	_gold_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	bottom.add_child(_gold_label)
 	bottom.add_child(UIKit.button("Vender Comuns e Mágicos", _sell_junk))
-	var hint := UIKit.label("Clique: mover • Direito: equipar • Shift+Direito: vender", 12, UIKit.TEXT_DIM)
+	var hint := UIKit.label("Clique: mover - Direito: equipar - Shift+Direito: vender", 12, UIKit.TEXT_DIM)
 	body.add_child(hint)
 
 	_tooltip = PanelContainer.new()

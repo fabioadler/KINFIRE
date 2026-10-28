@@ -104,7 +104,7 @@ static func _ensure_dialogues(race: StringName, t: TerritoryData) -> void:
 			DB.dialogues[cid] = _commoner_dialogue(race, t, i)
 
 
-# ------------------------------------------------------------------ LÍDER
+# ------------------------------------------------------------------ LIDER
 
 static func _leader_dialogue(race: StringName, t: TerritoryData) -> DialogueData:
 	var d := DialogueData.new()

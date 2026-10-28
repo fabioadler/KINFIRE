@@ -69,7 +69,7 @@ static func _icons(prefix: String, from: int, to: int, digits: int) -> Array:
 	return out
 
 ## Tipos-base de itens
-var BASES := {
+var BASES: Dictionary = {
 	&"wood_sword": {"name": "Espada de Treino", "slot": "weapon", "cat": "sword", "size": Vector2i(1, 3), "dmg": Vector2(2, 4), "speed": 1.1, "icons": ["W_Sword001"], "sprites": ["weapon_rusty_sword"]},
 	&"sword": {"name": "Espada Longa", "slot": "weapon", "cat": "sword", "size": Vector2i(1, 3), "dmg": Vector2(5, 9), "speed": 1.1, "icons": _icons("W_Sword", 2, 22, 3), "sprites": ["weapon_regular_sword", "weapon_knight_sword", "weapon_golden_sword", "weapon_lavish_sword", "weapon_red_gem_sword", "weapon_duel_sword", "weapon_saw_sword", "weapon_katana"]},
 	&"axe": {"name": "Machado", "slot": "weapon", "cat": "axe", "size": Vector2i(2, 3), "dmg": Vector2(7, 12), "speed": 0.95, "icons": _icons("W_Axe", 1, 7, 3), "sprites": ["weapon_axe", "weapon_waraxe", "weapon_throwing_axe"]},
@@ -325,7 +325,7 @@ func frames(base: String) -> SpriteFrames:
 			sf.add_frame(anim, tex)
 		_frames_cache[base] = sf
 		return sf
-	var anims := {"idle": base + "_idle_anim_f", "run": base + "_run_anim_f", "hit": base + "_hit_anim_f", "any": base + "_anim_f", "open": base + "_open_anim_f"}
+	var anims: Dictionary = {"idle": base + "_idle_anim_f", "run": base + "_run_anim_f", "hit": base + "_hit_anim_f", "any": base + "_anim_f", "open": base + "_open_anim_f"}
 	var found: Dictionary = {}
 	for anim in anims:
 		var list: Array = []
@@ -370,7 +370,7 @@ func frame_size(base: String) -> Vector2i:
 	return Vector2i(16, 16)
 
 
-## Ícone: "k:101" = tile Kenney; senão nome do arquivo em assets/icons
+## Icone: "k:101" = tile Kenney; senão nome do arquivo em assets/icons
 func icon(icon_name: String) -> Texture2D:
 	if icon_name.begins_with("k:"):
 		return tile(int(icon_name.substr(2)))

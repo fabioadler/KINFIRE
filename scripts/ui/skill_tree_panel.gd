@@ -189,7 +189,7 @@ func _create_node_ui(node: SkillNodeData, pos: Vector2) -> void:
 	btn.focus_mode = Control.FOCUS_NONE
 	container.add_child(btn)
 	
-	# Ícone
+	# Icone
 	var icon := SpritePreview.new()
 	icon.custom_minimum_size = Vector2(48, 48)
 	icon.position = Vector2(8, 8)

@@ -8,8 +8,8 @@ extends RefCounted
 ##   gold n | gold -n              - ouro do herói
 ##   xp n                          - experiência
 ##   item id_base [qtd]            - adiciona itens comuns
-##   rep raca +n | -n              - reputação (0–4)
-##   ignorancia -n                 - ignorância do Laço-Vivo (0–10)
+##   rep raca +n | -n              - reputação (0-4)
+##   ignorancia -n                 - ignorância do Laço-Vivo (0-10)
 ##   quest id=estagio              - define estágio da quest (Fase 4)
 ##   comercio raca                 - abre a UI de comércio no território (Fase 5.5)
 
@@ -52,7 +52,7 @@ func advance() -> void:
 	choices_shown.emit(visible)
 
 
-## Escolhe a opção `i` (índice na lista de escolhas VISÍVES).
+## Escolhe a opção `i` (índice na lista de escolhas VISIVES).
 func choose(i: int) -> void:
 	if not _awaiting_choice:
 		return
