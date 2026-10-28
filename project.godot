@@ -23,7 +23,7 @@ Game="*res://scripts/autoload/game.gd"
 Sfx="*res://scripts/autoload/sfx.gd"
 Audio="*res://scripts/autoload/audio.gd"
 MultiplayerManager="*res://scripts/autoload/multiplayer_manager.gd"
-LoreInitializer="*res://scripts/autoload/lore_initializer.gd"
+# LoreInitializer="*res://scripts/autoload/lore_initializer.gd"  # TEMPORARIAMENTE DESABILITADO para diagnóstico
 
 [display]
 
