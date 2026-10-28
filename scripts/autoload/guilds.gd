@@ -6,26 +6,24 @@ func _ready() -> void:
 	_preload_guild_data()
 
 func _preload_guild_data() -> void:
-	# Gera 56 guildas dinamicamente (14 classes × 4 tipos)
+	# Carrega 56 guildas de .tres (14 classes × 4 tipos)
 	var classes = ["humano", "barbaro", "alto_elfo", "elfo_floresta", "drow",
 		"anao_montanha", "anao_colinas", "halfling", "meio_orc", "tiefling",
 		"draconato", "gnomo", "meio_elfo", "tabaxi"]
-	var tipos_map = {
-		"aventureiros": GuildData.Type.AVENTUREIROS,
-		"mercadores": GuildData.Type.MERCADORES,
-		"artesaos": GuildData.Type.ARTESAOS,
-		"sombras": GuildData.Type.SOMBRAS
-	}
+	var tipos = ["aventureiros", "mercadores", "artesaos", "sombras"]
 	
+	var loaded = 0
 	for cls in classes:
-		for tipo_str in tipos_map.keys():
-			var guild = GuildData.new()
-			guild.id = StringName("%s_%s" % [tipo_str, cls])
-			guild.display_name = "Guilda %s" % tipo_str
-			guild.tipo = tipos_map[tipo_str]
-			guild.mestre_npc = StringName("npc_%s" % tipo_str)
-			guild.beneficios = {}
-			guild_cache[guild.id] = guild
+		for tipo in tipos:
+			var path = "res://data/guilds/%s_%s.tres" % [tipo, cls]
+			var guild = load(path)
+			if guild:
+				guild_cache[guild.id] = guild
+				loaded += 1
+			else:
+				print("[Guilds] WARN: Failed to load %s" % path)
+	
+	print("[Guilds] Loaded %d guild resources" % loaded)
 
 func guild(guild_id: StringName) -> GuildData:
 	return guild_cache.get(guild_id)
