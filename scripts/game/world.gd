@@ -68,7 +68,7 @@ func _ready() -> void:
 	_apply_brightness()
 	_setup_post()
 
-	hud = HUDResponsive.new()  # Fase 12: HUD moderna e responsiva
+	hud = HUD.new()  # Usa HUD estável (v10); HUDResponsive é Fase 12 future
 	add_child(hud)
 
 	player = PLAYER_SCENE.instantiate()

@@ -117,8 +117,12 @@ func tooltip_bbcode(compare: Item = null, hero: Hero = null) -> String:
 		t += "[color=#cccccc]+%d%% Chance de Bloqueio[/color]\n" % roundi(block * 100)
 	if not stats.is_empty():
 		t += "\n"
+		var db: Node = get_tree().root.get_node_or_null("/root/DB") if get_tree() else null
 		for k in stats:
-			t += "[color=#7aa0ff]%s[/color]\n" % DB.format_stat(k, stats[k])
+			if db != null:
+				t += "[color=#7aa0ff]%s[/color]\n" % db.format_stat(k, stats[k])
+			else:
+				t += "[color=#7aa0ff]%s: %s[/color]\n" % [k, stats[k]]
 	if flavor != "":
 		t += "\n[color=#c07020][i]\"%s\"[/i][/color]\n" % flavor
 	t += "\n"
