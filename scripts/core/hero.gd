@@ -59,6 +59,15 @@ var guild_members: Array[StringName] = []
 var guild_ranks: Dictionary[StringName, int] = {}
 var active_contracts: Array[StringName] = []
 var completed_contracts: Array[StringName] = []
+## Nova estrutura Fase 11 (Task 2):
+var guild_joined: StringName = &""  # ID da guilda NPC que o herói é membro
+var guild_rank: String = "F"  # Rank dentro da guilda (ainda não usado, delegado a RankSystem)
+var guild_xp: int = 0  # XP dentro da guilda
+var contracts_active: Array[StringName] = []  # Contratos em andamento
+var contracts_completed: int = 0  # Total de contratos concluídos
+var rank_f_s: String = "F"  # Rank global F-S (REGRAS §18)
+var player_guild_id: StringName = &""  # ID da guilda criada pelo jogador (se houver)
+var membro_guilda_jogador: StringName = &""  # ID da guilda do jogador que o herói é membro (não fundador)
 
 
 func _init() -> void:
@@ -637,6 +646,13 @@ func to_dict() -> Dictionary:
 		"tree_points": tree_points, "tree_unlocked": tree_unlocked_str,
 		"guild_members": guild_members_str, "guild_ranks": guild_ranks_dict,
 		"active_contracts": active_contracts_str, "completed_contracts": completed_contracts_str,
+		## v6 novo (Fase 11):
+		"guild_joined": String(guild_joined), "guild_rank": guild_rank, "guild_xp": guild_xp,
+		"contracts_active": [String(c) for c in contracts_active],
+		"contracts_completed": contracts_completed,
+		"rank_f_s": rank_f_s,
+		"player_guild_id": String(player_guild_id),
+		"membro_guilda_jogador": String(membro_guilda_jogador),
 	}
 
 
@@ -705,6 +721,17 @@ static func from_dict(d: Dictionary) -> Hero:
 	var completed_contracts_str: Array = d.get("completed_contracts", [])
 	for cid in completed_contracts_str:
 		h.completed_contracts.append(StringName(cid))
+	## v6 novo (Fase 11):
+	h.guild_joined = StringName(d.get("guild_joined", ""))
+	h.guild_rank = d.get("guild_rank", "F")
+	h.guild_xp = int(d.get("guild_xp", 0))
+	var contracts_active_str: Array = d.get("contracts_active", [])
+	for cid in contracts_active_str:
+		h.contracts_active.append(StringName(cid))
+	h.contracts_completed = int(d.get("contracts_completed", 0))
+	h.rank_f_s = d.get("rank_f_s", "F")
+	h.player_guild_id = StringName(d.get("player_guild_id", ""))
+	h.membro_guilda_jogador = StringName(d.get("membro_guilda_jogador", ""))
 	h._recalc_status()
 	h.refresh_skill_bar()
 	return h
