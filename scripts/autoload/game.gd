@@ -110,7 +110,7 @@ var settings: Dictionary = {
 	"vsync": true,
 	"max_fps": 1,
 	"window_size": 0,
-	"ui_scale": 1.0,
+	"ui_scale": 0.8,
 	"brightness": 1.0,
 	"show_fps": false,
 	# 7.2: sombras dinâmicas 2D - 0=Desligadas, 1=Suaves (PCF5), 2=Nítidas (PCF13)
@@ -481,7 +481,7 @@ func save_settings() -> void:
 func reset_settings_section(keys: Array) -> void:
 	var defaults: Dictionary = {
 		"master_volume": 0.8, "music_volume": 0.6, "sfx_volume": 0.8, "ambience_volume": 0.7, "ui_volume": 0.8, "mute_unfocused": true,
-		"fullscreen": false, "vsync": true, "max_fps": 1, "window_size": 0, "ui_scale": 1.0, "brightness": 1.0, "show_fps": false, "shadows": 1,
+		"fullscreen": false, "vsync": true, "max_fps": 1, "window_size": 0, "ui_scale": 0.8, "brightness": 1.0, "show_fps": false, "shadows": 1,
 		"fsr_mode": 2, "msaa": 1, "texture_filter": 0, "particle_amount": 1, "glow": true,
 		"damage_numbers": true, "shake_intensity": 1.0, "camera_zoom": 3.0, "always_show_health": false, "always_show_loot": true,
 		"click_to_move": true, "monster_density": 1.0, "minimap_opacity": 0.85, "auto_save": true, "bindings": {},
