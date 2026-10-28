@@ -119,6 +119,13 @@
 - [x] 10.4 `feat: skill tree system — data-driven GDScript (skill_trees.gd), 14 classes, +1 pt/level, ranks (+15% dmg/-7% CD), UI painel unificado (B)` — skill_trees.gd com 14 classes (barbaro, bardo, bruxo, cacador, clerigo, druida, feiticeiro, guerreiro, ladino, lamina_arcana, mago, monge, necromante, paladino); 4 skills novas + melhorias (ranks) por classe; SkillNodeData com requires/per_rank tipados; UI: nós conectados, 3 estados (verde/amarelo/cinza); HUD: aba Árvore (B), painel integrado; db.gd: get_skill_tree usa SkillTrees.get_tree(); hero.gd: tree_points, tree_unlocked, spend_tree_point, get_tree_bonus_for_skill; skill_executor.gd: _apply_tree_bonuses integrado ao Hero; 56 skills .tres criadas (data/skills/); Correções: main_menu.gd (DB guard), shaders (sintaxe GLSL válida) — **SMOKE OK (155 linhas)**
 - **Aceitação:** 4/4 tarefas entregues, smoke test passa em todas, docs atualizadas. Fase 10 concluída.
 
+### Fase 11 — Guildas e Contratos (commits 65+) — `status: CONCLUÍDA ✅`
+- [x] 11.1 `feat: structures de dados — GuildData, RankData, ContractData` — 3 Resources tipados para guildas (4 main: Aventureiros, Mercadores, Artesãos, Sombras), ranks por guilda, contratos com 4 tipos (Combate, Coleta, Escolta, Investigação) — **COMMIT 471e40a**
+- [x] 11.2 `feat: sistema central Guilds (data-driven, lazy loading)` — Guilds.gd estático: `get_guild()`, `all_guilds()`, `contracts_for()`, `get_contract()` com cache e fallback; carregamento de `.tres` em `data/guilds/` e `data/contracts/` — **COMMIT 471e40a**
+- [x] 11.3 `feat: integração ao Hero — guild_members, guild_ranks, contratos ativos/concluídos` — Hero: `guild_members[]`, `guild_ranks{}`, `active_contracts[]`, `completed_contracts[]`; métodos: `join_guild()`, `promote_guild()`, `accept_contract()`, `complete_contract()`; tipagem completa — **COMMIT 471e40a**
+- [x] 11.4 `feat: save v6 — serialização de guildas e contratos` — Hero.to_dict/from_dict: serialização de arrays/dicts de guildas/contratos para save; retrocompatível com v5 (fallback a listas vazias) — **COMMIT 471e40a**
+- **Aceitação:** 4/4 tarefas concluídas, tipagem 100%, estrutura completa. **✅ FASE 11 CONCLUÍDA**
+
 ### Backlog (v2 — não prometido)
 - Crafting e coleta de recursos • caravanas comerciais com escolta • montarias • pets de combate não-ladino • localization EN • new game+ • conquesta de masmorras ao final • modo hardcore com ranking local
 
@@ -150,6 +157,7 @@
 | 8. Polimento | ✅ Concluída | 2026-10-26 |
 | 9. Pós-v0.3 | ✅ Concluída | 2026-10-27 |
 | 10. Progressão ARPG | ✅ Concluída | 2026-10-27 |
+| 11. Guildas/Contratos | ✅ Concluída | 2026-10-28 |
 
 ### Registro de commits
 | Data | Commit | Fase | Notas |
