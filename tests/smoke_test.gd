@@ -38,6 +38,51 @@ func _wait_until(cond: Callable, timeout_ms := 3000) -> bool:
 
 
 func _run() -> void:
+	print("[smoke] multiplayer manager initialization")
+	# Tarefa 14.1: Testar MultiplayerManager singleton
+	assert(MultiplayerManager != null, "MultiplayerManager autoload existe")
+	assert(not MultiplayerManager.is_multiplayer(), "não está em modo multiplayer inicialmente")
+	assert(not MultiplayerManager.server_running, "servidor não está rodando")
+	assert(MultiplayerManager.connected_peers.size() == 0, "nenhum peer conectado")
+	assert(MultiplayerManager.player_chars.size() == 0, "nenhum herói carregado")
+	assert(MultiplayerManager.damage_tracker.size() == 0, "damage tracker vazio")
+	assert(MultiplayerManager.kill_credit.size() == 0, "kill credit vazio")
+	print("[smoke] multiplayer manager state OK")
+	
+	print("[smoke] rpc protocol definition")
+	# Tarefa 14.2: Testar RPC Protocol
+	assert(MultiplayerRPC.RPC_SYNC_ENEMY_POSITION != "", "RPC_SYNC_ENEMY_POSITION definido")
+	assert(MultiplayerRPC.RPC_ENEMY_DIED != "", "RPC_ENEMY_DIED definido")
+	assert(MultiplayerRPC.RPC_PLAYER_JOINED != "", "RPC_PLAYER_JOINED definido")
+	assert(MultiplayerRPC.RPC_DAMAGE_PLAYER != "", "RPC_DAMAGE_PLAYER definido")
+	assert(MultiplayerRPC.get_authority_type(MultiplayerRPC.RPC_SYNC_ENEMY_POSITION) == "authority", "RPC authority correto")
+	assert(MultiplayerRPC.get_call_type(MultiplayerRPC.RPC_SYNC_ENEMY_POSITION) == "call_remote_unreliable", "RPC type correto")
+	print("[smoke] rpc protocol OK")
+	
+	print("[smoke] world synchronizer")
+	# Tarefa 14.3: Testar WorldSynchronizer
+	var test_snapshot = {
+		"timestamp": Time.get_ticks_msec(),
+		"world_time": 0.5,
+		"difficulty": 0,
+		"enemies": [],
+		"loot": [],
+		"environment": {},
+	}
+	assert(WorldSynchronizer.validate_snapshot(test_snapshot), "snapshot válido passa em validação")
+	
+	# Snapshot inválido (sem campo obrigatório)
+	var invalid_snapshot = {
+		"timestamp": Time.get_ticks_msec(),
+		"world_time": 0.5,
+		# falta "difficulty"
+		"enemies": [],
+		"loot": [],
+		"environment": {},
+	}
+	assert(not WorldSynchronizer.validate_snapshot(invalid_snapshot), "snapshot inválido falha em validação")
+	print("[smoke] world synchronizer OK")
+	
 	print("[smoke] migracao v3 -> v4")
 	var v3_save := {"version": 3, "depth": 2, "hero": {"name": "Velho", "race": "humano", "class": "guerreiro", "level": 5},
 		"world_seed": 7, "world_time": 0.5, "in_dungeon": false}
