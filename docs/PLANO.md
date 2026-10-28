@@ -231,3 +231,40 @@
 | 2026-10-27 | d099a87 | 10.3 | `feat:` base_status e status_growth nas 14 classes (Força/Agilidade/Mente/Vitalidade) — cada classe tem pontos base fixos + crescimento por nível; base não pode ser respeitada, sobe automaticamente; Guerreiro FOR 14 VIT 12 (+FOR+VIT/nv), Bárbaro FOR 16 VIT 14, Ladino AGI 16, Caçador AGI 14 MEN 12, Bardo AGI 13 MEN 14, Mago MEN 16, Feiticeiro MEN 15, Bruxo MEN 13 VIT 11, Clérigo MEN 14 VIT 12, Druida MEN 13 VIT 12, Monge AGI 14 MEN 12, Paladino FOR 13 MEN 12 VIT 13, Lâmina Arcana AGI 13 MEN 14, Necromante MEN 14 VIT 10 |
 | 2026-10-27 | e7b874b | 10.4 | `feat:` skill tree system — data-driven GDScript (skill_trees.gd), 14 classes, +1 pt/level, ranks (+15% dmg/-7% CD), UI painel unificado (B) — 4 skills novas + ranks por classe, SkillNodeData tipado, aba Árvore (B), hero.gd tree_points/spend_tree_point, skill_executor _apply_tree_bonuses, 56 skills .tres — SMOKE OK (155 linhas) |
 | 2026-10-27 | 9b2a309 | 10.4 | `feat:` skill tree system — data-driven GDScript (skill_trees.gd), 14 classes, +1 pt/level, ranks (+15% dmg/-7% CD), UI painel unificado (B) — 4 skills novas + ranks por classe, SkillNodeData tipado, aba Árvore (B), hero.gd tree_points/spend_tree_point, skill_executor _apply_tree_bonuses, 56 skills .tres — SMOKE OK (155 linhas) |
+
+---
+
+### Fase 11 — Guildas e Organizações (commits 65–71) — `status: CONCLUÍDA ✅`
+
+**Commits executados:**
+- eddddfa: GuildData, ContractData, RankData resources
+- cb19a58: GuildLog — join/leave, XP tracking, Hero v6 save
+- 6770f58: AdventureGuild, ContractTracker, RankSystem (F-S ranks)
+- 71ccb50: MerchantGuild, ShadowGuild, PlayerGuild, Autoload Guilds
+- 027ad8c: GuildPanel UI stub
+- b42f502: CraftingGuild stubs, 56 GuildData .tres files, Guilds.gd loads from disk
+
+**Implementado:**
+- [x] 11.1 GuildData/ContractData/RankData resources (data-driven, type-safe)
+- [x] 11.2 GuildLog — join/leave guilda, track XP, save v6 (guild_joined, guild_rank, contracts_active/completed, rank_f_s)
+- [x] 11.3 AdventureGuild — contratos procedurais determinísticos (seed-based), ContractTracker
+- [x] 11.4 RankSystem — 7 níveis F-S (F-E-D-C-B-A-S) com requisitos cascata (contratos, chefes, fragmentos)
+- [x] 11.5 MerchantGuild — sell price bonus (40%→60%), leilão slots (+4), câmbio essência (1 Ess = 500 ouro)
+- [x] 11.6 ShadowGuild — stubs safehouses, contratos sombrios (Fase 12)
+- [x] 11.7 CraftingGuild — stubs crafting (Fase 12)
+- [x] 11.8 PlayerGuild — banco 50 slots, membros (mestre/oficial/membro), dissolve
+- [x] 11.9 Autoload Guilds — cache 56 guildas (.tres persistidos em disk)
+- [x] 11.10 GuildPanel UI — stub integrado, pronto pra Fase 13
+
+**Arquivos criados:**
+- `scripts/data/guild_data.gd`, `contract_data.gd`, `rank_data.gd`
+- `scripts/core/guild_log.gd`, `adventure_guild.gd`, `contract_tracker.gd`, `rank_system.gd`, `merchant_guild.gd`, `shadow_guild.gd`, `crafting_guild.gd`, `player_guild.gd`
+- `scripts/autoload/guilds.gd`
+- `scripts/ui/guild_panel.gd`
+- `data/guilds/*.tres` (56 arquivos: 14 classes × 4 tipos NPC)
+
+**Save v6:**
+Hero agora persiste: `guild_joined`, `guild_rank`, `guild_xp`, `contracts_active`, `contracts_completed`, `rank_f_s`, `player_guild_id`, `membro_guilda_jogador`
+
+**Aceitação:** ✅ 6 commits, todas as 10 tasks implementadas, 56 guildas data-driven, Rank F-S global, economia integrada, PlayerGuild persistente.
+
