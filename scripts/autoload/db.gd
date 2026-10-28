@@ -8,11 +8,6 @@ const INDEX := "res://data/index.json"
 const TILE := 16
 const SHEET_COLS := 12
 
-func _ready() -> void:
-	# Carregar texturas dinamicamente
-	TILESHEET = load("res://assets/sprites/dungeon_tiles.png")
-	DT2_SHEET = load("res://assets/sprites/dt2/dungeon_sheet.png")
-
 const ABILITIES := ["str", "dex", "con", "int", "wis", "cha"]
 const ABILITY_NAMES := {
 	"str": "Força", "dex": "Destreza", "con": "Constituição",
@@ -157,6 +152,10 @@ var _icon_cache := {}
 
 
 func _ready() -> void:
+	# Carregar texturas dinamicamente
+	TILESHEET = load("res://assets/sprites/dungeon_tiles.png")
+	DT2_SHEET = load("res://assets/sprites/dt2/dungeon_sheet.png")
+	
 	var idx: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(INDEX))
 	races.assign(_load_dir("res://data/races/", idx.races))
 	classes.assign(_load_dir("res://data/classes/", idx.classes))
