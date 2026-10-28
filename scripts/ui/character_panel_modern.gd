@@ -8,7 +8,7 @@ const Hero := preload("res://scripts/core/hero.gd")
 var hero: Hero
 var hud: Node
 
-var _sections := {}  # Abas: Detalhes, Atributos, Status
+var _sections: Dictionary = {}  # Abas: Detalhes, Atributos, Status
 
 
 func setup(p_hud: Node, p_hero: Hero) -> void:

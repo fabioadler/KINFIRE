@@ -24,7 +24,7 @@ func is_available(unlocked: Array[StringName]) -> bool:
 
 ## Retorna o multiplicador/bônus acumulado para um rank específico
 func get_bonus_at_rank(rank: int) -> Dictionary:
-	var bonus := {}
+	var bonus: Dictionary = {}
 	for key in per_rank:
 		bonus[key] = per_rank[key] * rank
 	return bonus
@@ -34,7 +34,7 @@ func get_bonus_at_rank(rank: int) -> Dictionary:
 func get_effect_description(rank: int) -> String:
 	if per_rank.is_empty():
 		return ""
-	var parts := []
+	var parts: Array = []
 	for key in per_rank:
 		var val := per_rank[key] * rank
 		match key:

@@ -136,7 +136,7 @@ func _ready() -> void:
 	_byline = UIKit.rich("", true)
 	_byline.mouse_filter = Control.MOUSE_FILTER_STOP
 	_byline.autowrap_mode = TextServer.AUTOWRAP_OFF
-	var links := []
+	var links: Array = []
 	for a in AUTHORS:
 		links.append("[url=%s][color=#e8c060]%s[/color][/url]" % [a.url, a.name])
 	_byline.text = "[color=#8a7a6a]Criado por[/color] %s [color=#8a7a6a]e[/color] %s   [color=#5a4f45]•  v%s - Godot 4[/color]" % [links[0], links[1], Game.VERSION]

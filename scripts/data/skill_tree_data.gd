@@ -18,7 +18,7 @@ func get_node(node_id: StringName) -> SkillNodeData:
 
 
 func get_available_nodes(unlocked: Array[StringName]) -> Array[SkillNodeData]:
-	var available := []
+	var available: Array = []
 	for n in nodes:
 		if n.id in unlocked:
 			continue
@@ -35,7 +35,7 @@ func get_node_dependencies(node_id: StringName) -> Array[StringName]:
 
 
 func get_dependent_nodes(node_id: StringName) -> Array[SkillNodeData]:
-	var deps := []
+	var deps: Array = []
 	for n in nodes:
 		if node_id in n.requires:
 			deps.append(n)

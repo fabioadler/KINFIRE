@@ -17,10 +17,10 @@ const SOUNDS := {
 }
 const POOL_SIZE := 16
 
-var _streams := {}
+var _streams: Dictionary = {}
 var _players: Array[AudioStreamPlayer] = []
 var _next := 0
-var _last_played := {}
+var _last_played: Dictionary = {}
 
 
 func _ready() -> void:

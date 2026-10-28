@@ -63,7 +63,7 @@ const CATEGORY_NAMES := {
 }
 
 static func _icons(prefix: String, from: int, to: int, digits: int) -> Array:
-	var out := []
+	var out: Array = []
 	for i in range(from, to + 1):
 		out.append(prefix + str(i).pad_zeros(digits))
 	return out
@@ -136,19 +136,19 @@ var villager_class: ClassData
 ## LootTableData por raridade de monstro (REGRAS #6); índice = Enemy.Rarity
 var loot_tables: Array[LootTableData] = []
 ## Diálogos carregados sob demanda: id -> DialogueData (data/dialogues/*.tres)
-var dialogues := {}
+var dialogues: Dictionary = {}
 ## NPCs carregados sob demanda: id -> NpcData (data/npcs/*.tres)
-var npcs := {}
+var npcs: Dictionary = {}
 ## Quests (Fase 4): id -> QuestData (data/quests/*.tres, lista no index.json)
-var quests := {}
+var quests: Dictionary = {}
 ## Vendors (Fase 5): id -> VendorData (data/vendors/*.tres, lista no index.json)
-var vendors := {}
-var _tile_cache := {}
+var vendors: Dictionary = {}
+var _tile_cache: Dictionary = {}
 var _sheet_image: Image
 var _dt2_image: Image
-var _dt2_rects := {}
-var _frames_cache := {}
-var _icon_cache := {}
+var _dt2_rects: Dictionary = {}
+var _frames_cache: Dictionary = {}
+var _icon_cache: Dictionary = {}
 
 
 func _ready() -> void:
@@ -184,7 +184,7 @@ func _ready() -> void:
 
 
 func _load_dir(dir: String, order: Array) -> Array:
-	var out := []
+	var out: Array = []
 	for id in order:
 		var res := load(dir + str(id) + ".tres")
 		if res:
@@ -326,9 +326,9 @@ func frames(base: String) -> SpriteFrames:
 		_frames_cache[base] = sf
 		return sf
 	var anims := {"idle": base + "_idle_anim_f", "run": base + "_run_anim_f", "hit": base + "_hit_anim_f", "any": base + "_anim_f", "open": base + "_open_anim_f"}
-	var found := {}
+	var found: Dictionary = {}
 	for anim in anims:
-		var list := []
+		var list: Array = []
 		for i in 12:
 			var n: String = anims[anim] + str(i)
 			if _dt2_rects.has(n):
@@ -422,7 +422,7 @@ func npc(id: StringName) -> NpcData:
 
 
 ## Territórios carregados sob demanda: race_id -> TerritoryData (data/territories/*.tres)
-var territories := {}
+var territories: Dictionary = {}
 
 
 ## Território racial por id da raça, carregado sob demanda
@@ -462,7 +462,7 @@ func get_skill(cls: ClassData, id: StringName) -> SkillData:
 
 
 ## Arvore de habilidades por classe (via skill_trees.gd - GDScript data-driven)
-var skill_trees := {}
+var skill_trees: Dictionary = {}
 ## Preload da classe para type hint funcionar em parse time
 const SkillTreeData := preload("res://scripts/data/skill_tree_data.gd")
 ## Preload do módulo de árvores GDScript
@@ -606,7 +606,7 @@ func random_base() -> StringName:
 func random_base_for(for_class: ClassData) -> StringName:
 	if for_class == null or randf() >= 0.6:
 		return random_base()
-	var usable := []
+	var usable: Array = []
 	for k in BASES:
 		if k == &"wood_sword":
 			continue

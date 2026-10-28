@@ -51,7 +51,7 @@ var _vignette: ColorRect
 var _held_icon: TextureRect
 var _points_hint: Button
 ## Fase 6.4: letra -> botão da barra inferior (destaque de onboarding)
-var _bar_buttons := {}
+var _bar_buttons: Dictionary = {}
 ## Fase 4.2: tracker lateral de quest (minimapa acima); Fase 6.1: recolhível
 var _quest_tracker: PanelContainer
 var _quest_title: Button
@@ -762,7 +762,7 @@ func open_merchant() -> void:
 
 
 func _merchant_item(kind: String, lvl: int) -> Item:
-	var bases := []
+	var bases: Array = []
 	for k in DB.BASES:
 		var b: Dictionary = DB.BASES[k]
 		if k == &"wood_sword":

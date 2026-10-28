@@ -71,7 +71,7 @@ func item_at(cell: Vector2i) -> Item:
 
 
 func to_array() -> Array:
-	var out := []
+	var out: Array = []
 	for it in items:
 		out.append(it.to_dict())
 	return out

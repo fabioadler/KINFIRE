@@ -3,8 +3,8 @@ extends RefCounted
 ## Ficha do personagem (dados puros, sem física). O nó Player apenas lê daqui.
 
 ## Preloads para type hints funcionarem em parse time
-const SkillTreeData := preload("res://scripts/data/skill_tree_data.gd")
-const SkillNodeData := preload("res://scripts/data/skill_node_data.gd")
+# const SkillTreeData := preload("res://scripts/data/skill_tree_data.gd")
+# const SkillNodeData := preload("res://scripts/data/skill_node_data.gd")
 
 signal stats_changed
 signal leveled_up(new_level: int)
@@ -24,9 +24,9 @@ var tint: Color = Color.WHITE
 var background: String = "soldado"
 var difficulty: int = 0
 var hardcore := false
-var base_abilities := {"str": 10, "dex": 10, "con": 10, "int": 10, "wis": 10, "cha": 10}
+var base_abilities: Dictionary = {"str": 10, "dex": 10, "con": 10, "int": 10, "wis": 10, "cha": 10}
 ## +1 escolhidos na criação (Meio-Elfo)
-var free_bonus := {}
+var free_bonus: Dictionary = {}
 var level: int = 1
 var xp: int = 0
 var gold: int = 0
@@ -35,14 +35,14 @@ var essence: int = 0
 var unspent_points: int = 0
 ## Status ARPG (pontos livres distribuíveis + base da classe)
 ## Total = base_status[classe] + pontos_gastos
-var status := {"forca": 10, "agilidade": 10, "mente": 10, "vitalidade": 10}
+var status: Dictionary = {"forca": 10, "agilidade": 10, "mente": 10, "vitalidade": 10}
 ## Pontos de status não gastos (ganhos ao subir de nível: +2/nível)
 var status_points: int = 0
 ## Arvore de habilidades: pontos não gastos (+1/nível) e nós desbloqueados
 var tree_points: int = 0
 var tree_unlocked: Array[StringName] = []
 var inventory: InventoryGrid
-var equipment := {}
+var equipment: Dictionary: Dictionary = {}
 ## Ids das habilidades em cada slot: [LMB, RMB, 1, 2, 3, 4]
 var skill_bar: Array = [&"", &"", &"", &"", &"", &""]
 ## Slots de consumíveis (1-9): Array[Item] ou null
@@ -53,7 +53,7 @@ var kills: int = 0
 var deepest: int = 1
 var play_time: float = 0.0
 ## Modificadores temporários (buffs): {"damage": 0.3, ...}
-var temp := {}
+var temp: Dictionary = {}
 ## Guildas (Fase 11): filiações e ranks
 var guild_members: Array[StringName] = []
 var guild_ranks: Dictionary[StringName, int] = {}
@@ -460,7 +460,7 @@ func spend_tree_point(node_id: StringName) -> bool:
 
 ## Retorna bônus acumulado da árvore para uma skill específica
 func get_tree_bonus_for_skill(skill_id: StringName) -> Dictionary:
-	var bonus := {}
+	var bonus: Dictionary = {}
 	var tree := DB.get_skill_tree(cls.id)
 	if not tree:
 		return bonus
@@ -605,34 +605,34 @@ func unequip(slot: String) -> Item:
 # ------------------------------------------------------------ SAVE
 
 func to_dict() -> Dictionary:
-	var eq := {}
+	var eq: Dictionary = {}
 	for s in DB.EQUIP_SLOTS:
 		eq[s] = equipment[s].to_dict() if equipment[s] else null
-	var bar := []
+	var bar: Array = []
 	for id in skill_bar:
 		bar.append(String(id))
-	var cons := []
+	var cons: Array = []
 	for item in consumable_slots:
 		cons.append(item.to_dict() if item else null)
-	var cons_cds := {}
+	var cons_cds: Dictionary = {}
 	for key in consumable_cooldowns:
 		cons_cds[String(key)] = consumable_cooldowns[key]
-	var st := {}
+	var st: Dictionary = {}
 	for s in ["forca", "agilidade", "mente", "vitalidade"]:
 		st[s] = status[s]
-	var tree_unlocked_str := []
+	var tree_unlocked_str: Array = []
 	for id in tree_unlocked:
 		tree_unlocked_str.append(String(id))
-	var guild_members_str := []
+	var guild_members_str: Array = []
 	for gid in guild_members:
 		guild_members_str.append(String(gid))
-	var guild_ranks_dict := {}
+	var guild_ranks_dict: Dictionary = {}
 	for gid in guild_ranks:
 		guild_ranks_dict[String(gid)] = guild_ranks[gid]
-	var active_contracts_str := []
+	var active_contracts_str: Array = []
 	for cid in active_contracts:
 		active_contracts_str.append(String(cid))
-	var completed_contracts_str := []
+	var completed_contracts_str: Array = []
 	for cid in completed_contracts:
 		completed_contracts_str.append(String(cid))
 	return {

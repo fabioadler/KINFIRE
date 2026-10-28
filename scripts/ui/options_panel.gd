@@ -5,7 +5,7 @@ extends PanelContainer
 signal closed
 
 var _waiting_action := ""
-var _bind_buttons := {}
+var _bind_buttons: Dictionary = {}
 var _tabs: TabContainer
 
 

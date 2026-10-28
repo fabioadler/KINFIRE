@@ -10,8 +10,8 @@ extends Node2D
 const VIEW := Vector2(1280, 720)
 const VIEW_MARGIN := 320.0
 
-var _emitters := {}            ## StringName -> GPUParticles2D
-var _materials := {}           ## StringName -> ParticleProcessMaterial
+var _emitters: Dictionary = {}            ## StringName -> GPUParticles2D
+var _materials: Dictionary = {}           ## StringName -> ParticleProcessMaterial
 var _active: Array[StringName] = []
 var _raining := false
 var _fog_rects: Array[ColorRect] = []

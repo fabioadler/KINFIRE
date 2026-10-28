@@ -16,15 +16,15 @@ const DUNGEON_NAMES := ["Cripta Esquecida", "Catacumbas de Varn", "Mina Abandona
 
 var og: OverworldGen
 var territories: Territories
-var chunks := {}              ## Vector2i -> {"solid": PackedByteArray, "biome": PackedByteArray, "nodes": Array}
-var explored_cells := {}      ## Vector2i (chunk) -> PackedByteArray
+var chunks: Dictionary = {}              ## Vector2i -> {"solid": PackedByteArray, "biome": PackedByteArray, "nodes": Array}
+var explored_cells: Dictionary = {}      ## Vector2i (chunk) -> PackedByteArray
 var _queue: Array[Vector2i] = []
 var _astar_dirty := true
 var _astar_timer := 0.0
 var _player_chunk := Vector2i(999999, 999999)
 ## Ultimo território racial em que o jogador esteve (objetivos REACH, Fase 4)
 var _last_region := &""
-var _tiles := {}              ## "x,y,mod" -> [coords, alt]
+var _tiles: Dictionary = {}              ## "x,y,mod" -> [coords, alt]
 var _src: TileSetAtlasSource
 var _ground_src: TileSetAtlasSource
 var _time := 0.3
@@ -246,7 +246,7 @@ func minimap_color(c: Vector2i) -> Color:
 
 
 func points_of_interest() -> Array:
-	var out := []
+	var out: Array = []
 	for n in get_tree().get_nodes_in_group("interactables"):
 		if n is Interactable and is_explored(world_to_cell(n.global_position)):
 			match n.kind:

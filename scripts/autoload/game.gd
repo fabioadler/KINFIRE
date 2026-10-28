@@ -73,13 +73,13 @@ var awakened_from_prologue := false
 ## Ignorância do Laço-Vivo (10 no pós-prólogo, decai ao aprender; REGRAS #2)
 var ignorance: int = 0
 ## Reputação por raça: id da raça -> int 0..4 (Fase 5)
-var reputation := {}
+var reputation: Dictionary = {}
 ## Estado das quests (Fase 4)
-var quests := {}
+var quests: Dictionary = {}
 ## Log de quests (Fase 4): progresso/recompensas sobre `quests`
 var quest_log := QuestLog.new()
 ## Flags narrativas (diálogos/quests): nome -> valor (MECANICAS #7)
-var flags := {}
+var flags: Dictionary = {}
 ## Fragmentos da Verdade coletados (Fase 4 - 8 destravam o Final Dourado)
 var fragmentos: Array = []
 ## Economia por território (Fase 5.2): {raça: {"demand": {cat: float}, "sold": [índices]}}
@@ -93,7 +93,7 @@ var in_dungeon := false
 var overworld_pos := Vector2.INF
 var respawn_pos := Vector2.INF
 var waypoints: Array = []
-var world_opened := {}
+var world_opened: Dictionary = {}
 ## Masmorra atual
 var dungeon_level: int = 1
 var dungeon_name: String = "Masmorra" 

@@ -101,7 +101,7 @@ static func execute(skill: SkillData, player: Player, target_pos: Vector2, hero:
 
 		SkillData.Kind.CHAIN:
 			var from := origin
-			var hit := {}
+			var hit: Dictionary = {}
 			var current: Enemy = world.get_enemy_at(target_pos)
 			if current == null:
 				current = _nearest(world, target_pos, skill.reach, hit)

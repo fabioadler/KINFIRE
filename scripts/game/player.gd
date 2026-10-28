@@ -39,12 +39,12 @@ var resource := 0.0
 var max_resource := 100.0
 var facing := Vector2.RIGHT
 
-var cooldowns := {}          ## skill_id -> segundos restantes
+var cooldowns: Dictionary = {}          ## skill_id -> segundos restantes
 var potion_cd := 0.0
 var dodge_cd := 0.0
 var auto_dodge_cd := 0.0
 var cheat_death_cd := 0.0
-var buffs := {}              ## nome -> {stat, amount, stat2, amount2, time, max_time, color, shape}
+var buffs: Dictionary = {}              ## nome -> {stat, amount, stat2, amount2, time, max_time, color, shape}
 var minions: Array[Node2D] = []
 
 var _state_time := 0.0

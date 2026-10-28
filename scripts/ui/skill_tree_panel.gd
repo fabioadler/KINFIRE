@@ -12,7 +12,7 @@ var hero: Hero
 var _tree: SkillTreeData
 var _canvas: Control
 var _points_label: Label
-var _nodes_ui := {}  # node_id -> {container, btn, line_paths}
+var _nodes_ui: Dictionary = {}  # node_id -> {container, btn, line_paths}
 var _selected_node: SkillNodeData = null
 var _tooltip: Control = null
 var _h_scroll: HScrollBar
@@ -279,7 +279,7 @@ func _on_node_pressed(node: SkillNodeData) -> void:
 			return
 	
 	if not node.is_available(hero.tree_unlocked):
-		var req_names := []
+		var req_names: Array = []
 		for req_id in node.requires:
 			var req_node := _tree.get_node(req_id)
 			if req_node:
@@ -377,7 +377,7 @@ func _show_tooltip(node: SkillNodeData, btn: Button) -> void:
 		content.add_child(locked)
 	
 	if not node.requires.is_empty():
-		var reqs := []
+		var reqs: Array = []
 		for req_id in node.requires:
 			var req_node := _tree.get_node(req_id)
 			if req_node:

@@ -10,7 +10,7 @@ var hud: HUD
 var hero: Hero
 var held: Item          ## Item "na mão" do cursor
 var _grid_view: Control
-var _equip_views := {}
+var _equip_views: Dictionary = {}
 var _gold_label: Label
 var _stats_label: RichTextLabel
 var _tooltip: PanelContainer

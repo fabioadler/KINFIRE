@@ -29,19 +29,19 @@ var cls: ClassData
 var sex := "m"
 var tint_idx := 0
 var scores := {"str": 8, "dex": 8, "con": 8, "int": 8, "wis": 8, "cha": 8}
-var free_bonus := {}
+var free_bonus: Dictionary = {}
 var background := "soldado"
 var difficulty := 0
 var hardcore := false
 var _running := false
 var _step := 0
 
-var _race_buttons := {}
-var _class_buttons := {}
+var _race_buttons: Dictionary = {}
+var _class_buttons: Dictionary = {}
 var _preview: SpritePreview
 var _name_edit: LineEdit
 var _points_label: Label
-var _ability_rows := {}
+var _ability_rows: Dictionary = {}
 var _info: RichTextLabel
 var _stats_preview: RichTextLabel
 var _free_box: VBoxContainer

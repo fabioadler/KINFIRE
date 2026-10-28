@@ -40,10 +40,10 @@ var boss: Enemy
 var explored := PackedByteArray()
 var slow_zones: Array[Dictionary] = []
 var fire_zones: Array[Dictionary] = []
-var _tile_index := {}
+var _tile_index: Dictionary = {}
 ## Hash espacial de inimigos (reconstruído uma vez por frame de física)
 const BUCKET := 32.0
-var _buckets := {}
+var _buckets: Dictionary = {}
 var _bucket_frame := -1
 var _minion_frame := -1
 var _minion_list: Array[Minion] = []
@@ -140,7 +140,7 @@ func minimap_color(c: Vector2i) -> Color:
 
 ## Pontos de interesse do minimapa: [{pos, color}]
 func points_of_interest() -> Array:
-	var out := []
+	var out: Array = []
 	if stairs and is_explored(world_to_cell(stairs.global_position)):
 		out.append({"pos": stairs.global_position, "color": Color(0.7, 0.4, 1.0) if not stairs.locked else Color(1, 0.3, 0.1)})
 	return out
@@ -308,7 +308,7 @@ func _build_tiles() -> void:
 	floor_layer.tile_set = ts
 	wall_layer.tile_set = ts
 
-	var floor_pool := []
+	var floor_pool: Array = []
 	for k in FLOOR_WEIGHTS:
 		for i in FLOOR_WEIGHTS[k]:
 			floor_pool.append(k)

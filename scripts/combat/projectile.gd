@@ -19,7 +19,7 @@ var hit_radius := 6.0
 ## Callable(target, projectile) chamado ao acertar
 var on_hit: Callable
 var _travelled := 0.0
-var _hit := {}
+var _hit: Dictionary = {}
 var _world: World
 var _trail: Array[Vector2] = []
 

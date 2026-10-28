@@ -6,12 +6,12 @@ var hud: HUD
 var hero: Hero
 var _header: RichTextLabel
 var _points_label: Label
-var _ability_rows := {}
+var _ability_rows: Dictionary = {}
 var _derived: RichTextLabel
 var _details: RichTextLabel
 ## Aba Status (Fase 10)
 var _status_points_label: Label
-var _status_rows := {}
+var _status_rows: Dictionary = {}
 var _status_bonus: RichTextLabel
 
 

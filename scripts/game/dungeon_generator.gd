@@ -132,7 +132,7 @@ func _remove_thin_walls() -> void:
 
 func _farthest_room(from: Rect2i) -> Rect2i:
 	# BFS a partir do centro da sala inicial
-	var dist := {}
+	var dist: Dictionary = {}
 	var start := from.get_center()
 	var queue: Array[Vector2i] = [start]
 	dist[start] = 0

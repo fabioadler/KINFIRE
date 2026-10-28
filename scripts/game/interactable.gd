@@ -29,7 +29,7 @@ var _light: PointLight2D
 var _t := 0.0
 var _hover := false
 var _spike_hit := false
-var _spiked := {}
+var _spiked: Dictionary = {}
 
 
 static func create(w: World, p_kind: Kind, pos: Vector2) -> Interactable:
