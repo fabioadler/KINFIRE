@@ -42,7 +42,7 @@ var status_points: int = 0
 var tree_points: int = 0
 var tree_unlocked: Array[StringName] = []
 var inventory: InventoryGrid
-var equipment: Dictionary: Dictionary = {}
+var equipment: Dictionary = {}
 ## Ids das habilidades em cada slot: [LMB, RMB, 1, 2, 3, 4]
 var skill_bar: Array = [&"", &"", &"", &"", &"", &""]
 ## Slots de consumíveis (1-9): Array[Item] ou null
