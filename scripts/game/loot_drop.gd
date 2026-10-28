@@ -103,13 +103,13 @@ func _ready() -> void:
 func _avoid_label_overlap() -> void:
 	if _label == null:
 		return
-	var my := Rect2(global_position + _label.position, _label.size / 3.0)
+	var my: Rect2 = Rect2(global_position + _label.position, _label.size / 3.0)
 	for i in 12:
 		var moved := false
 		for n in get_tree().get_nodes_in_group("interactables"):
 			if n == self or not n is LootDrop or n._label == null:
 				continue
-			var other := Rect2(n.global_position + n._label.position, n._label.size / 3.0)
+			var other: Rect2 = Rect2(n.global_position + n._label.position, n._label.size / 3.0)
 			if my.intersects(other):
 				_label.position.y -= other.end.y - my.position.y + 0.5
 				my = Rect2(global_position + _label.position, _label.size / 3.0)
@@ -121,7 +121,7 @@ func _avoid_label_overlap() -> void:
 func hover_check(mouse: Vector2) -> bool:
 	if kind != Kind.ITEM or _label == null:
 		return false
-	var lr := Rect2(global_position + _label.position, _label.size / 3.0)
+	var lr: Rect2 = Rect2(global_position + _label.position, _label.size / 3.0)
 	return (_label.visible and lr.grow(1).has_point(mouse)) or (global_position + Vector2(0, -6)).distance_to(mouse) < 8.0
 
 
@@ -183,7 +183,7 @@ func _draw() -> void:
 		Kind.GOLD:
 			var n := clampi(gold / 5 + 1, 1, 5)
 			for i in n:
-				var o := Vector2((i % 3) * 4.0 - 6.0, -float(i / 3) * 3.0 - 8.0)
+				var o: Vector2 = Vector2((i % 3) * 4.0 - 6.0, -float(i / 3) * 3.0 - 8.0)
 				var tex := DB.dt2_texture("coin_anim_f%d" % ((int(_t * 8.0) + i) % 4))
 				if tex:
 					draw_texture(tex, o)

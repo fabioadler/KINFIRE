@@ -34,7 +34,7 @@ var block: float = 0.0
 var stats: Dictionary = {}
 var flavor: String = ""
 ## Posição no grid do inventário
-var grid_pos := Vector2i(-1, -1)
+var grid_pos: Vector2i = Vector2i(-1, -1)
 
 
 func rarity_color() -> Color:

@@ -218,7 +218,7 @@ func _apply_atmos(a: Dictionary) -> void:
 
 func _apply_brightness() -> void:
 	var b: float = Game.settings.brightness
-	var c := Color(0.34, 0.3, 0.34).darkened(clampf((Game.depth - 1) * 0.04, 0.0, 0.3))
+	var c: Color = Color(0.34, 0.3, 0.34).darkened(clampf((Game.depth - 1) * 0.04, 0.0, 0.3))
 	canvas_modulate.color = Color(c.r * b, c.g * b, c.b * b, 1.0)
 
 
@@ -314,12 +314,12 @@ func _build_tiles() -> void:
 			floor_pool.append(k)
 	for y in gen.height:
 		for x in gen.width:
-			var c := Vector2i(x, y)
+			var c: Vector2i = Vector2i(x, y)
 			if gen.is_floor(c):
 				_set_tile(floor_layer, c, floor_pool.pick_random())
 	for y in gen.height:
 		for x in gen.width:
-			var c := Vector2i(x, y)
+			var c: Vector2i = Vector2i(x, y)
 			if not gen.is_floor(c) and (_near_floor(c, 1) or _is_face(c + Vector2i.DOWN)):
 				_paint_solid(c, flipped)
 
@@ -455,7 +455,7 @@ func _rebuild_buckets() -> void:
 	_buckets.clear()
 	for n in get_tree().get_nodes_in_group("enemies"):
 		var e := n as Enemy
-		var k := Vector2i(floori(e.global_position.x / BUCKET), floori(e.global_position.y / BUCKET))
+		var k: Vector2i = Vector2i(floori(e.global_position.x / BUCKET), floori(e.global_position.y / BUCKET))
 		if _buckets.has(k):
 			_buckets[k].append(e)
 		else:
@@ -466,8 +466,8 @@ func enemies_near(p: Vector2, r: float) -> Array[Enemy]:
 	_rebuild_buckets()
 	var out: Array[Enemy] = []
 	var r2 := r * r
-	var a := Vector2i(floori((p.x - r) / BUCKET), floori((p.y - r) / BUCKET))
-	var b := Vector2i(floori((p.x + r) / BUCKET), floori((p.y + r) / BUCKET))
+	var a: Vector2i = Vector2i(floori((p.x - r) / BUCKET), floori((p.y - r) / BUCKET))
+	var b: Vector2i = Vector2i(floori((p.x + r) / BUCKET), floori((p.y + r) / BUCKET))
 	for x in range(a.x, b.x + 1):
 		for y in range(a.y, b.y + 1):
 			var list: Variant = _buckets.get(Vector2i(x, y))

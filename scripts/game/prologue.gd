@@ -415,7 +415,7 @@ func _intro() -> void:
 func _apply_brightness() -> void:
 	## Tom quente e levemente irreal - é uma memória, não um lugar.
 	var b: float = Game.settings.brightness
-	var c := Color(0.52, 0.48, 0.46)
+	var c: Color = Color(0.52, 0.48, 0.46)
 	canvas_modulate.color = Color(c.r * b, c.g * b, c.b * b, 1.0)
 
 

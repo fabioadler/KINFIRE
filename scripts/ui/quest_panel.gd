@@ -79,7 +79,7 @@ func _add_quest(q: QuestData, active: bool) -> void:
 		for i in stage.objectives.size():
 			var o: QuestObjective = stage.objectives[i]
 			var prog := int(p[i])
-			var col := Color(0.5, 1, 0.5) if prog >= o.count else Color.WHITE
+			var col: Color = Color(0.5, 1, 0.5) if prog >= o.count else Color.WHITE
 			var line := UIKit.label("- %s" % stage.objective_text(i, prog), 14, col)
 			line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 			line.custom_minimum_size.x = 420

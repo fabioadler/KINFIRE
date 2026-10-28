@@ -82,7 +82,7 @@ static func _radial_points(center: Vector2, radius: float, frac: float) -> Packe
 
 
 func _draw() -> void:
-	var rect := Rect2(Vector2.ZERO, size)
+	var rect: Rect2 = Rect2(Vector2.ZERO, size)
 	draw_rect(rect, Color(0.03, 0.02, 0.02))
 	var s := get_skill()
 	var icon_name := ""

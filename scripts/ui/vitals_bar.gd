@@ -5,7 +5,7 @@ extends Control
 ## brilho na ponta quando cheia, flash + tremor ao tomar dano. O texto do
 ## valor fica no centro (contornado), legível sobre qualquer preenchimento.
 
-var bar_color := Color(0.8, 0.08, 0.08):
+var bar_color: Color = Color(0.8, 0.08, 0.08):
 	set(v):
 		bar_color = v
 		queue_redraw()
@@ -41,8 +41,8 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	# tremor sutil ao tomar dano
-	var jitter := Vector2(randf_range(-1.5, 1.5), randf_range(-1.0, 1.0)) * _flash
-	var rect := Rect2(jitter, size)
+	var jitter: Vector2 = Vector2(randf_range(-1.5, 1.5), randf_range(-1.0, 1.0)) * _flash
+	var rect: Rect2 = Rect2(jitter, size)
 	# caixa: vidro escuro com contorno
 	draw_rect(rect, Color(0.03, 0.02, 0.02, 0.88))
 	draw_rect(rect, UIKit.GOLD_DIM, false, 1.0)

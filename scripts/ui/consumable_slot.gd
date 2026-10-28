@@ -58,7 +58,7 @@ func _make_custom_tooltip(_for_text: String) -> Object:
 
 
 func _draw() -> void:
-	var rect := Rect2(Vector2.ZERO, size)
+	var rect: Rect2 = Rect2(Vector2.ZERO, size)
 	draw_rect(rect, Color(0.03, 0.02, 0.02))
 	var item: Item = get_item()
 	var icon_name := ""

@@ -28,7 +28,7 @@ func generate(depth: int, seed_value: int = -1) -> void:
 		tries += 1
 		var w := randi_range(7, 14)
 		var h := randi_range(6, 11)
-		var r := Rect2i(randi_range(3, width - w - 4), randi_range(4, height - h - 4), w, h)
+		var r: Rect2i = Rect2i(randi_range(3, width - w - 4), randi_range(4, height - h - 4), w, h)
 		var ok := true
 		for other in rooms:
 			if r.grow(3).intersects(other):
@@ -47,7 +47,7 @@ func generate(depth: int, seed_value: int = -1) -> void:
 		var best_d := INF
 		for a in connected:
 			for b in remaining:
-				var d := Vector2(a.get_center()).distance_squared_to(Vector2(b.get_center()))
+				var d: Vector2 = Vector2(a.get_center()).distance_squared_to(Vector2(b.get_center()))
 				if d < best_d:
 					best_d = d
 					best_a = a
@@ -81,7 +81,7 @@ func set_cell(c: Vector2i, v: int) -> void:
 
 func random_floor_in(r: Rect2i, margin: int = 1) -> Vector2i:
 	for i in 30:
-		var c := Vector2i(randi_range(r.position.x + margin, r.end.x - 1 - margin), randi_range(r.position.y + margin, r.end.y - 1 - margin))
+		var c: Vector2i = Vector2i(randi_range(r.position.x + margin, r.end.x - 1 - margin), randi_range(r.position.y + margin, r.end.y - 1 - margin))
 		if is_floor(c):
 			return c
 	return r.get_center()
@@ -95,14 +95,14 @@ func _carve_rect(r: Rect2i) -> void:
 
 func _carve_corridor(a: Vector2i, b: Vector2i) -> void:
 	var horizontal_first := randf() < 0.5
-	var corner := Vector2i(b.x, a.y) if horizontal_first else Vector2i(a.x, b.y)
+	var corner: Vector2i = Vector2i(b.x, a.y) if horizontal_first else Vector2i(a.x, b.y)
 	_carve_line(a, corner)
 	_carve_line(corner, b)
 
 
 func _carve_line(a: Vector2i, b: Vector2i) -> void:
 	var c := a
-	var step := Vector2i(signi(b.x - a.x), signi(b.y - a.y))
+	var step: Vector2i = Vector2i(signi(b.x - a.x), signi(b.y - a.y))
 	while true:
 		# Corredores horizontais com 3 de altura, verticais com 2 de largura
 		if step.x != 0:
@@ -121,7 +121,7 @@ func _remove_thin_walls() -> void:
 	for pass_i in 2:
 		for y in range(1, height - 1):
 			for x in range(1, width - 1):
-				var c := Vector2i(x, y)
+				var c: Vector2i = Vector2i(x, y)
 				if is_floor(c):
 					continue
 				if is_floor(c + Vector2i.UP) and is_floor(c + Vector2i.DOWN):

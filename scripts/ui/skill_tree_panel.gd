@@ -439,9 +439,9 @@ func _canvas_draw() -> void:
 	if not _tree or _nodes_ui.is_empty():
 		return
 	
-	var line_color_locked := Color(0.3, 0.3, 0.3, 0.5)
-	var line_color_active := Color(0.5, 0.8, 0.3, 0.8)
-	var line_color_available := Color(1, 0.85, 0.2, 0.8)
+	var line_color_locked: Color = Color(0.3, 0.3, 0.3, 0.5)
+	var line_color_active: Color = Color(0.5, 0.8, 0.3, 0.8)
+	var line_color_available: Color = Color(1, 0.85, 0.2, 0.8)
 	
 	for node_id in _nodes_ui:
 		var ui: Dictionary = _nodes_ui[node_id]
@@ -463,10 +463,10 @@ func _canvas_draw() -> void:
 				
 				# Desenha linha curva (bezier simples)
 				var mid_x := (from_pos.x + to_pos.x) * 0.5
-				var p1 := Vector2(from_pos.x, from_pos.y)
-				var p2 := Vector2(mid_x, from_pos.y)
-				var p3 := Vector2(mid_x, to_pos.y)
-				var p4 := Vector2(to_pos.x, to_pos.y)
+				var p1: Vector2 = Vector2(from_pos.x, from_pos.y)
+				var p2: Vector2 = Vector2(mid_x, from_pos.y)
+				var p3: Vector2 = Vector2(mid_x, to_pos.y)
+				var p4: Vector2 = Vector2(to_pos.x, to_pos.y)
 				
 				# Aproximação com segmentos retos
 				var segments := 10
@@ -477,7 +477,7 @@ func _canvas_draw() -> void:
 					var u := 1.0 - t
 					var x := u*u*u*p1.x + 3*u*u*t*p2.x + 3*u*t*t*p3.x + t*t*t*p4.x
 					var y := u*u*u*p1.y + 3*u*u*t*p2.y + 3*u*t*t*p3.y + t*t*t*p4.y
-					var curr := Vector2(x, y)
+					var curr: Vector2 = Vector2(x, y)
 					_canvas.draw_line(prev, curr, line_color, 2.0)
 					prev = curr
 

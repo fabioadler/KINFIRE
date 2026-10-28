@@ -21,7 +21,7 @@ var explored_cells: Dictionary = {}      ## Vector2i (chunk) -> PackedByteArray
 var _queue: Array[Vector2i] = []
 var _astar_dirty := true
 var _astar_timer := 0.0
-var _player_chunk := Vector2i(999999, 999999)
+var _player_chunk: Vector2i = Vector2i(999999, 999999)
 ## Ultimo território racial em que o jogador esteve (objetivos REACH, Fase 4)
 var _last_region := &""
 var _tiles: Dictionary = {}              ## "x,y,mod" -> [coords, alt]
@@ -489,7 +489,7 @@ func _paint_liquid(c: Vector2i, b: String) -> void:
 	if b in ["planicie", "floresta", "pantano"]:
 		tx = 2 if not left else (4 if not right else 3)
 		ty = 0 if not up else (2 if not down else 1)
-	var coords := Vector2i(tx, ty) if (b in ["planicie", "floresta", "pantano"]) else Vector2i(0, 0)
+	var coords: Vector2i = Vector2i(tx, ty) if (b in ["planicie", "floresta", "pantano"]) else Vector2i(0, 0)
 	floor_layer.set_cell(c, 0, coords, _alt(coords, mod, true))
 	# Vitórias-régias no pântano
 	if b == "pantano" and og.rand01(c, 11) < 0.05 and up and down and left and right:
@@ -525,8 +525,8 @@ func _rebuild_astar() -> void:
 	_astar_timer = 0.5
 	if chunks.is_empty():
 		return
-	var mn := Vector2i(999999, 999999)
-	var mx := Vector2i(-999999, -999999)
+	var mn: Vector2i = Vector2i(999999, 999999)
+	var mx: Vector2i = Vector2i(-999999, -999999)
 	for k in chunks:
 		mn = Vector2i(mini(mn.x, k.x), mini(mn.y, k.y))
 		mx = Vector2i(maxi(mx.x, k.x), maxi(mx.y, k.y))
@@ -555,12 +555,12 @@ func _spawn_chunk_content(k: Vector2i, data: Dictionary) -> void:
 	var capital_race: StringName = &""
 	if territories != null:
 		for race in territories.capitals:
-			var cap_cell := Vector2i(roundi(territories.capitals[race].x), roundi(territories.capitals[race].y))
+			var cap_cell: Vector2i = Vector2i(roundi(territories.capitals[race].x), roundi(territories.capitals[race].y))
 			if _chunk_of(cap_cell) == k:
 				capital_race = race
 				break
 	# Seguro: acampamento/capital do jogador OU chunk de capital OU perímetro de qualquer capital (2.4)
-	var safe := Vector2(center_cell).length() < OverworldGen.SAFE_RADIUS + 20 \
+	var safe: Vector2 = Vector2(center_cell).length() < OverworldGen.SAFE_RADIUS + 20 \
 		or capital_race != &"" \
 		or (territories != null and territories.near_any_capital(center_cell))
 	var nodes: Array = data.nodes
@@ -584,7 +584,7 @@ func _spawn_chunk_content(k: Vector2i, data: Dictionary) -> void:
 	# + gente comum. A capital do jogador já é o acampamento (em _spawn_content).
 	if capital_race != &"" and Game.hero != null and capital_race != Game.hero.race.id:
 		var ct: TerritoryData = DB.territory(capital_race)
-		var cap_cell := Vector2i(roundi(territories.capitals[capital_race].x), roundi(territories.capitals[capital_race].y))
+		var cap_cell: Vector2i = Vector2i(roundi(territories.capitals[capital_race].x), roundi(territories.capitals[capital_race].y))
 		var center := cell_to_world(cap_cell)
 		var f := Interactable.create(self, Interactable.Kind.CAMPFIRE, center)
 		f.label = ct.capital_name
@@ -641,7 +641,7 @@ func _spawn_chunk_content(k: Vector2i, data: Dictionary) -> void:
 		var hell: bool = Game.hero != null and Game.hero.difficulty_data().loot >= 0.28
 		var pack_affixes: Array[int] = Enemy.affixes_for(pack_rarity, rng, hell)
 		for j in count:
-			var off := Vector2(rng.randf_range(-24, 24), rng.randf_range(-24, 24))
+			var off: Vector2 = Vector2(rng.randf_range(-24, 24), rng.randf_range(-24, 24))
 			var pos := last_free_point(p, p + off)
 			var en := spawn_enemy(data_e, pos, pack_rarity if j == 0 else Enemy.Rarity.COMUM, lvl, pack_affixes if j == 0 else [])
 			# noite: +10% aggro (REGRAS #6)

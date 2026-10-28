@@ -796,7 +796,7 @@ func open_waypoints() -> void:
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(list)
 	for w in Game.waypoints:
-		var pos := Vector2(w.x, w.y)
+		var pos: Vector2 = Vector2(w.x, w.y)
 		var here := pos.distance_to(world.player.global_position) < 40.0
 		var b := UIKit.button(("%s  (você está aqui)" if here else "%s") % w.name, func(): world.travel_to(pos), 380)
 		b.disabled = here

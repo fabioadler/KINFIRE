@@ -113,5 +113,5 @@ func _draw() -> void:
 			c.a = 1.0 - k
 			for i in 8:
 				var ang := i * TAU / 8.0 + 0.3
-				var d := Vector2(cos(ang), sin(ang))
+				var d: Vector2 = Vector2(cos(ang), sin(ang))
 				draw_line(d * radius * k * 0.4, d * radius * (0.3 + k), c, 1.5)

@@ -130,8 +130,8 @@ func _draw_item(ci: CanvasItem, it: Item, rect: Rect2, dim := false) -> void:
 	ci.draw_rect(rect.grow(-1), Color(c.r * 0.18, c.g * 0.18, c.b * 0.18, 0.9))
 	ci.draw_rect(rect.grow(-1), Color(c, 0.6), false, 1.0)
 	var s := minf(rect.size.x, rect.size.y) * 0.8
-	var icon_rect := Rect2(rect.get_center() - Vector2(s, s) * 0.5, Vector2(s, s))
-	var tint := Color(1, 1, 1, 0.5 if dim else 1.0)
+	var icon_rect: Rect2 = Rect2(rect.get_center() - Vector2(s, s) * 0.5, Vector2(s, s))
+	var tint: Color = Color(1, 1, 1, 0.5 if dim else 1.0)
 	if hero.equip_problem(it) != "" and it.slot in ["weapon", "offhand"] and not hero.can_use_category(it):
 		tint = Color(1, 0.45, 0.45, tint.a)
 	ci.draw_texture_rect(DB.icon(it.icon), icon_rect, false, tint)
@@ -184,7 +184,7 @@ func equip_from_inventory(it: Item) -> void:
 
 class _GridView extends Control:
 	var panel: InventoryPanel
-	var _hover_cell := Vector2i(-1, -1)
+	var _hover_cell: Vector2i = Vector2i(-1, -1)
 
 	func _init() -> void:
 		mouse_filter = Control.MOUSE_FILTER_STOP
@@ -248,7 +248,7 @@ class _GridView extends Control:
 		var cs := InventoryPanel.CELL
 		for x in inv.cols:
 			for y in inv.rows:
-				var r := Rect2(x * cs, y * cs, cs, cs)
+				var r: Rect2 = Rect2(x * cs, y * cs, cs, cs)
 				draw_rect(r.grow(-1), Color(0.08, 0.06, 0.05))
 				draw_rect(r.grow(-1), Color(0.22, 0.17, 0.12), false, 1.0)
 		for it in inv.items:
@@ -307,7 +307,7 @@ class _EquipView extends Control:
 			panel.hide_tooltip()
 
 	func _draw() -> void:
-		var r := Rect2(Vector2.ZERO, size)
+		var r: Rect2 = Rect2(Vector2.ZERO, size)
 		draw_rect(r, Color(0.05, 0.035, 0.03))
 		var highlight := panel.held != null and panel.held.slot == slot
 		draw_rect(r, UIKit.GOLD if highlight else UIKit.GOLD_DIM, false, 2.0)

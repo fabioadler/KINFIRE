@@ -20,7 +20,7 @@ func in_bounds(item: Item, pos: Vector2i) -> bool:
 
 func overlapping(item: Item, pos: Vector2i) -> Array[Item]:
 	var out: Array[Item] = []
-	var r := Rect2i(pos, item.size)
+	var r: Rect2i = Rect2i(pos, item.size)
 	for other in items:
 		if other == item:
 			continue
@@ -36,7 +36,7 @@ func can_place(item: Item, pos: Vector2i) -> bool:
 func find_space(item: Item) -> Vector2i:
 	for x in cols:
 		for y in rows:
-			var p := Vector2i(x, y)
+			var p: Vector2i = Vector2i(x, y)
 			if can_place(item, p):
 				return p
 	return Vector2i(-1, -1)

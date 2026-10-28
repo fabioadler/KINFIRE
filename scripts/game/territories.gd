@@ -130,7 +130,7 @@ func _fits(pos: Vector2, want_biome: String) -> bool:
 	for race in capitals:
 		if pos.distance_to(capitals[race]) < CAPITAL_MIN_GAP:
 			return false
-	var c := Vector2i(roundi(pos.x), roundi(pos.y))
+	var c: Vector2i = Vector2i(roundi(pos.x), roundi(pos.y))
 	var biome: String = _gen.biome_at(c)
 	if want_biome != "" and biome != want_biome:
 		return false

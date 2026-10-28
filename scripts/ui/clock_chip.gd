@@ -46,7 +46,7 @@ func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), Color(0.05, 0.04, 0.03, 0.9))
 	draw_rect(Rect2(Vector2.ZERO, size), UIKit.GOLD_DIM, false, 1.0)
 	# arco de progresso do dia (anel: 00:00 no topo, horário)
-	var c := Vector2(18, size.y * 0.5)
+	var c: Vector2 = Vector2(18, size.y * 0.5)
 	var r := size.y * 0.5 - 5.0
 	draw_arc(c, r, -PI * 0.5, -PI * 0.5 + TAU, 32, Color(0.1, 0.09, 0.08), 3.0, true)
 	var arc_col: Color = UIKit.ACCENT_GOLD if is_day else Color(0.55, 0.62, 0.9)

@@ -171,7 +171,7 @@ func _ready() -> void:
 		_spawn_beam.polygon = PackedVector2Array([
 			Vector2(-6.0, y0), Vector2(6.0, y0),
 			Vector2(3.0, y0 - 84.0), Vector2(-3.0, y0 - 84.0)])
-		var solid := Color(bc.r, bc.g, bc.b, 0.85)
+		var solid: Color = Color(bc.r, bc.g, bc.b, 0.85)
 		_spawn_beam.vertex_colors = PackedColorArray([solid, solid,
 			Color(bc.r, bc.g, bc.b, 0.0), Color(bc.r, bc.g, bc.b, 0.0)])
 		visual.add_child(_spawn_beam)

@@ -73,7 +73,7 @@ func _make_emitter(kind: StringName) -> void:
 		p.self_modulate = Color(2.4, 2.8, 1.1, 1.0)
 	var mat := ParticleProcessMaterial.new()
 	p.process_material = mat
-	var box := Vector2(VIEW.x + VIEW_MARGIN * 2.0, 260.0)
+	var box: Vector2 = Vector2(VIEW.x + VIEW_MARGIN * 2.0, 260.0)
 	mat.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
 	if kind == &"rain":
 		mat.emission_box_extents = Vector3(box.x * 0.5, 40.0, 1.0)
@@ -119,7 +119,7 @@ func _make_emitter(kind: StringName) -> void:
 func _make_texture(kind: StringName) -> ImageTexture:
 	## Textura procedural (sem asset externo): ponto suave; gota alongada p/ chuva
 	var stretch := 4 if kind == &"rain" else 1
-	var size := Vector2i(8, 8 * stretch)
+	var size: Vector2i = Vector2i(8, 8 * stretch)
 	var img := Image.create(size.x, size.y, false, Image.FORMAT_RGBA8)
 	for y in size.y:
 		for x in size.x:
@@ -155,7 +155,7 @@ func configure(biome: StringName, night: bool, raining: bool, world: World) -> v
 	var fog: bool = Weather.fog_at(biome)
 	_fog_layer.visible = fog
 	if fog:
-		var base := Color(0.72, 0.82, 0.68) if biome == &"pantano" else Color(0.55, 0.42, 0.62)
+		var base: Color = Color(0.72, 0.82, 0.68) if biome == &"pantano" else Color(0.55, 0.42, 0.62)
 		var density := 0.22 if _night else 0.12
 		for i in _fog_rects.size():
 			var mat := _fog_rects[i].material as ShaderMaterial
@@ -181,7 +181,7 @@ func _process(delta: float) -> void:
 		if kind == &"rain":
 			mat.direction = Vector3(w.x * mass * 0.35, 1.0, 0.0)
 		else:
-			var dir := Vector2(w.x * mass, 0.55 + 0.45 * (1.0 - mass))
+			var dir: Vector2 = Vector2(w.x * mass, 0.55 + 0.45 * (1.0 - mass))
 			mat.direction = Vector3(dir.x, dir.y, 0.0)
 			mat.initial_velocity_min = 18.0 + 60.0 * (1.0 - mass) * (0.4 + absf(w.length()))
 			mat.initial_velocity_max = 36.0 + 120.0 * (1.0 - mass) * (0.4 + absf(w.length()))
