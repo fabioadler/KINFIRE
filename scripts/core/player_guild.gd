@@ -5,6 +5,11 @@ class Member:
 	var hero_id: StringName
 	var rank: String
 	var joined_at: float
+	
+	func _init(p_hero_id: StringName = &"", p_rank: String = "membro") -> void:
+		hero_id = p_hero_id
+		rank = p_rank
+		joined_at = Time.get_ticks_msec() / 1000.0
 
 class Bank:
 	var slots: Array[Item] = []

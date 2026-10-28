@@ -91,8 +91,15 @@ static func sell_price(race: StringName, item: Item) -> int:
 	var cat := StringName(item.category) if item.category != "" else category_of(item.base_id)
 	var v: VendorData = DB.vendor(race)
 	var factor := FLOODED_SELL if (v != null and cat in v.specialties) else SCARCE_SELL
-	return int(round(VendorData._base_value(item.item_level, item.rarity) * VENDOR_BUYS_AT \
+	var base_price = int(round(VendorData._base_value(item.item_level, item.rarity) * VENDOR_BUYS_AT \
 		* demand(race, cat) * factor))
+	
+	# Aplicar bonus de MerchantGuild se herói é membro
+	if Game.hero and Game.hero.guild_joined == &"mercadores":
+		var merchant_bonus = MerchantGuild.get_sell_price_bonus(Game.hero)
+		base_price = int(float(base_price) * (merchant_bonus / 0.40))  # Normalizar vs base 40%
+	
+	return base_price
 
 
 ## Desconto por reputação (REGRAS §10, MECANICAS §10): 0/5/10/15/20% por tier

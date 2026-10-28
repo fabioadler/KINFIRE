@@ -11,7 +11,7 @@ func _init(p_hero: Hero) -> void:
 func join_guild(guild_id: StringName) -> bool:
 	if hero.guild_joined != &"":
 		return false  # Já membro
-	var guild = DB.guild(guild_id)
+	var guild = Guilds.guild(guild_id)  # Corrigido: Guilds.guild() ao invés de DB.guild()
 	if not guild:
 		return false
 	hero.guild_joined = guild_id
@@ -38,5 +38,5 @@ func complete_contract(contract_id: StringName) -> void:
 	hero.contracts_completed += 1
 
 func _check_rank_up() -> void:
-	# Delegado ao RankSystem (Task 4)
-	pass
+	# Verifica se deve subir de rank baseado em conquistas
+	RankSystem.check_advancement(hero)

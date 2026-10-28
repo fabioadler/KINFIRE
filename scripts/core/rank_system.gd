@@ -24,8 +24,34 @@ static func check_advancement(hero: Hero) -> bool:
 	var next_rank = rank_order[current_idx + 1]
 	var reqs = RANK_REQUIREMENTS.get(next_rank, {})
 	
-	if reqs.get("contratos", 0) > hero.contracts_completed:
-		return false
+	# Verificar TODOS os requisitos
+	for req_key in reqs.keys():
+		var req_value: int = reqs[req_key]
+		match req_key:
+			"contratos":
+				if req_value > hero.contracts_completed:
+					return false
+			"chefes":
+				if req_value > hero.kills:
+					return false
+			"niveis":
+				if req_value > hero.level:
+					return false
+			"misterios":
+				if req_value > Game.mysteries_completed:
+					return false
+			"fragmentos":
+				if req_value > Game.fragmentos:
+					return false
+			"reputacao":
+				# Reputação mínima em qualquer território
+				var has_rep = false
+				for rep_val in Game.reputation.values():
+					if rep_val >= req_value:
+						has_rep = true
+						break
+				if not has_rep:
+					return false
 	
 	hero.rank_f_s = next_rank
 	return true
