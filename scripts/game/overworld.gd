@@ -713,7 +713,7 @@ func _is_night() -> bool:
 func _offer_sleep() -> void:
 	var body := hud._open_popup("Fogueira acesa", 430)
 	body.add_child(UIKit.rich(
-		"[color=#9A917F]A noite cobre Eldara. As fogueiras afastam o frio — e o resto.[/color]"))
+		"[color=#9A917F]A noite cobre Eldara. As fogueiras afastam o frio — e o resto.[/color]")))
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 10)
 	body.add_child(row)
