@@ -15,13 +15,23 @@ func _ready() -> void:
 
 func initialize(hero: Hero) -> void:
 	character = hero
-	# Hook into quest completion
-	if hero.has_meta("quest_manager"):
-		var qm = hero.get_meta("quest_manager")
-		if qm.has_signal("quest_completed"):
-			qm.quest_completed.connect(_on_quest_completed)
+	# Hook into quest completion - defensive
+	if not hero or not Game:
+		return
+	
+	var qlog = null
+	if Game.has_meta("quest_log"):
+		qlog = Game.get_meta("quest_log")
+	elif "quest_log" in Game:
+		qlog = Game.quest_log
+	
+	if qlog and qlog.has_signal("quest_completed"):
+		qlog.quest_completed.connect(_on_quest_completed)
 
 func _on_quest_completed(quest_id: StringName) -> void:
+	if not bonds_system:
+		return
+	
 	# Map quest IDs to Guardians
 	var quest_to_guardian = {
 		&"misterio_1": &"mira_pe_leve",
@@ -42,18 +52,20 @@ func _on_quest_completed(quest_id: StringName) -> void:
 			all_bonds_collected.emit()
 
 func add_brasa(amount: int = 1) -> void:
-	brasa_system.add_brasa(amount)
-	brasa_changed.emit(brasa_system.get_brasa())
+	if brasa_system:
+		brasa_system.add_brasa(amount)
+		brasa_changed.emit(brasa_system.get_brasa())
 
 func remove_brasa(amount: int = 1) -> void:
-	brasa_system.remove_brasa(amount)
-	brasa_changed.emit(brasa_system.get_brasa())
+	if brasa_system:
+		brasa_system.remove_brasa(amount)
+		brasa_changed.emit(brasa_system.get_brasa())
 
 func get_brasa() -> int:
-	return brasa_system.get_brasa()
+	return brasa_system.get_brasa() if brasa_system else 0
 
 func get_bonds() -> int:
-	return bonds_system.get_bond_count()
+	return bonds_system.get_bond_count() if bonds_system else 0
 
 func has_all_bonds() -> bool:
-	return bonds_system.has_all_bonds()
+	return bonds_system.has_all_bonds() if bonds_system else false

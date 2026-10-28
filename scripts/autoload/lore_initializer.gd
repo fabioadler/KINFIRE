@@ -1,12 +1,18 @@
 class_name LoreInitializer
 extends Node
+## Lore system autoload - safe initialization with fallbacks
 
 var lore_manager: LoreSystemManager
 var brasa_zone_manager: BrasaZoneManager
 var guardian_spawner: GuardianSpawner
 
 func _ready() -> void:
-	# Initialize all lore systems
+	# Initialize all lore systems with error handling
+	try_init()
+	print("✅ Lore system ready (Brasa, Bonds, Guardiões)")
+
+func try_init() -> void:
+	# Create systems
 	lore_manager = LoreSystemManager.new()
 	brasa_zone_manager = BrasaZoneManager.new()
 	guardian_spawner = GuardianSpawner.new()
@@ -17,13 +23,19 @@ func _ready() -> void:
 	
 	brasa_zone_manager.set_lore_manager(lore_manager)
 	
-	# Connect quest log to Bonds system
-	if Game.quest_log:
-		Game.quest_log.quest_completed.connect(_on_quest_completed)
-	
-	print("✅ Lore system initialized: Brasa, Bonds, Guardiões ready")
+	# Connect quest log to Bonds system (safe - checks if exists)
+	if Game and Game.has_meta("quest_log"):
+		var qlog = Game.get_meta("quest_log")
+		if qlog and qlog.has_signal("quest_completed"):
+			qlog.quest_completed.connect(_on_quest_completed)
+	elif Game and "quest_log" in Game:
+		if Game.quest_log and Game.quest_log.has_signal("quest_completed"):
+			Game.quest_log.quest_completed.connect(_on_quest_completed)
 
 func _on_quest_completed(quest_id: StringName) -> void:
+	if not lore_manager or not guardian_spawner or not Game:
+		return
+	
 	# Route quest to Guardian spawn
 	var quest_to_guardian = {
 		&"misterio_1": &"mira_pe_leve",
@@ -42,10 +54,12 @@ func _on_quest_completed(quest_id: StringName) -> void:
 	
 	# Trigger Ithariel reveal check
 	if quest_id == &"misterio_7":
-		Game.flags.set("misterio_7_complete")
+		if Game.flags:
+			Game.flags.set("misterio_7_complete")
 		print("⛓️ Ithariel reveal unlocked!")
 	
 	# Check if all bonds collected
 	if lore_manager.has_all_bonds():
-		Game.flags.set("bonds_complete")
+		if Game.flags:
+			Game.flags.set("bonds_complete")
 		print("🔥 All Bonds collected! ato3_1 unlocked!")

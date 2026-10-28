@@ -43,6 +43,9 @@ func spawn_guardian(guardian_id: StringName) -> void:
 	if guardian_id not in GUARDIAN_SPAWN_POINTS:
 		return
 	
+	if not Game or not Game.flags:
+		return
+	
 	var spawn_data = GUARDIAN_SPAWN_POINTS[guardian_id]
 	# Flag guardian as available in world
 	Game.flags.set(str(guardian_id) + "_available")
