@@ -739,7 +739,7 @@ func _sleep_until_dawn() -> void:
 		Game.save_game()
 		hud.show_message("Você acorda ao amanhecer — dia %d." % (int(_time) + 1),
 			Color(1, 0.85, 0.5), 3.5)
-	))
+	)
 	tw.tween_property(bg, "color:a", 0.0, 0.9)
 	tw.tween_callback(veil.queue_free)
 
