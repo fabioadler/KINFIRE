@@ -492,7 +492,7 @@ func get_guild_rank(guild_id: StringName) -> int:
 func promote_guild(guild_id: StringName) -> bool:
 	if not (guild_id in guild_members):
 		return false
-	var current := guild_ranks.get(guild_id, 0)
+	var current: int = guild_ranks.get(guild_id, 0)
 	guild_ranks[guild_id] = current + 1
 	stats_changed.emit()
 	return true

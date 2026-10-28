@@ -8,7 +8,7 @@ const RankData := preload("res://scripts/data/rank_data.gd")
 const ContractData := preload("res://scripts/data/contract_data.gd")
 
 ## Guildas do jogo (4 principais + ocultas)
-static var _guilds := {}
+static var _guilds: Dictionary[StringName, GuildData] = {}
 
 ## Retorna um GuildData pela ID
 static func get_guild(guild_id: StringName) -> GuildData:

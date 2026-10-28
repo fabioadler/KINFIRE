@@ -10,7 +10,7 @@ const SkillNodeData := preload("res://scripts/data/skill_node_data.gd")
 static func get_tree(class_id: StringName) -> SkillTreeData:
 	var tree := SkillTreeData.new()
 	tree.class_id = class_id
-	var nodes_data = _get_nodes_data(class_id)
+	var nodes_data: Array[Dictionary] = _get_nodes_data(class_id)
 	var nodes: Array[SkillNodeData] = []
 	for nd in nodes_data:
 		var node := SkillNodeData.new()

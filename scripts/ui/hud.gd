@@ -174,8 +174,8 @@ func _build_bottom_bar() -> void:
 	# Barra de consumíveis 1-9
 	_consumable_slots = []
 	for i in 9:
-		var slot_idx = i  # 0-8 para slots 1-9
-		var key_name = Game.key_name("consumable_%d" % (i + 1))
+		var slot_idx: int = i  # 0-8 para slots 1-9
+		var key_name: String = Game.key_name("consumable_%d" % (i + 1))
 		var cs := ConsumableSlotScript.new(slot_idx, key_name)
 		cs.player = player
 		cs.used.connect(func(s: int): player._use_consumable_slot(s))
@@ -536,7 +536,7 @@ func pulse_hint(key: String) -> void:
 	if key == "Q":
 		target = _heal_slot
 	elif key.begins_with("consumable_"):
-		var idx = int(key.split("_")[1]) - 1
+		var idx: int = int(key.split("_")[1]) - 1
 		if idx >= 0 and idx < _consumable_slots.size():
 			target = _consumable_slots[idx]
 	else:

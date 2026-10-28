@@ -471,6 +471,24 @@ func get_skill_tree(class_id: StringName) -> SkillTreeData:
 	return skill_trees.get(class_id)
 
 
+## Retorna um contrato pela ID (Fase 11)
+func get_contract(contract_id: StringName) -> ContractData:
+	var path := "res://data/contracts/%s.tres" % contract_id
+	if ResourceLoader.exists(path):
+		return load(path)
+	return null
+
+
+## Retorna todos os contratos de uma guilda (Fase 11)
+func contracts_for(guild_id: StringName) -> Array[ContractData]:
+	return Guilds.contracts_for(guild_id)
+
+
+## Retorna uma guilda pela ID (Fase 11)
+func get_guild(guild_id: StringName) -> GuildData:
+	return Guilds.get_guild(guild_id)
+
+
 func bosses() -> Array[EnemyData]:
 	var out: Array[EnemyData] = []
 	for e in enemies:
