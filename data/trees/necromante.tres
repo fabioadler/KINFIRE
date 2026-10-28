@@ -1,0 +1,228 @@
+[ext_resource type="Script" path="res://scripts/data/skill_tree_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/data/skill_node_data.gd" id="2_node_script"]
+[ext_resource type="Resource" path="res://data/skills/necromante/drenar_vida.tres" id="3_drenar"]
+[ext_resource type="Resource" path="res://data/skills/necromante/raio_da_morte.tres" id="4_raio"]
+[ext_resource type="Resource" path="res://data/skills/necromante/invocar_esqueletos.tres" id="5_esqueletos"]
+[ext_resource type="Resource" path="res://data/skills/necromante/maldicao_fraqueza.tres" id="6_maldicao"]
+[ext_resource type="Resource" path="res://data/skills/necromante/nevoa_pestilenta.tres" id="7_nevoa"]
+[ext_resource type="Resource" path="res://data/skills/necromante/golpe_spectral.tres" id="8_golpe"]
+[ext_resource type="Resource" path="res://data/skills/necromante/senhor_dos_mortos.tres" id="9_nova1"]
+[ext_resource type="Resource" path="res://data/skills/necromante/ritual_da_ruina.tres" id="10_nova2"]
+[ext_resource type="Resource" path="res://data/skills/necromante/legiao_eterna.tres" id="11_nova3"]
+[ext_resource type="Resource" path="res://data/skills/necromante/lorde_da_morte.tres" id="12_nova4"]
+
+[resource]
+script = ExtResource("1_script")
+class_id = &"necromante"
+nodes = [
+        [subresource type="SkillNodeData" id="13_n0"]
+    ,
+        [subresource type="SkillNodeData" id="14_n1"]
+    ,
+        [subresource type="SkillNodeData" id="15_n2"]
+    ,
+        [subresource type="SkillNodeData" id="16_n3"]
+    ,
+        [subresource type="SkillNodeData" id="17_n4"]
+    ,
+        [subresource type="SkillNodeData" id="18_n5"]
+    ,
+        [subresource type="SkillNodeData" id="19_n6"]
+    ,
+        [subresource type="SkillNodeData" id="20_n7"]
+    ,
+        [subresource type="SkillNodeData" id="21_n8"]
+    ,
+        [subresource type="SkillNodeData" id="22_n9"]
+    ,
+        [subresource type="SkillNodeData" id="23_n10"]
+    ,
+        [subresource type="SkillNodeData" id="24_n11"]
+    ,
+        [subresource type="SkillNodeData" id="25_n12"]
+    ,
+        [subresource type="SkillNodeData" id="26_n13"]
+]
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+]
+SubResource("13_n0"),
+SubResource("14_n1"),
+SubResource("15_n2"),
+SubResource("16_n3"),
+SubResource("17_n4"),
+SubResource("18_n5"),
+SubResource("19_n6"),
+SubResource("20_n7"),
+SubResource("21_n8"),
+SubResource("22_n9"),
+SubResource("23_n10"),
+SubResource("24_n11"),
+SubResource("25_n12"),
+SubResource("26_n13")
+]
+
+script = ExtResource("2_node_script")
+id = &"necromante_senhor_mortos"
+skill_id = &"senhor_dos_mortos"
+is_new_skill = true
+max_rank = 1
+requires = []
+per_rank = {}
+display_name = "Senhor dos Mortos"
+description = "Desbloqueia: Comando absoluto. Minions ganham +100% vida/dano, herdam seus buffs, explodem ao morrer. 20s."
+icon = "S_Summon03"
+
+script = ExtResource("2_node_script")
+id = &"necromante_ritual_ruina"
+skill_id = &"ritual_da_ruina"
+is_new_skill = true
+max_rank = 1
+requires = ["necromante_senhor_mortos"]
+per_rank = {}
+display_name = "Ritual da Ruína"
+description = "Desbloqueia: Canaliza por 3s. Explosão 15m: 5x dano sombra, cura minions 50% vida, ressuscita caídos. Custa 80 Mana."
+icon = "S_Shadow07"
+
+script = ExtResource("2_node_script")
+id = &"necromante_legiao_eterna"
+skill_id = &"legiao_eterna"
+is_new_skill = true
+max_rank = 1
+requires = ["necromante_ritual_ruina"]
+per_rank = {}
+display_name = "Legião Eterna"
+description = "Desbloqueia: Invoca 10 esqueletos + 1 lich. Lich lança raio da morte. Exército dura 30s. Custa 100 Mana."
+icon = "S_Summon04"
+
+script = ExtResource("2_node_script")
+id = &"necromante_lorde_morte"
+skill_id = &"lorde_da_morte"
+is_new_skill = true
+max_rank = 1
+requires = ["necromante_legiao_eterna"]
+per_rank = {}
+display_name = "Lorde da Morte"
+description = "Desbloqueia: Forma de Lich 25s. Imune a veneno/sangramento/medo, mana infinito, minions não morrem. Custa 120 Mana."
+icon = "S_Buff10"
+
+script = ExtResource("2_node_script")
+id = &"necromante_drenar_1"
+skill_id = &"drenar_vida"
+is_new_skill = false
+max_rank = 3
+requires = []
+per_rank = {"damage": 0.15, "cooldown": -0.07, "heal": 0.1}
+display_name = "Drenar Vida I-III"
+description = "Melhora: +15% dano, -7% cooldown, +10% cura por rank."
+icon = "S_Shadow01"
+
+script = ExtResource("2_node_script")
+id = &"necromante_raio_1"
+skill_id = &"raio_da_morte"
+is_new_skill = false
+max_rank = 3
+requires = ["necromante_drenar_1"]
+per_rank = {"damage": 0.15, "cooldown": -0.07, "pierce": 1}
+display_name = "Raio da Morte I-III"
+description = "Melhora: +15% dano, -7% cooldown, +1 perfuração por rank."
+icon = "S_Shadow02"
+
+script = ExtResource("2_node_script")
+id = &"necromante_esqueletos_1"
+skill_id = &"invocar_esqueletos"
+is_new_skill = false
+max_rank = 3
+requires = []
+per_rank = {"duration": 10.0, "summon_count": 1}
+display_name = "Invocar Esqueletos I-III"
+description = "Melhora: +10s duração, +1 esqueleto por rank."
+icon = "S_Summon01"
+
+script = ExtResource("2_node_script")
+id = &"necromante_maldicao_1"
+skill_id = &"maldicao_fraqueza"
+is_new_skill = false
+max_rank = 2
+requires = ["necromante_esqueletos_1"]
+per_rank = {"duration": 3.0, "radius": 0.15}
+display_name = "Maldição da Fraqueza I-II"
+description = "Melhora: +3s duração, +15% raio por rank."
+icon = "S_Shadow03"
+
+script = ExtResource("2_node_script")
+id = &"necromante_nevoa_1"
+skill_id = &"nevoa_pestilenta"
+is_new_skill = false
+max_rank = 2
+requires = ["necromante_raio_1"]
+per_rank = {"damage": 0.15, "duration": 2.0, "radius": 0.1}
+display_name = "Névoa Pestilenta I-II"
+description = "Melhora: +15% dano, +2s duração, +10% raio por rank."
+icon = "S_Shadow04"
+
+script = ExtResource("2_node_script")
+id = &"necromante_golpe_1"
+skill_id = &"golpe_spectral"
+is_new_skill = false
+max_rank = 2
+requires = ["necromante_maldicao_1"]
+per_rank = {"damage": 0.2, "heal": 0.1}
+display_name = "Golpe Espectral I-II"
+description = "Melhora: +20% dano, +10% cura por rank."
+icon = "S_Sword01"
+
+script = ExtResource("2_node_script")
+id = &"necromante_mestre_drenar"
+skill_id = &"drenar_vida"
+is_new_skill = false
+max_rank = 1
+requires = ["necromante_drenar_1", "necromante_senhor_mortos"]
+per_rank = {"damage": 0.25, "heal": 0.2}
+display_name = "Mestre da Drenagem"
+description = "Melhora final: +25% dano, +20% cura. Drenar aplica maldição de fraqueza."
+icon = "S_Shadow05"
+
+script = ExtResource("2_node_script")
+id = &"necromante_mestre_minions"
+skill_id = &"invocar_esqueletos"
+is_new_skill = false
+max_rank = 1
+requires = ["necromante_esqueletos_1", "necromante_legiao_eterna"]
+per_rank = {"summon_count": 3, "damage": 0.3, "duration": 15.0}
+display_name = "Mestre dos Minions"
+description = "Melhora final: +3 esqueletos base, +30% dano minions, +15s duração. Esqueletos viram arqueiros."
+icon = "S_Summon02"
+
+script = ExtResource("2_node_script")
+id = &"necromante_mestre_ruina"
+skill_id = &"raio_da_morte"
+is_new_skill = false
+max_rank = 1
+requires = ["necromante_raio_1", "necromante_ritual_ruina"]
+per_rank = {"damage": 0.35, "pierce": 2}
+display_name = "Mestre da Ruína"
+description = "Melhora final: +35% dano sombra, +2 perfuração. Ritual da Ruína custa 50% menos Mana."
+icon = "S_Shadow06"
+
+script = ExtResource("2_node_script")
+id = &"necromante_deus_morte"
+skill_id = &"lorde_da_morte"
+is_new_skill = false
+max_rank = 1
+requires = ["necromante_lorde_morte", "necromante_mestre_drenar", "necromante_mestre_minions", "necromante_mestre_ruina"]
+per_rank = {"damage": 0.5, "duration": 15.0, "cooldown": -0.3}
+display_name = "Deus da Morte"
+description = "Capstone: Lorde +50% dano, +15s duração, -30% CD sombra. Minions imortais. Drenar cura 100% dano."
+icon = "S_Buff10"

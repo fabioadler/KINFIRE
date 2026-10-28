@@ -1,0 +1,228 @@
+[ext_resource type="Script" path="res://scripts/data/skill_tree_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/data/skill_node_data.gd" id="2_node_script"]
+[ext_resource type="Resource" path="res://data/skills/bardo/nota_cortante.tres" id="3_nota"]
+[ext_resource type="Resource" path="res://data/skills/bardo/sussurros_dissonantes.tres" id="4_sussurros"]
+[ext_resource type="Resource" path="res://data/skills/bardo/cancao_da_confusao.tres" id="5_confusao"]
+[ext_resource type="Resource" path="res://data/skills/bardo/inspiracao_heroica.tres" id="6_inspiracao"]
+[ext_resource type="Resource" path="res://data/skills/bardo/onda_trovejante.tres" id="7_onda"]
+[ext_resource type="Resource" path="res://data/skills/bardo/balada_da_ruina.tres" id="8_balada"]
+[ext_resource type="Resource" path="res://data/skills/bardo/marchada_guerra.tres" id="9_nova1"]
+[ext_resource type="Resource" path="res://data/skills/bardo/canto_sereia.tres" id="10_nova2"]
+[ext_resource type="Resource" path="res://data/skills/bardo/sinfonia_caos.tres" id="11_nova3"]
+[ext_resource type="Resource" path="res://data/skills/bardo/maestro_eterno.tres" id="12_nova4"]
+
+[resource]
+script = ExtResource("1_script")
+class_id = &"bardo"
+nodes = [
+        [subresource type="SkillNodeData" id="13_n0"]
+    ,
+        [subresource type="SkillNodeData" id="14_n1"]
+    ,
+        [subresource type="SkillNodeData" id="15_n2"]
+    ,
+        [subresource type="SkillNodeData" id="16_n3"]
+    ,
+        [subresource type="SkillNodeData" id="17_n4"]
+    ,
+        [subresource type="SkillNodeData" id="18_n5"]
+    ,
+        [subresource type="SkillNodeData" id="19_n6"]
+    ,
+        [subresource type="SkillNodeData" id="20_n7"]
+    ,
+        [subresource type="SkillNodeData" id="21_n8"]
+    ,
+        [subresource type="SkillNodeData" id="22_n9"]
+    ,
+        [subresource type="SkillNodeData" id="23_n10"]
+    ,
+        [subresource type="SkillNodeData" id="24_n11"]
+    ,
+        [subresource type="SkillNodeData" id="25_n12"]
+    ,
+        [subresource type="SkillNodeData" id="26_n13"]
+]
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+]
+SubResource("13_n0"),
+SubResource("14_n1"),
+SubResource("15_n2"),
+SubResource("16_n3"),
+SubResource("17_n4"),
+SubResource("18_n5"),
+SubResource("19_n6"),
+SubResource("20_n7"),
+SubResource("21_n8"),
+SubResource("22_n9"),
+SubResource("23_n10"),
+SubResource("24_n11"),
+SubResource("25_n12"),
+SubResource("26_n13")
+]
+
+script = ExtResource("2_node_script")
+id = &"bardo_marchada_guerra"
+skill_id = &"marchada_guerra"
+is_new_skill = true
+max_rank = 1
+requires = []
+per_rank = {}
+display_name = "Marcha da Guerra"
+description = "Desbloqueia: Canção que concede +20% vel. movimento/ataque e imunidade a lentidão aos aliados. 15s."
+icon = "S_Buff07"
+
+script = ExtResource("2_node_script")
+id = &"bardo_canto_sereia"
+skill_id = &"canto_sereia"
+is_new_skill = true
+max_rank = 1
+requires = ["bardo_marchada_guerra"]
+per_rank = {}
+display_name = "Canto da Sereia"
+description = "Desbloqueia: Encanta inimigos em 10m. Eles atacam uns aos outros por 5s. Custa 30 Inspiração."
+icon = "S_Magic04"
+
+script = ExtResource("2_node_script")
+id = &"bardo_sinfonia_caos"
+skill_id = &"sinfonia_caos"
+is_new_skill = true
+max_rank = 1
+requires = ["bardo_canto_sereia"]
+per_rank = {}
+display_name = "Sinfonia do Caos"
+description = "Desbloqueia: Zona de discórdia 8m por 10s. Inimigos: confusão, -30% precisão, dano entre si."
+icon = "S_Magic05"
+
+script = ExtResource("2_node_script")
+id = &"bardo_maestro_eterno"
+skill_id = &"maestro_eterno"
+is_new_skill = true
+max_rank = 1
+requires = ["bardo_sinfonia_caos"]
+per_rank = {}
+display_name = "Maestro Eterno"
+description = "Desbloqueia: Todas canções ativas simultaneamente. Custo 0, duração infinita até cancelar. Custa 100 Inspiração."
+icon = "S_Buff10"
+
+script = ExtResource("2_node_script")
+id = &"bardo_nota_1"
+skill_id = &"nota_cortante"
+is_new_skill = false
+max_rank = 3
+requires = []
+per_rank = {"damage": 0.15, "cooldown": -0.07}
+display_name = "Nota Cortante I-III"
+description = "Melhora: +15% dano, -7% cooldown por rank."
+icon = "S_Magic02"
+
+script = ExtResource("2_node_script")
+id = &"bardo_sussurros_1"
+skill_id = &"sussurros_dissonantes"
+is_new_skill = false
+max_rank = 3
+requires = ["bardo_nota_1"]
+per_rank = {"damage": 0.15, "cooldown": -0.07, "radius": 0.1}
+display_name = "Sussurros Dissonantes I-III"
+description = "Melhora: +15% dano, -7% cooldown, +10% raio por rank."
+icon = "S_Magic03"
+
+script = ExtResource("2_node_script")
+id = &"bardo_confusao_1"
+skill_id = &"cancao_da_confusao"
+is_new_skill = false
+max_rank = 2
+requires = ["bardo_sussurros_1"]
+per_rank = {"duration": 1.5, "radius": 0.15}
+display_name = "Canção da Confusão I-II"
+description = "Melhora: +1.5s duração, +15% raio por rank."
+icon = "S_Magic04"
+
+script = ExtResource("2_node_script")
+id = &"bardo_inspiracao_1"
+skill_id = &"inspiracao_heroica"
+is_new_skill = false
+max_rank = 3
+requires = []
+per_rank = {"heal": 0.15, "duration": 2.0}
+display_name = "Inspiração Heroica I-III"
+description = "Melhora: +15% cura/buff, +2s duração por rank."
+icon = "S_Buff08"
+
+script = ExtResource("2_node_script")
+id = &"bardo_onda_1"
+skill_id = &"onda_trovejante"
+is_new_skill = false
+max_rank = 3
+requires = ["bardo_nota_1"]
+per_rank = {"damage": 0.15, "cooldown": -0.07, "radius": 0.1}
+display_name = "Onda Trovejante I-III"
+description = "Melhora: +15% dano, -7% cooldown, +10% raio por rank."
+icon = "S_Lightning01"
+
+script = ExtResource("2_node_script")
+id = &"bardo_balada_1"
+skill_id = &"balada_da_ruina"
+is_new_skill = false
+max_rank = 2
+requires = ["bardo_sussurros_1"]
+per_rank = {"damage": 0.2, "duration": 2.0}
+display_name = "Balada da Ruína I-II"
+description = "Melhora: +20% dano, +2s duração por rank."
+icon = "S_Shadow04"
+
+script = ExtResource("2_node_script")
+id = &"bardo_mestre_melodia"
+skill_id = &"nota_cortante"
+is_new_skill = false
+max_rank = 1
+requires = ["bardo_nota_1", "bardo_marchada_guerra"]
+per_rank = {"damage": 0.25, "cooldown": -0.15}
+display_name = "Mestre da Melodia"
+description = "Melhora final: +25% dano, -15% cooldown em skills ofensivas."
+icon = "S_Magic06"
+
+script = ExtResource("2_node_script")
+id = &"bardo_mestre_canto"
+skill_id = &"inspiracao_heroica"
+is_new_skill = false
+max_rank = 1
+requires = ["bardo_inspiracao_1", "bardo_canto_sereia"]
+per_rank = {"heal": 0.3, "duration": 5.0}
+display_name = "Mestre do Canto"
+description = "Melhora final: +30% cura/buff, +5s duração. Canções custam 50% menos."
+icon = "S_Buff09"
+
+script = ExtResource("2_node_script")
+id = &"bardo_mestre_caos"
+skill_id = &"onda_trovejante"
+is_new_skill = false
+max_rank = 1
+requires = ["bardo_onda_1", "bardo_sinfonia_caos"]
+per_rank = {"damage": 0.3, "radius": 0.25}
+display_name = "Mestre do Caos"
+description = "Melhora final: +30% dano sônico, +25% raio. Confusão dura 2x mais."
+icon = "S_Magic07"
+
+script = ExtResource("2_node_script")
+id = &"bardo_lenda_viva"
+skill_id = &"maestro_eterno"
+is_new_skill = false
+max_rank = 1
+requires = ["bardo_maestro_eterno", "bardo_mestre_melodia", "bardo_mestre_canto", "bardo_mestre_caos"]
+per_rank = {"damage": 0.5, "duration": 0.0, "heal": 0.2}
+display_name = "Lenda Viva"
+description = "Capstone: Maestro Eterno sem custo. Todas canções +50% efeito. Regenera Inspiração 2x."
+icon = "S_Buff10"

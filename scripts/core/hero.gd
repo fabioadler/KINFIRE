@@ -54,6 +54,11 @@ var deepest: int = 1
 var play_time: float = 0.0
 ## Modificadores temporários (buffs): {"damage": 0.3, ...}
 var temp := {}
+## Guildas (Fase 11): filiações e ranks
+var guild_members: Array[StringName] = []
+var guild_ranks: Dictionary[StringName, int] = {}
+var active_contracts: Array[StringName] = []
+var completed_contracts: Array[StringName] = []
 
 
 func _init() -> void:
@@ -467,6 +472,51 @@ func unlocked_skills() -> Array[SkillData]:
 	return out
 
 
+## Filiação em guilda
+func join_guild(guild_id: StringName) -> bool:
+	if guild_id in guild_members:
+		return false
+	guild_members.append(guild_id)
+	if not guild_ranks.has(guild_id):
+		guild_ranks[guild_id] = 0
+	stats_changed.emit()
+	return true
+
+
+## Retorna rank na guilda (0 = membro, 1+ = ranks)
+func get_guild_rank(guild_id: StringName) -> int:
+	return guild_ranks.get(guild_id, -1)
+
+
+## Promove na guilda
+func promote_guild(guild_id: StringName) -> bool:
+	if not (guild_id in guild_members):
+		return false
+	var current := guild_ranks.get(guild_id, 0)
+	guild_ranks[guild_id] = current + 1
+	stats_changed.emit()
+	return true
+
+
+## Aceita contrato
+func accept_contract(contract_id: StringName) -> bool:
+	if contract_id in active_contracts or contract_id in completed_contracts:
+		return false
+	active_contracts.append(contract_id)
+	stats_changed.emit()
+	return true
+
+
+## Completa contrato
+func complete_contract(contract_id: StringName) -> bool:
+	if not (contract_id in active_contracts):
+		return false
+	active_contracts.erase(contract_id)
+	completed_contracts.append(contract_id)
+	stats_changed.emit()
+	return true
+
+
 ## Coloca habilidades recém-desbloqueadas em slots vazios
 func refresh_skill_bar() -> void:
 	for s in unlocked_skills():
@@ -564,6 +614,18 @@ func to_dict() -> Dictionary:
 	var tree_unlocked_str := []
 	for id in tree_unlocked:
 		tree_unlocked_str.append(String(id))
+	var guild_members_str := []
+	for gid in guild_members:
+		guild_members_str.append(String(gid))
+	var guild_ranks_dict := {}
+	for gid in guild_ranks:
+		guild_ranks_dict[String(gid)] = guild_ranks[gid]
+	var active_contracts_str := []
+	for cid in active_contracts:
+		active_contracts_str.append(String(cid))
+	var completed_contracts_str := []
+	for cid in completed_contracts:
+		completed_contracts_str.append(String(cid))
 	return {
 		"name": hero_name, "race": String(race.id), "class": String(cls.id), "sex": sex, "tint": tint.to_html(),
 		"background": background, "difficulty": difficulty, "hardcore": hardcore, "free_bonus": free_bonus,
@@ -573,6 +635,8 @@ func to_dict() -> Dictionary:
 		"consumable_slots": cons, "consumable_cooldowns": cons_cds,
 		"status": st, "status_points": status_points,
 		"tree_points": tree_points, "tree_unlocked": tree_unlocked_str,
+		"guild_members": guild_members_str, "guild_ranks": guild_ranks_dict,
+		"active_contracts": active_contracts_str, "completed_contracts": completed_contracts_str,
 	}
 
 
@@ -628,6 +692,19 @@ static func from_dict(d: Dictionary) -> Hero:
 	var tree_unlocked_str: Array = d.get("tree_unlocked", [])
 	for sid in tree_unlocked_str:
 		h.tree_unlocked.append(StringName(sid))
+	# Guildas (Fase 11)
+	var guild_members_str: Array = d.get("guild_members", [])
+	for gid in guild_members_str:
+		h.guild_members.append(StringName(gid))
+	var guild_ranks_dict: Dictionary = d.get("guild_ranks", {})
+	for gid in guild_ranks_dict:
+		h.guild_ranks[StringName(gid)] = int(guild_ranks_dict[gid])
+	var active_contracts_str: Array = d.get("active_contracts", [])
+	for cid in active_contracts_str:
+		h.active_contracts.append(StringName(cid))
+	var completed_contracts_str: Array = d.get("completed_contracts", [])
+	for cid in completed_contracts_str:
+		h.completed_contracts.append(StringName(cid))
 	h._recalc_status()
 	h.refresh_skill_bar()
 	return h

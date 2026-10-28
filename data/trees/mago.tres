@@ -1,0 +1,228 @@
+[ext_resource type="Script" path="res://scripts/data/skill_tree_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/data/skill_node_data.gd" id="2_node_script"]
+[ext_resource type="Resource" path="res://data/skills/mago/missil_arcano.tres" id="3_missil"]
+[ext_resource type="Resource" path="res://data/skills/mago/raio_arcano.tres" id="4_raio"]
+[ext_resource type="Resource" path="res://data/skills/mago/teleporte.tres" id="5_teleporte"]
+[ext_resource type="Resource" path="res://data/skills/mago/dobra_temporal.tres" id="6_dobra"]
+[ext_resource type="Resource" path="res://data/skills/mago/orbe_desintegrador.tres" id="7_orbe"]
+[ext_resource type="Resource" path="res://data/skills/mago/singularidade.tres" id="8_singularidade"]
+[ext_resource type="Resource" path="res://data/skills/mago/bola_caos.tres" id="9_nova1"]
+[ext_resource type="Resource" path="res://data/skills/mago/tempo_parado.tres" id="10_nova2"]
+[ext_resource type="Resource" path="res://data/skills/mago/rasgo_dimensional.tres" id="11_nova3"]
+[ext_resource type="Resource" path="res://data/skills/mago/arquimago.tres" id="12_nova4"]
+
+[resource]
+script = ExtResource("1_script")
+class_id = &"mago"
+nodes = [
+        [subresource type="SkillNodeData" id="13_n0"]
+    ,
+        [subresource type="SkillNodeData" id="14_n1"]
+    ,
+        [subresource type="SkillNodeData" id="15_n2"]
+    ,
+        [subresource type="SkillNodeData" id="16_n3"]
+    ,
+        [subresource type="SkillNodeData" id="17_n4"]
+    ,
+        [subresource type="SkillNodeData" id="18_n5"]
+    ,
+        [subresource type="SkillNodeData" id="19_n6"]
+    ,
+        [subresource type="SkillNodeData" id="20_n7"]
+    ,
+        [subresource type="SkillNodeData" id="21_n8"]
+    ,
+        [subresource type="SkillNodeData" id="22_n9"]
+    ,
+        [subresource type="SkillNodeData" id="23_n10"]
+    ,
+        [subresource type="SkillNodeData" id="24_n11"]
+    ,
+        [subresource type="SkillNodeData" id="25_n12"]
+    ,
+        [subresource type="SkillNodeData" id="26_n13"]
+]
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+]
+SubResource("13_n0"),
+SubResource("14_n1"),
+SubResource("15_n2"),
+SubResource("16_n3"),
+SubResource("17_n4"),
+SubResource("18_n5"),
+SubResource("19_n6"),
+SubResource("20_n7"),
+SubResource("21_n8"),
+SubResource("22_n9"),
+SubResource("23_n10"),
+SubResource("24_n11"),
+SubResource("25_n12"),
+SubResource("26_n13")
+]
+
+script = ExtResource("2_node_script")
+id = &"mago_bola_caos"
+skill_id = &"bola_caos"
+is_new_skill = true
+max_rank = 1
+requires = []
+per_rank = {}
+display_name = "Bola do Caos"
+description = "Desbloqueia: Projétil arcano instável. Ricocheteia entre inimigos (até 5x), dano aumenta a cada salto."
+icon = "S_Magic07"
+
+script = ExtResource("2_node_script")
+id = &"mago_tempo_parado"
+skill_id = &"tempo_parado"
+is_new_skill = true
+max_rank = 1
+requires = ["mago_bola_caos"]
+per_rank = {}
+display_name = "Tempo Parado"
+description = "Desbloqueia: Para o tempo por 3s. Inimigos paralisados, aliados agem livremente. Custa 80 Carga Arcana."
+icon = "S_Time01"
+
+script = ExtResource("2_node_script")
+id = &"mago_rasgo_dimensional"
+skill_id = &"rasgo_dimensional"
+is_new_skill = true
+max_rank = 1
+requires = ["mago_tempo_parado"]
+per_rank = {}
+display_name = "Rasgo Dimensional"
+description = "Desbloqueia: Cria portal ligando dois pontos. Atravessar = teleporte + dano arcano em linha."
+icon = "S_Magic08"
+
+script = ExtResource("2_node_script")
+id = &"mago_arquimago"
+skill_id = &"arquimago"
+is_new_skill = true
+max_rank = 1
+requires = ["mago_rasgo_dimensional"]
+per_rank = {}
+display_name = "Arquimago"
+description = "Desbloqueia: Forma arcana 20s. Carga Arcana infinita, cooldowns -50%, teleporte livre. Custa 100 Carga."
+icon = "S_Buff10"
+
+script = ExtResource("2_node_script")
+id = &"mago_missil_1"
+skill_id = &"missil_arcano"
+is_new_skill = false
+max_rank = 3
+requires = []
+per_rank = {"damage": 0.15, "cooldown": -0.07, "projectile_count": 1}
+display_name = "Míssil Arcano I-III"
+description = "Melhora: +15% dano, -7% cooldown, +1 míssil por rank."
+icon = "S_Magic01"
+
+script = ExtResource("2_node_script")
+id = &"mago_raio_1"
+skill_id = &"raio_arcano"
+is_new_skill = false
+max_rank = 3
+requires = ["mago_missil_1"]
+per_rank = {"damage": 0.15, "cooldown": -0.07, "pierce": 1}
+display_name = "Raio Arcano I-III"
+description = "Melhora: +15% dano, -7% cooldown, +1 perfuração por rank."
+icon = "S_Lightning02"
+
+script = ExtResource("2_node_script")
+id = &"mago_teleporte_1"
+skill_id = &"teleporte"
+is_new_skill = false
+max_rank = 3
+requires = []
+per_rank = {"cooldown": -0.1, "reach": 0.15}
+display_name = "Teleporte I-III"
+description = "Melhora: -10% cooldown, +15% alcance por rank."
+icon = "S_Magic09"
+
+script = ExtResource("2_node_script")
+id = &"mago_dobra_1"
+skill_id = &"dobra_temporal"
+is_new_skill = false
+max_rank = 2
+requires = ["mago_teleporte_1"]
+per_rank = {"duration": 1.0, "cooldown": -0.1}
+display_name = "Dobra Temporal I-II"
+description = "Melhora: +1s lentidão, -10% cooldown por rank."
+icon = "S_Time01"
+
+script = ExtResource("2_node_script")
+id = &"mago_orbe_1"
+skill_id = &"orbe_desintegrador"
+is_new_skill = false
+max_rank = 2
+requires = ["mago_raio_1"]
+per_rank = {"damage": 0.2, "radius": 0.15}
+display_name = "Orbe Desintegrador I-II"
+description = "Melhora: +20% dano, +15% raio por rank."
+icon = "S_Magic10"
+
+script = ExtResource("2_node_script")
+id = &"mago_singularidade_1"
+skill_id = &"singularidade"
+is_new_skill = false
+max_rank = 2
+requires = ["mago_dobra_1"]
+per_rank = {"damage": 0.15, "radius": 0.2, "duration": 1.0}
+display_name = "Singularidade I-II"
+description = "Melhora: +15% dano, +20% raio, +1s duração por rank."
+icon = "S_Magic11"
+
+script = ExtResource("2_node_script")
+id = &"mago_mestre_arcano"
+skill_id = &"missil_arcano"
+is_new_skill = false
+max_rank = 1
+requires = ["mago_missil_1", "mago_bola_caos"]
+per_rank = {"damage": 0.25, "projectile_count": 2}
+display_name = "Mestre Arcano"
+description = "Melhora final: +25% dano arcano, +2 mísseis base. Míssil perfura."
+icon = "S_Magic12"
+
+script = ExtResource("2_node_script")
+id = &"mago_mestre_tempo"
+skill_id = &"dobra_temporal"
+is_new_skill = false
+max_rank = 1
+requires = ["mago_dobra_1", "mago_tempo_parado"]
+per_rank = {"duration": 3.0, "cooldown": -0.2}
+display_name = "Mestre do Tempo"
+description = "Melhora final: Dobra +3s, -20% cooldown. Tempo Parado dura +2s."
+icon = "S_Time02"
+
+script = ExtResource("2_node_script")
+id = &"mago_mestre_espaco"
+skill_id = &"teleporte"
+is_new_skill = false
+max_rank = 1
+requires = ["mago_teleporte_1", "mago_rasgo_dimensional"]
+per_rank = {"reach": 0.5, "cooldown": -0.3}
+display_name = "Mestre do Espaço"
+description = "Melhora final: Teleporte +50% alcance, -30% cooldown. Rasgo custa 50% menos."
+icon = "S_Magic13"
+
+script = ExtResource("2_node_script")
+id = &"mago_senhor_realidade"
+skill_id = &"arquimago"
+is_new_skill = false
+max_rank = 1
+requires = ["mago_arquimago", "mago_mestre_arcano", "mago_mestre_tempo", "mago_mestre_espaco"]
+per_rank = {"damage": 0.5, "cooldown": -0.5, "duration": 10.0}
+display_name = "Senhor da Realidade"
+description = "Capstone: Arquimago +50% dano, -50% cooldown global, +10s duração. Teleporte sem CD."
+icon = "S_Buff10"

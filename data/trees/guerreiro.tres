@@ -1,0 +1,231 @@
+[ext_resource type="Script" path="res://scripts/data/skill_tree_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/data/skill_node_data.gd" id="2_node_script"]
+[ext_resource type="Resource" path="res://data/skills/guerreiro/golpe_largo.tres" id="3_golpe_largo"]
+[ext_resource type="Resource" path="res://data/skills/guerreiro/golpe_de_escudo.tres" id="4_golpe_escudo"]
+[ext_resource type="Resource" path="res://data/skills/guerreiro/investida.tres" id="5_investida"]
+[ext_resource type="Resource" path="res://data/skills/guerreiro/postura_defensiva.tres" id="6_postura"]
+[ext_resource type="Resource" path="res://data/skills/guerreiro/redemoinho_de_aco.tres" id="7_redemoinho"]
+[ext_resource type="Resource" path="res://data/skills/guerreiro/golpe_executor.tres" id="8_executor"]
+[ext_resource type="Resource" path="res://data/skills/guerreiro/espada_e_escudo.tres" id="9_nova1"]
+[ext_resource type="Resource" path="res://data/skills/guerreiro/brado_de_guerra.tres" id="10_nova2"]
+[ext_resource type="Resource" path="res://data/skills/guerreiro/guardiao_de_ferro.tres" id="11_nova3"]
+[ext_resource type="Resource" path="res://data/skills/guerreiro/golpe_mortal.tres" id="12_nova4"]
+[ext_resource type="Resource" path="res://data/skills/guerreiro/brado_de_guerra.tres" id="10_nova2"]
+[ext_resource type="Resource" path="res://data/skills/guerreiro/guardiao_de_ferro.tres" id="11_nova3"]
+[ext_resource type="Resource" path="res://data/skills/guerreiro/golpe_mortal.tres" id="12_nova4"]
+
+[resource]
+script = ExtResource("1_script")
+class_id = &"guerreiro"
+nodes = [
+        [subresource type="SkillNodeData" id="13_n0"]
+    ,
+        [subresource type="SkillNodeData" id="14_n1"]
+    ,
+        [subresource type="SkillNodeData" id="15_n2"]
+    ,
+        [subresource type="SkillNodeData" id="16_n3"]
+    ,
+        [subresource type="SkillNodeData" id="17_n4"]
+    ,
+        [subresource type="SkillNodeData" id="18_n5"]
+    ,
+        [subresource type="SkillNodeData" id="19_n6"]
+    ,
+        [subresource type="SkillNodeData" id="20_n7"]
+    ,
+        [subresource type="SkillNodeData" id="21_n8"]
+    ,
+        [subresource type="SkillNodeData" id="22_n9"]
+    ,
+        [subresource type="SkillNodeData" id="23_n10"]
+    ,
+        [subresource type="SkillNodeData" id="24_n11"]
+    ,
+        [subresource type="SkillNodeData" id="25_n12"]
+    ,
+        [subresource type="SkillNodeData" id="26_n13"]
+]
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+]
+SubResource("13_n0"),
+SubResource("14_n1"),
+SubResource("15_n2"),
+SubResource("16_n3"),
+SubResource("17_n4"),
+SubResource("18_n5"),
+SubResource("19_n6"),
+SubResource("20_n7"),
+SubResource("21_n8"),
+SubResource("22_n9"),
+SubResource("23_n10"),
+SubResource("24_n11"),
+SubResource("25_n12"),
+SubResource("26_n13")
+]
+
+script = ExtResource("2_node_script")
+id = &"guerreiro_espada_escudo"
+skill_id = &"espada_e_escudo"
+is_new_skill = true
+max_rank = 1
+requires = []
+per_rank = {}
+display_name = "Espada e Escudo"
+description = "Desbloqueia: Postura combinada. Aumenta bloqueio em 15% e gera Vigor ao bloquear."
+icon = "S_Shield02"
+
+script = ExtResource("2_node_script")
+id = &"guerreiro_brado_guerra"
+skill_id = &"brado_de_guerra"
+is_new_skill = true
+max_rank = 1
+requires = ["guerreiro_espada_escudo"]
+per_rank = {}
+display_name = "Brado de Guerra"
+description = "Desbloqueia: Grito que concede Força e Velocidade de Ataque aos aliados próximos."
+icon = "S_Buff02"
+
+script = ExtResource("2_node_script")
+id = &"guerreiro_guardiao_ferro"
+skill_id = &"guardiao_de_ferro"
+is_new_skill = true
+max_rank = 1
+requires = ["guerreiro_brado_guerra"]
+per_rank = {}
+display_name = "Guardião de Ferro"
+description = "Desbloqueia: Aura defensiva que reduz dano recebido por aliados em 20%."
+icon = "S_Holy03"
+
+script = ExtResource("2_node_script")
+id = &"guerreiro_golpe_mortal"
+skill_id = &"golpe_mortal"
+is_new_skill = true
+max_rank = 1
+requires = ["guerreiro_guardiao_ferro"]
+per_rank = {}
+display_name = "Golpe Mortal"
+description = "Desbloqueia: Ataque devastador que ignora 50% da armadura. Se matar, recupera vida."
+icon = "S_Sword03"
+
+script = ExtResource("2_node_script")
+id = &"guerreiro_golpe_largo_1"
+skill_id = &"golpe_largo"
+is_new_skill = false
+max_rank = 3
+requires = []
+per_rank = {"damage": 0.15, "cooldown": -0.07}
+display_name = "Golpe Largo I-III"
+description = "Melhora: +15% dano, -7% cooldown por rank."
+icon = "S_Sword01"
+
+script = ExtResource("2_node_script")
+id = &"guerreiro_golpe_largo_2"
+skill_id = &"golpe_largo"
+is_new_skill = false
+max_rank = 2
+requires = ["guerreiro_golpe_largo_1"]
+per_rank = {"projectile_count": 0, "radius": 0.15}
+display_name = "Golpe Largo IV-V"
+description = "Melhora: +15% raio, chance de acertar 2 alvos adicionais."
+icon = "S_Sword01"
+
+script = ExtResource("2_node_script")
+id = &"guerreiro_golpe_escudo_1"
+skill_id = &"golpe_de_escudo"
+is_new_skill = false
+max_rank = 3
+requires = []
+per_rank = {"damage": 0.15, "cooldown": -0.07}
+display_name = "Golpe de Escudo I-III"
+description = "Melhora: +15% dano, -7% cooldown por rank."
+icon = "S_Shield01"
+
+script = ExtResource("2_node_script")
+id = &"guerreiro_investida_1"
+skill_id = &"investida"
+is_new_skill = false
+max_rank = 3
+requires = []
+per_rank = {"damage": 0.15, "cooldown": -0.07, "reach": 0.1}
+display_name = "Investida I-III"
+description = "Melhora: +15% dano, -7% cooldown, +10% alcance por rank."
+icon = "S_Boot01"
+
+script = ExtResource("2_node_script")
+id = &"guerreiro_postura_1"
+skill_id = &"postura_defensiva"
+is_new_skill = false
+max_rank = 2
+requires = ["guerreiro_golpe_escudo_1"]
+per_rank = {"duration": 1.0, "resource_gain": 5}
+display_name = "Postura Defensiva I-II"
+description = "Melhora: +1s duração, +5 Vigor por rank."
+icon = "S_Buff04"
+
+script = ExtResource("2_node_script")
+id = &"guerreiro_redemoinho_1"
+skill_id = &"redemoinho_de_aco"
+is_new_skill = false
+max_rank = 3
+requires = ["guerreiro_golpe_largo_1"]
+per_rank = {"damage": 0.15, "cooldown": -0.07, "radius": 0.1}
+display_name = "Redemoinho de Aço I-III"
+description = "Melhora: +15% dano, -7% cooldown, +10% raio por rank."
+icon = "S_Sword02"
+
+script = ExtResource("2_node_script")
+id = &"guerreiro_executor_1"
+skill_id = &"golpe_executor"
+is_new_skill = false
+max_rank = 2
+requires = ["guerreiro_investida_1"]
+per_rank = {"damage": 0.2, "heal": 0.1}
+display_name = "Golpe Executor I-II"
+description = "Melhora: +20% dano, +10% cura ao executar por rank."
+icon = "S_Sword04"
+
+script = ExtResource("2_node_script")
+id = &"guerreiro_mestre_espada"
+skill_id = &"golpe_largo"
+is_new_skill = false
+max_rank = 1
+requires = ["guerreiro_golpe_largo_2", "guerreiro_redemoinho_1"]
+per_rank = {"damage": 0.25, "cooldown": -0.15}
+display_name = "Mestre da Espada"
+description = "Melhora final: +25% dano em todas as skills de espada, -15% cooldown global."
+icon = "S_Sword05"
+
+script = ExtResource("2_node_script")
+id = &"guerreiro_mestre_escudo"
+skill_id = &"golpe_de_escudo"
+is_new_skill = false
+max_rank = 1
+requires = ["guerreiro_postura_1", "guerreiro_espada_escudo"]
+per_rank = {"damage": 0.2, "radius": 0.2}
+display_name = "Mestre do Escudo"
+description = "Melhora final: +20% dano em skills de escudo, +20% raio de bloqueio."
+icon = "S_Shield03"
+
+script = ExtResource("2_node_script")
+id = &"guerreiro_lenda_viva"
+skill_id = &"golpe_mortal"
+is_new_skill = false
+max_rank = 1
+requires = ["guerreiro_golpe_mortal", "guerreiro_mestre_espada", "guerreiro_mestre_escudo"]
+per_rank = {"damage": 0.3, "heal": 0.2}
+display_name = "Lenda Viva"
+description = "Capstone: +30% dano no Golpe Mortal, cura 20% da vida máxima ao matar."
+icon = "S_Buff10"

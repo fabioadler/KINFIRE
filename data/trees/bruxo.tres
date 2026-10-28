@@ -1,0 +1,228 @@
+[ext_resource type="Script" path="res://scripts/data/skill_tree_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/data/skill_node_data.gd" id="2_node_script"]
+[ext_resource type="Resource" path="res://data/skills/bruxo/rajada_mistica.tres" id="3_rajada"]
+[ext_resource type="Resource" path="res://data/skills/bruxo/raio_sombrio.tres" id="4_raio_sombra"]
+[ext_resource type="Resource" path="res://data/skills/bruxo/familiar_demoniaco.tres" id="5_familiar"]
+[ext_resource type="Resource" path="res://data/skills/bruxo/drenar_alma.tres" id="6_drenar"]
+[ext_resource type="Resource" path="res://data/skills/bruxo/maldicao_da_agonia.tres" id="7_maldicao"]
+[ext_resource type="Resource" path="res://data/skills/bruxo/portal_infernal.tres" id="8_portal"]
+[ext_resource type="Resource" path="res://data/skills/bruxo/pacto_sangue.tres" id="9_nova1"]
+[ext_resource type="Resource" path="res://data/skills/bruxo/olho_do_vazio.tres" id="10_nova2"]
+[ext_resource type="Resource" path="res://data/skills/bruxo/alma_condenada.tres" id="11_nova3"]
+[ext_resource type="Resource" path="res://data/skills/bruxo/lorde_dos_pactos.tres" id="12_nova4"]
+
+[resource]
+script = ExtResource("1_script")
+class_id = &"bruxo"
+nodes = [
+        [subresource type="SkillNodeData" id="13_n0"]
+    ,
+        [subresource type="SkillNodeData" id="14_n1"]
+    ,
+        [subresource type="SkillNodeData" id="15_n2"]
+    ,
+        [subresource type="SkillNodeData" id="16_n3"]
+    ,
+        [subresource type="SkillNodeData" id="17_n4"]
+    ,
+        [subresource type="SkillNodeData" id="18_n5"]
+    ,
+        [subresource type="SkillNodeData" id="19_n6"]
+    ,
+        [subresource type="SkillNodeData" id="20_n7"]
+    ,
+        [subresource type="SkillNodeData" id="21_n8"]
+    ,
+        [subresource type="SkillNodeData" id="22_n9"]
+    ,
+        [subresource type="SkillNodeData" id="23_n10"]
+    ,
+        [subresource type="SkillNodeData" id="24_n11"]
+    ,
+        [subresource type="SkillNodeData" id="25_n12"]
+    ,
+        [subresource type="SkillNodeData" id="26_n13"]
+]
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+]
+SubResource("13_n0"),
+SubResource("14_n1"),
+SubResource("15_n2"),
+SubResource("16_n3"),
+SubResource("17_n4"),
+SubResource("18_n5"),
+SubResource("19_n6"),
+SubResource("20_n7"),
+SubResource("21_n8"),
+SubResource("22_n9"),
+SubResource("23_n10"),
+SubResource("24_n11"),
+SubResource("25_n12"),
+SubResource("26_n13")
+]
+
+script = ExtResource("2_node_script")
+id = &"bruxo_pacto_sangue"
+skill_id = &"pacto_sangue"
+is_new_skill = true
+max_rank = 1
+requires = []
+per_rank = {}
+display_name = "Pacto de Sangue"
+description = "Desbloqueia: Sacrifica 20% vida. Próximos 10s: skills custam vida em vez de Pacto, +50% dano, roubo 30%."
+icon = "S_Shadow03"
+
+script = ExtResource("2_node_script")
+id = &"bruxo_olho_vazio"
+skill_id = &"olho_do_vazio"
+is_new_skill = true
+max_rank = 1
+requires = ["bruxo_pacto_sangue"]
+per_rank = {}
+display_name = "Olho do Vazio"
+description = "Desbloqueia: Vê invisíveis, +30% alcance, crítico = executa se <20% vida. Dura 15s. Custa 40 Pacto."
+icon = "S_Shadow04"
+
+script = ExtResource("2_node_script")
+id = &"bruxo_alma_condenada"
+skill_id = &"alma_condenada"
+is_new_skill = true
+max_rank = 1
+requires = ["bruxo_olho_vazio"]
+per_rank = {}
+display_name = "Alma Condenada"
+description = "Desbloqueia: Invoca alma torturada. Segue alvo, 2x dano sombra/s, cura bruxo 100% do dano. 15s."
+icon = "S_Shadow05"
+
+script = ExtResource("2_node_script")
+id = &"bruxo_lorde_pactos"
+skill_id = &"lorde_dos_pactos"
+is_new_skill = true
+max_rank = 1
+requires = ["bruxo_alma_condenada"]
+per_rank = {}
+display_name = "Lorde dos Pactos"
+description = "Desbloqueia: Forma demoníaca 20s. Tamanho 1.5x, asas, voa, imune a controle. Skills sombra 0 custo, +100% roubo. Custa 80 Pacto."
+icon = "S_Buff10"
+
+script = ExtResource("2_node_script")
+id = &"bruxo_rajada_1"
+skill_id = &"rajada_mistica"
+is_new_skill = false
+max_rank = 3
+requires = []
+per_rank = {"damage": 0.15, "cooldown": -0.07, "lifesteal": 0.02}
+display_name = "Rajada Mística I-III"
+description = "Melhora: +15% dano, -7% cooldown, +2% roubo de vida por rank."
+icon = "S_Shadow01"
+
+script = ExtResource("2_node_script")
+id = &"bruxo_raio_sombra_1"
+skill_id = &"raio_sombrio"
+is_new_skill = false
+max_rank = 3
+requires = ["bruxo_rajada_1"]
+per_rank = {"damage": 0.15, "cooldown": -0.07, "pierce": 1}
+display_name = "Raio Sombrio I-III"
+description = "Melhora: +15% dano, -7% cooldown, +1 perfuração por rank."
+icon = "S_Shadow02"
+
+script = ExtResource("2_node_script")
+id = &"bruxo_familiar_1"
+skill_id = &"familiar_demoniaco"
+is_new_skill = false
+max_rank = 2
+requires = []
+per_rank = {"duration": 10.0, "damage": 0.2}
+display_name = "Familiar Demônico I-II"
+description = "Melhora: +10s duração, +20% dano do familiar por rank."
+icon = "S_Summon01"
+
+script = ExtResource("2_node_script")
+id = &"bruxo_drenar_1"
+skill_id = &"drenar_alma"
+is_new_skill = false
+max_rank = 3
+requires = ["bruxo_rajada_1"]
+per_rank = {"heal": 0.15, "cooldown": -0.07}
+display_name = "Drenar Alma I-III"
+description = "Melhora: +15% cura, -7% cooldown por rank."
+icon = "S_Shadow06"
+
+script = ExtResource("2_node_script")
+id = &"bruxo_maldicao_1"
+skill_id = &"maldicao_da_agonia"
+is_new_skill = false
+max_rank = 2
+requires = ["bruxo_raio_sombra_1"]
+per_rank = {"duration": 2.0, "radius": 0.1}
+display_name = "Maldição da Agonia I-II"
+description = "Melhora: +2s duração, +10% raio por rank."
+icon = "S_Shadow07"
+
+script = ExtResource("2_node_script")
+id = &"bruxo_portal_1"
+skill_id = &"portal_infernal"
+is_new_skill = false
+max_rank = 2
+requires = ["bruxo_familiar_1"]
+per_rank = {"duration": 5.0, "radius": 0.15}
+display_name = "Portal Infernal I-II"
+description = "Melhora: +5s duração, +15% raio por rank."
+icon = "S_Portal01"
+
+script = ExtResource("2_node_script")
+id = &"bruxo_mestre_sangue"
+skill_id = &"rajada_mistica"
+is_new_skill = false
+max_rank = 1
+requires = ["bruxo_rajada_1", "bruxo_pacto_sangue"]
+per_rank = {"damage": 0.25, "lifesteal": 0.05}
+display_name = "Mestre do Sangue"
+description = "Melhora final: +25% dano sombra, +5% roubo. Pacto de Sangue dura +5s."
+icon = "S_Shadow08"
+
+script = ExtResource("2_node_script")
+id = &"bruxo_mestre_vazio"
+skill_id = &"raio_sombrio"
+is_new_skill = false
+max_rank = 1
+requires = ["bruxo_raio_sombra_1", "bruxo_olho_vazio"]
+per_rank = {"damage": 0.3, "reach": 0.3}
+display_name = "Mestre do Vazio"
+description = "Melhora final: +30% dano, +30% alcance. Olho do Vazio: execução <30% vida."
+icon = "S_Shadow09"
+
+script = ExtResource("2_node_script")
+id = &"bruxo_mestre_almas"
+skill_id = &"drenar_alma"
+is_new_skill = false
+max_rank = 1
+requires = ["bruxo_drenar_1", "bruxo_alma_condenada"]
+per_rank = {"heal": 0.3, "damage": 0.2}
+display_name = "Mestre das Almas"
+description = "Melhora final: Drenar cura 30% vida máxima, +20% dano. Alma Condenada: 2 almas."
+icon = "S_Summon02"
+
+script = ExtResource("2_node_script")
+id = &"bruxo_arquiduque"
+skill_id = &"lorde_dos_pactos"
+is_new_skill = false
+max_rank = 1
+requires = ["bruxo_lorde_pactos", "bruxo_mestre_sangue", "bruxo_mestre_vazio", "bruxo_mestre_almas"]
+per_rank = {"damage": 0.5, "lifesteal": 0.2, "duration": 10.0}
+display_name = "Arquiduque do Vazio"
+description = "Capstone: Lorde +50% dano, +20% roubo, +10s. Familiares permanentes. Portal 0 custo."
+icon = "S_Buff10"

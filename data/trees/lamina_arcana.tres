@@ -1,0 +1,228 @@
+[ext_resource type="Script" path="res://scripts/data/skill_tree_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/data/skill_node_data.gd" id="2_node_script"]
+[ext_resource type="Resource" path="res://data/skills/lamina_arcana/lâmina_etérica.tres" id="3_lamina"]
+[ext_resource type="Resource" path="res://data/skills/lamina_arcana/corte_dimensional.tres" id="4_corte"]
+[ext_resource type="Resource" path="res://data/skills/lamina_arcana/teleporte_lâmina.tres" id="5_teleporte"]
+[ext_resource type="Resource" path="res://data/skills/lamina_arcana/escudo_arcano.tres" id="6_escudo"]
+[ext_resource type="Resource" path="res://data/skills/lamina_arcana/dança_das_lâminas.tres" id="7_danca"]
+[ext_resource type="Resource" path="res://data/skills/lamina_arcana/estilo_arcano.tres" id="8_estilo"]
+[ext_resource type="Resource" path="res://data/skills/lamina_arcana/lâmina_do_vazio.tres" id="9_nova1"]
+[ext_resource type="Resource" path="res://data/skills/lamina_arcana/corte_do_destino.tres" id="10_nova2"]
+[ext_resource type="Resource" path="res://data/skills/lamina_arcana/passo_etéreo.tres" id="11_nova3"]
+[ext_resource type="Resource" path="res://data/skills/lamina_arcana/arquimago_da_lâmina.tres" id="12_nova4"]
+
+[resource]
+script = ExtResource("1_script")
+class_id = &"lamina_arcana"
+nodes = [
+        [subresource type="SkillNodeData" id="13_n0"]
+    ,
+        [subresource type="SkillNodeData" id="14_n1"]
+    ,
+        [subresource type="SkillNodeData" id="15_n2"]
+    ,
+        [subresource type="SkillNodeData" id="16_n3"]
+    ,
+        [subresource type="SkillNodeData" id="17_n4"]
+    ,
+        [subresource type="SkillNodeData" id="18_n5"]
+    ,
+        [subresource type="SkillNodeData" id="19_n6"]
+    ,
+        [subresource type="SkillNodeData" id="20_n7"]
+    ,
+        [subresource type="SkillNodeData" id="21_n8"]
+    ,
+        [subresource type="SkillNodeData" id="22_n9"]
+    ,
+        [subresource type="SkillNodeData" id="23_n10"]
+    ,
+        [subresource type="SkillNodeData" id="24_n11"]
+    ,
+        [subresource type="SkillNodeData" id="25_n12"]
+    ,
+        [subresource type="SkillNodeData" id="26_n13"]
+]
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+]
+SubResource("13_n0"),
+SubResource("14_n1"),
+SubResource("15_n2"),
+SubResource("16_n3"),
+SubResource("17_n4"),
+SubResource("18_n5"),
+SubResource("19_n6"),
+SubResource("20_n7"),
+SubResource("21_n8"),
+SubResource("22_n9"),
+SubResource("23_n10"),
+SubResource("24_n11"),
+SubResource("25_n12"),
+SubResource("26_n13")
+]
+
+script = ExtResource("2_node_script")
+id = &"lamina_lamina_vazio"
+skill_id = &"lamina_do_vazio"
+is_new_skill = true
+max_rank = 1
+requires = []
+per_rank = {}
+display_name = "Lâmina do Vazio"
+description = "Desbloqueia: Arma se torna etérea. Atravessa inimigos, ignora armadura, rouba vida. Dura 15s."
+icon = "S_Shadow03"
+
+script = ExtResource("2_node_script")
+id = &"lamina_corte_destino"
+skill_id = &"corte_do_destino"
+is_new_skill = true
+max_rank = 1
+requires = ["lamina_lamina_vazio"]
+per_rank = {}
+display_name = "Corte do Destino"
+description = "Desbloqueia: Ataque que corta o destino. Crítico garantido, ignora esquiva, marca para morte (executa <20%)."
+icon = "S_Shadow04"
+
+script = ExtResource("2_node_script")
+id = &"lamina_passo_eterio"
+skill_id = &"passo_etereo"
+is_new_skill = true
+max_rank = 1
+requires = ["lamina_corte_destino"]
+per_rank = {}
+display_name = "Passo Etéreo"
+description = "Desbloqueia: Teleporte curto que deixa clone. Clone explode causando dano arcano. 3 cargas. Custa 25 Mana."
+icon = "S_Magic09"
+
+script = ExtResource("2_node_script")
+id = &"lamina_arquimago_lamina"
+skill_id = &"arquimago_da_lamina"
+is_new_skill = true
+max_rank = 1
+requires = ["lamina_passo_eterio"]
+per_rank = {}
+display_name = "Arquimago da Lâmina"
+description = "Desbloqueia: Forma suprema 20s. Lâminas giram ao redor (auto-atacam), teleporte livre, CD 0. Custa 100 Mana."
+icon = "S_Buff10"
+
+script = ExtResource("2_node_script")
+id = &"lamina_lamina_1"
+skill_id = &"lamina_eterea"
+is_new_skill = false
+max_rank = 3
+requires = []
+per_rank = {"damage": 0.15, "cooldown": -0.07, "lifesteal": 0.02}
+display_name = "Lâmina Etérea I-III"
+description = "Melhora: +15% dano, -7% cooldown, +2% roubo de vida por rank."
+icon = "S_Sword01"
+
+script = ExtResource("2_node_script")
+id = &"lamina_lamina_2"
+skill_id = &"lamina_eterea"
+is_new_skill = false
+max_rank = 2
+requires = ["lamina_lamina_1"]
+per_rank = {"damage": 0.1, "radius": 0.15}
+display_name = "Lâmina Etérea IV-V"
+description = "Melhora: +10% dano, +15% raio em acertos múltiplos por rank."
+icon = "S_Sword01"
+
+script = ExtResource("2_node_script")
+id = &"lamina_corte_1"
+skill_id = &"corte_dimensional"
+is_new_skill = false
+max_rank = 3
+requires = ["lamina_lamina_1"]
+per_rank = {"damage": 0.15, "cooldown": -0.07, "pierce": 1}
+display_name = "Corte Dimensional I-III"
+description = "Melhora: +15% dano, -7% cooldown, +1 perfuração por rank."
+icon = "S_Sword02"
+
+script = ExtResource("2_node_script")
+id = &"lamina_teleporte_1"
+skill_id = &"teleporte_lamina"
+is_new_skill = false
+max_rank = 3
+requires = []
+per_rank = {"cooldown": -0.1, "reach": 0.15}
+display_name = "Teleporte da Lâmina I-III"
+description = "Melhora: -10% cooldown, +15% alcance por rank."
+icon = "S_Magic09"
+
+script = ExtResource("2_node_script")
+id = &"lamina_escudo_1"
+skill_id = &"escudo_arcano"
+is_new_skill = false
+max_rank = 2
+requires = ["lamina_teleporte_1"]
+per_rank = {"duration": 2.0, "radius": 0.1}
+display_name = "Escudo Arcano I-II"
+description = "Melhora: +2s duração, +10% raio por rank."
+icon = "S_Shield01"
+
+script = ExtResource("2_node_script")
+id = &"lamina_danca_1"
+skill_id = &"danca_das_laminas"
+is_new_skill = false
+max_rank = 2
+requires = ["lamina_corte_1"]
+per_rank = {"damage": 0.15, "hits": 1}
+display_name = "Dança das Lâminas I-II"
+description = "Melhora: +15% dano, +1 acerto por rank."
+icon = "S_Sword03"
+
+script = ExtResource("2_node_script")
+id = &"lamina_estilo_1"
+skill_id = &"estilo_arcano"
+is_new_skill = false
+max_rank = 2
+requires = ["lamina_lamina_vazio"]
+per_rank = {"damage": 0.2, "duration": 3.0}
+display_name = "Estilo Arcano I-II"
+description = "Melhora: +20% dano, +3s duração por rank."
+icon = "S_Buff09"
+
+script = ExtResource("2_node_script")
+id = &"lamina_mestre_vazio"
+skill_id = &"lamina_eterea"
+is_new_skill = false
+max_rank = 1
+requires = ["lamina_lamina_2", "lamina_lamina_vazio"]
+per_rank = {"damage": 0.25, "lifesteal": 0.05}
+display_name = "Mestre do Vazio"
+description = "Melhora final: +25% dano etéreo, +5% roubo. Lâmina do Vazio dura +5s."
+icon = "S_Shadow05"
+
+script = ExtResource("2_node_script")
+id = &"lamina_mestre_destino"
+skill_id = &"corte_dimensional"
+is_new_skill = false
+max_rank = 1
+requires = ["lamina_corte_1", "lamina_corte_destino"]
+per_rank = {"damage": 0.3, "crit": 0.2}
+display_name = "Mestre do Destino"
+description = "Melhora final: +30% dano dimensional, +20% crítico. Corte do Destino executa <30% vida."
+icon = "S_Shadow06"
+
+script = ExtResource("2_node_script")
+id = &"lamina_senhor_laminas"
+skill_id = &"arquimago_da_lamina"
+is_new_skill = false
+max_rank = 1
+requires = ["lamina_arquimago_lamina", "lamina_mestre_vazio", "lamina_mestre_destino"]
+per_rank = {"damage": 0.5, "cooldown": -0.5, "duration": 10.0}
+display_name = "Senhor das Lâminas"
+description = "Capstone: Arquimago +50% dano, -50% CD, +10s. 6 lâminas orbitais auto-atacam."
+icon = "S_Buff10"

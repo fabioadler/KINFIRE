@@ -1,0 +1,228 @@
+[ext_resource type="Script" path="res://scripts/data/skill_tree_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/data/skill_node_data.gd" id="2_node_script"]
+[ext_resource type="Resource" path="res://data/skills/barbaro/golpe_brutal.tres" id="3_brutal"]
+[ext_resource type="Resource" path="res://data/skills/barbaro/martelo_dos_antigos.tres" id="4_martelo"]
+[ext_resource type="Resource" path="res://data/skills/barbaro/salto_furioso.tres" id="5_salto"]
+[ext_resource type="Resource" path="res://data/skills/barbaro/grito_aterrador.tres" id="6_grito"]
+[ext_resource type="Resource" path="res://data/skills/barbaro/turbilhao.tres" id="7_turbilhao"]
+[ext_resource type="Resource" path="res://data/skills/barbaro/furia_berserker.tres" id="8_furia"]
+[ext_resource type="Resource" path="res://data/skills/barbaro/raiva_primordial.tres" id="9_nova1"]
+[ext_resource type="Resource" path="res://data/skills/barbaro/esmagar_terra.tres" id="10_nova2"]
+[ext_resource type="Resource" path="res://data/skills/barbaro/frenesi_sanguinario.tres" id="11_nova3"]
+[ext_resource type="Resource" path="res://data/skills/barbaro/titã_dos_antigos.tres" id="12_nova4"]
+
+[resource]
+script = ExtResource("1_script")
+class_id = &"barbaro"
+nodes = [
+        [subresource type="SkillNodeData" id="13_n0"]
+    ,
+        [subresource type="SkillNodeData" id="14_n1"]
+    ,
+        [subresource type="SkillNodeData" id="15_n2"]
+    ,
+        [subresource type="SkillNodeData" id="16_n3"]
+    ,
+        [subresource type="SkillNodeData" id="17_n4"]
+    ,
+        [subresource type="SkillNodeData" id="18_n5"]
+    ,
+        [subresource type="SkillNodeData" id="19_n6"]
+    ,
+        [subresource type="SkillNodeData" id="20_n7"]
+    ,
+        [subresource type="SkillNodeData" id="21_n8"]
+    ,
+        [subresource type="SkillNodeData" id="22_n9"]
+    ,
+        [subresource type="SkillNodeData" id="23_n10"]
+    ,
+        [subresource type="SkillNodeData" id="24_n11"]
+    ,
+        [subresource type="SkillNodeData" id="25_n12"]
+    ,
+        [subresource type="SkillNodeData" id="26_n13"]
+]
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+]
+SubResource("13_n0"),
+SubResource("14_n1"),
+SubResource("15_n2"),
+SubResource("16_n3"),
+SubResource("17_n4"),
+SubResource("18_n5"),
+SubResource("19_n6"),
+SubResource("20_n7"),
+SubResource("21_n8"),
+SubResource("22_n9"),
+SubResource("23_n10"),
+SubResource("24_n11"),
+SubResource("25_n12"),
+SubResource("26_n13")
+]
+
+script = ExtResource("2_node_script")
+id = &"barbaro_raiva_primordial"
+skill_id = &"raiva_primordial"
+is_new_skill = true
+max_rank = 1
+requires = []
+per_rank = {}
+display_name = "Raiva Primordial"
+description = "Desbloqueia: Entra em fúria primal. +50% dano, -30% dano recebido, gera Fúria rápida. Dura 15s."
+icon = "S_Buff01"
+
+script = ExtResource("2_node_script")
+id = &"barbaro_esmagar_terra"
+skill_id = &"esmagar_terra"
+is_new_skill = true
+max_rank = 1
+requires = ["barbaro_raiva_primordial"]
+per_rank = {}
+display_name = "Esmagar a Terra"
+description = "Desbloqueia: Salta e esmaga o chão, onda de choque atordoa inimigos em 6m. Custa 30 Fúria."
+icon = "S_Earth02"
+
+script = ExtResource("2_node_script")
+id = &"barbaro_frenesi"
+skill_id = &"frenesi_sanguinario"
+is_new_skill = true
+max_rank = 1
+requires = ["barbaro_esmagar_terra"]
+per_rank = {}
+display_name = "Frenesi Sanguinário"
+description = "Desbloqueia: Ataques rápidos causam sangramento. Cura 5% do dano causado. Dura 10s."
+icon = "S_Buff05"
+
+script = ExtResource("2_node_script")
+id = &"barbaro_tita"
+skill_id = &"tita_dos_antigos"
+is_new_skill = true
+max_rank = 1
+requires = ["barbaro_frenesi"]
+per_rank = {}
+display_name = "Titã dos Antigos"
+description = "Desbloqueia: Transforma em titã por 20s. Tamanho 2x, imune a controle, dano em área. Custa 80 Fúria."
+icon = "S_Buff10"
+
+script = ExtResource("2_node_script")
+id = &"barbaro_brutal_1"
+skill_id = &"golpe_brutal"
+is_new_skill = false
+max_rank = 3
+requires = []
+per_rank = {"damage": 0.15, "cooldown": -0.07}
+display_name = "Golpe Brutal I-III"
+description = "Melhora: +15% dano, -7% cooldown por rank."
+icon = "S_Axe01"
+
+script = ExtResource("2_node_script")
+id = &"barbaro_brutal_2"
+skill_id = &"golpe_brutal"
+is_new_skill = false
+max_rank = 2
+requires = ["barbaro_brutal_1"]
+per_rank = {"damage": 0.1, "radius": 0.15}
+display_name = "Golpe Brutal IV-V"
+description = "Melhora: +10% dano, +15% raio, chance de knockback."
+icon = "S_Axe01"
+
+script = ExtResource("2_node_script")
+id = &"barbaro_martelo_1"
+skill_id = &"martelo_dos_antigos"
+is_new_skill = false
+max_rank = 3
+requires = ["barbaro_brutal_1"]
+per_rank = {"damage": 0.15, "cooldown": -0.07, "stun": 0.2}
+display_name = "Martelo dos Antigos I-III"
+description = "Melhora: +15% dano, -7% cooldown, +0.2s stun por rank."
+icon = "S_Hammer01"
+
+script = ExtResource("2_node_script")
+id = &"barbaro_salto_1"
+skill_id = &"salto_furioso"
+is_new_skill = false
+max_rank = 3
+requires = []
+per_rank = {"damage": 0.15, "cooldown": -0.07, "reach": 0.1}
+display_name = "Salto Furioso I-III"
+description = "Melhora: +15% dano, -7% cooldown, +10% alcance por rank."
+icon = "S_Boot01"
+
+script = ExtResource("2_node_script")
+id = &"barbaro_grito_1"
+skill_id = &"grito_aterrador"
+is_new_skill = false
+max_rank = 2
+requires = ["barbaro_salto_1"]
+per_rank = {"radius": 0.2, "duration": 1.0}
+display_name = "Grito Aterrador I-II"
+description = "Melhora: +20% raio, +1s duração do medo por rank."
+icon = "S_Buff03"
+
+script = ExtResource("2_node_script")
+id = &"barbaro_turbilhao_1"
+skill_id = &"turbilhao"
+is_new_skill = false
+max_rank = 3
+requires = ["barbaro_brutal_1"]
+per_rank = {"damage": 0.15, "cooldown": -0.07, "hits": 0.5}
+display_name = "Turbilhão I-III"
+description = "Melhora: +15% dano, -7% cooldown, +0.5 acertos por rank."
+icon = "S_Sword02"
+
+script = ExtResource("2_node_script")
+id = &"barbaro_furia_1"
+skill_id = &"furia_berserker"
+is_new_skill = false
+max_rank = 2
+requires = ["barbaro_raiva_primordial"]
+per_rank = {"duration": 2.0, "resource_gain": 10}
+display_name = "Fúria Berserker I-II"
+description = "Melhora: +2s duração, +10 Fúria/s por rank."
+icon = "S_Buff01"
+
+script = ExtResource("2_node_script")
+id = &"barbaro_mestre_brutalidade"
+skill_id = &"golpe_brutal"
+is_new_skill = false
+max_rank = 1
+requires = ["barbaro_brutal_2", "barbaro_martelo_1"]
+per_rank = {"damage": 0.25, "cooldown": -0.15}
+display_name = "Mestre da Brutalidade"
+description = "Melhora final: +25% dano em todas skills de machado, -15% cooldown global."
+icon = "S_Axe03"
+
+script = ExtResource("2_node_script")
+id = &"barbaro_mestre_terror"
+skill_id = &"grito_aterrador"
+is_new_skill = false
+max_rank = 1
+requires = ["barbaro_grito_1", "barbaro_esmagar_terra"]
+per_rank = {"radius": 0.3, "fear": 1.0}
+display_name = "Mestre do Terror"
+description = "Melhora final: Grito causa medo em 30% maior área, duração base +1s."
+icon = "S_Shadow01"
+
+script = ExtResource("2_node_script")
+id = &"barbaro_lenda_selvagem"
+skill_id = &"tita_dos_antigos"
+is_new_skill = false
+max_rank = 1
+requires = ["barbaro_tita", "barbaro_mestre_brutalidade", "barbaro_mestre_terror"]
+per_rank = {"damage": 0.4, "duration": 5.0}
+display_name = "Lenda Selvagem"
+description = "Capstone: +40% dano na forma de Titã, +5s duração, imune a todo controle."
+icon = "S_Buff10"

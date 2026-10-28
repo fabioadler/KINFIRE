@@ -1,0 +1,228 @@
+[ext_resource type="Script" path="res://scripts/data/skill_tree_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/data/skill_node_data.gd" id="2_node_script"]
+[ext_resource type="Resource" path="res://data/skills/paladino/golpe_justo.tres" id="3_justo"]
+[ext_resource type="Resource" path="res://data/skills/paladino/martelo_abencoado.tres" id="4_martelo"]
+[ext_resource type="Resource" path="res://data/skills/paladino/aura_de_consagracao.tres" id="5_aura"]
+[ext_resource type="Resource" path="res://data/skills/paladino/cura_divina.tres" id="6_cura"]
+[ext_resource type="Resource" path="res://data/skills/paladino/escudo_da_fe.tres" id="7_escudo"]
+[ext_resource type="Resource" path="res://data/skills/paladino/punho_dos_ceus.tres" id="8_punho"]
+[ext_resource type="Resource" path="res://data/skills/paladino/julgamento.tres" id="9_nova1"]
+[ext_resource type="Resource" path="res://data/skills/paladino/martirio.tres" id="10_nova2"]
+[ext_resource type="Resource" path="res://data/skills/paladino/coluna_de_fe.tres" id="11_nova3"]
+[ext_resource type="Resource" path="res://data/skills/paladino/avatar_da_luz.tres" id="12_nova4"]
+
+[resource]
+script = ExtResource("1_script")
+class_id = &"paladino"
+nodes = [
+        [subresource type="SkillNodeData" id="13_n0"]
+    ,
+        [subresource type="SkillNodeData" id="14_n1"]
+    ,
+        [subresource type="SkillNodeData" id="15_n2"]
+    ,
+        [subresource type="SkillNodeData" id="16_n3"]
+    ,
+        [subresource type="SkillNodeData" id="17_n4"]
+    ,
+        [subresource type="SkillNodeData" id="18_n5"]
+    ,
+        [subresource type="SkillNodeData" id="19_n6"]
+    ,
+        [subresource type="SkillNodeData" id="20_n7"]
+    ,
+        [subresource type="SkillNodeData" id="21_n8"]
+    ,
+        [subresource type="SkillNodeData" id="22_n9"]
+    ,
+        [subresource type="SkillNodeData" id="23_n10"]
+    ,
+        [subresource type="SkillNodeData" id="24_n11"]
+    ,
+        [subresource type="SkillNodeData" id="25_n12"]
+    ,
+        [subresource type="SkillNodeData" id="26_n13"]
+]
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+]
+SubResource("13_n0"),
+SubResource("14_n1"),
+SubResource("15_n2"),
+SubResource("16_n3"),
+SubResource("17_n4"),
+SubResource("18_n5"),
+SubResource("19_n6"),
+SubResource("20_n7"),
+SubResource("21_n8"),
+SubResource("22_n9"),
+SubResource("23_n10"),
+SubResource("24_n11"),
+SubResource("25_n12"),
+SubResource("26_n13")
+]
+
+script = ExtResource("2_node_script")
+id = &"paladino_julgamento"
+skill_id = &"julgamento"
+is_new_skill = true
+max_rank = 1
+requires = []
+per_rank = {}
+display_name = "Julgamento"
+description = "Desbloqueia: Marca inimigo. Aliados causam +25% dano nele. Cura aliados ao acertar."
+icon = "S_Holy01"
+
+script = ExtResource("2_node_script")
+id = &"paladino_martirio"
+skill_id = &"martirio"
+is_new_skill = true
+max_rank = 1
+requires = ["paladino_julgamento"]
+per_rank = {}
+display_name = "Martírio"
+description = "Desbloqueia: Absorve 50% do dano dos aliados próximos como cura própria. Dura 8s."
+icon = "S_Holy02"
+
+script = ExtResource("2_node_script")
+id = &"paladino_coluna_fe"
+skill_id = &"coluna_de_fe"
+is_new_skill = true
+max_rank = 1
+requires = ["paladino_martirio"]
+per_rank = {}
+display_name = "Coluna de Fé"
+description = "Desbloqueia: Cria pilar de luz. Inimigos: dano sagrado/s. Aliados: cura e limpa debuffs."
+icon = "S_Holy04"
+
+script = ExtResource("2_node_script")
+id = &"paladino_avatar_luz"
+skill_id = &"avatar_da_luz"
+is_new_skill = true
+max_rank = 1
+requires = ["paladino_coluna_fe"]
+per_rank = {}
+display_name = "Avatar da Luz"
+description = "Desbloqueia: Transforma em avatar sagrado. Imune a medo/controle, aura cura 10%/s. 20s."
+icon = "S_Buff10"
+
+script = ExtResource("2_node_script")
+id = &"paladino_justo_1"
+skill_id = &"golpe_justo"
+is_new_skill = false
+max_rank = 3
+requires = []
+per_rank = {"damage": 0.15, "cooldown": -0.07, "heal": 0.1}
+display_name = "Golpe Justo I-III"
+description = "Melhora: +15% dano, -7% cooldown, +10% cura por rank."
+icon = "S_Sword01"
+
+script = ExtResource("2_node_script")
+id = &"paladino_martelo_1"
+skill_id = &"martelo_abencoado"
+is_new_skill = false
+max_rank = 3
+requires = []
+per_rank = {"damage": 0.15, "cooldown": -0.07, "stun": 0.15}
+display_name = "Martelo Abençoado I-III"
+description = "Melhora: +15% dano, -7% cooldown, +0.15s stun por rank."
+icon = "S_Hammer01"
+
+script = ExtResource("2_node_script")
+id = &"paladino_aura_1"
+skill_id = &"aura_de_consagracao"
+is_new_skill = false
+max_rank = 3
+requires = ["paladino_justo_1"]
+per_rank = {"radius": 0.15, "duration": 1.0}
+display_name = "Aura de Consagração I-III"
+description = "Melhora: +15% raio, +1s duração por rank."
+icon = "S_Holy03"
+
+script = ExtResource("2_node_script")
+id = &"paladino_cura_1"
+skill_id = &"cura_divina"
+is_new_skill = false
+max_rank = 3
+requires = []
+per_rank = {"heal": 0.2, "cooldown": -0.07}
+display_name = "Cura Divina I-III"
+description = "Melhora: +20% cura, -7% cooldown por rank."
+icon = "S_Holy05"
+
+script = ExtResource("2_node_script")
+id = &"paladino_escudo_1"
+skill_id = &"escudo_da_fe"
+is_new_skill = false
+max_rank = 2
+requires = ["paladino_aura_1"]
+per_rank = {"duration": 2.0, "radius": 0.1}
+display_name = "Escudo da Fé I-II"
+description = "Melhora: +2s duração, +10% raio por rank."
+icon = "S_Shield02"
+
+script = ExtResource("2_node_script")
+id = &"paladino_punho_1"
+skill_id = &"punho_dos_ceus"
+is_new_skill = false
+max_rank = 2
+requires = ["paladino_martelo_1"]
+per_rank = {"damage": 0.2, "radius": 0.15}
+display_name = "Punho dos Céus I-II"
+description = "Melhora: +20% dano, +15% raio por rank."
+icon = "S_Holy06"
+
+script = ExtResource("2_node_script")
+id = &"paladino_mestre_justica"
+skill_id = &"golpe_justo"
+is_new_skill = false
+max_rank = 1
+requires = ["paladino_justo_1", "paladino_julgamento"]
+per_rank = {"damage": 0.25, "heal": 0.2}
+display_name = "Mestre da Justiça"
+description = "Melhora final: +25% dano e +20% cura em skills de martelo/espada."
+icon = "S_Sword04"
+
+script = ExtResource("2_node_script")
+id = &"paladino_mestre_protecao"
+skill_id = &"escudo_da_fe"
+is_new_skill = false
+max_rank = 1
+requires = ["paladino_escudo_1", "paladino_martirio"]
+per_rank = {"radius": 0.3, "duration": 3.0}
+display_name = "Mestre da Proteção"
+description = "Melhora final: Auras +30% raio, +3s duração. Bloqueio reflete 100% dano."
+icon = "S_Shield03"
+
+script = ExtResource("2_node_script")
+id = &"paladino_mestre_luz"
+skill_id = &"punho_dos_ceus"
+is_new_skill = false
+max_rank = 1
+requires = ["paladino_punho_1", "paladino_coluna_fe"]
+per_rank = {"damage": 0.3, "radius": 0.25}
+display_name = "Mestre da Luz"
+description = "Melhora final: +30% dano sagrado, +25% raio em skills ofensivas."
+icon = "S_Holy07"
+
+script = ExtResource("2_node_script")
+id = &"paladino_santo_guerreiro"
+skill_id = &"avatar_da_luz"
+is_new_skill = false
+max_rank = 1
+requires = ["paladino_avatar_luz", "paladino_mestre_justica", "paladino_mestre_protecao", "paladino_mestre_luz"]
+per_rank = {"damage": 0.4, "duration": 5.0, "heal": 0.2}
+display_name = "Santo Guerreiro"
+description = "Capstone: Avatar da Luz +40% dano, +5s duração, cura 20% vida máxima/s."
+icon = "S_Buff10"

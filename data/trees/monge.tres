@@ -1,0 +1,228 @@
+[ext_resource type="Script" path="res://scripts/data/skill_tree_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/data/skill_node_data.gd" id="2_node_script"]
+[ext_resource type="Resource" path="res://data/skills/monge/palma_do_dragao.tres" id="3_palma"]
+[ext_resource type="Resource" path="res://data/skills/monde/chute_giratorio.tres" id="4_chute"]
+[ext_resource type="Resource" path="res://data/skills/monge/onda_de_choque.tres" id="5_onda"]
+[ext_resource type="Resource" path="res://data/skills/monge/meditacao_profunda.tres" id="6_meditacao"]
+[ext_resource type="Resource" path="res://data/skills/monge/passo_do_vento.tres" id="7_passo"]
+[ext_resource type="Resource" path="res://data/skills/monge/punho_de_ferro.tres" id="8_punho"]
+[ext_resource type="Resource" path="res://data/skills/monge/estilo_bebado.tres" id="9_nova1"]
+[ext_resource type="Resource" path="res://data/skills/monge/palma_do_coração.tres" id="10_nova2"]
+[ext_resource type="Resource" path="res://data/skills/monge/vo_dragao.tres" id="11_nova3"]
+[ext_resource type="Resource" path="res://data/skills/monge/mestre_das_artes.tres" id="12_nova4"]
+
+[resource]
+script = ExtResource("1_script")
+class_id = &"monge"
+nodes = [
+        [subresource type="SkillNodeData" id="13_n0"]
+    ,
+        [subresource type="SkillNodeData" id="14_n1"]
+    ,
+        [subresource type="SkillNodeData" id="15_n2"]
+    ,
+        [subresource type="SkillNodeData" id="16_n3"]
+    ,
+        [subresource type="SkillNodeData" id="17_n4"]
+    ,
+        [subresource type="SkillNodeData" id="18_n5"]
+    ,
+        [subresource type="SkillNodeData" id="19_n6"]
+    ,
+        [subresource type="SkillNodeData" id="20_n7"]
+    ,
+        [subresource type="SkillNodeData" id="21_n8"]
+    ,
+        [subresource type="SkillNodeData" id="22_n9"]
+    ,
+        [subresource type="SkillNodeData" id="23_n10"]
+    ,
+        [subresource type="SkillNodeData" id="24_n11"]
+    ,
+        [subresource type="SkillNodeData" id="25_n12"]
+    ,
+        [subresource type="SkillNodeData" id="26_n13"]
+]
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+]
+SubResource("13_n0"),
+SubResource("14_n1"),
+SubResource("15_n2"),
+SubResource("16_n3"),
+SubResource("17_n4"),
+SubResource("18_n5"),
+SubResource("19_n6"),
+SubResource("20_n7"),
+SubResource("21_n8"),
+SubResource("22_n9"),
+SubResource("23_n10"),
+SubResource("24_n11"),
+SubResource("25_n12"),
+SubResource("26_n13")
+]
+
+script = ExtResource("2_node_script")
+id = &"monge_estilo_bebado"
+skill_id = &"estilo_bebado"
+is_new_skill = true
+max_rank = 1
+requires = []
+per_rank = {}
+display_name = "Estilo Bêbado"
+description = "Desbloqueia: Movimentos imprevisíveis. +50% esquiva, contra-ataca ao esquivar. Dura 10s. Custa 30 Chi."
+icon = "S_Buff07"
+
+script = ExtResource("2_node_script")
+id = &"monge_palma_coracao"
+skill_id = &"palma_do_coracao"
+is_new_skill = true
+max_rank = 1
+requires = ["monge_estilo_bebado"]
+per_rank = {}
+display_name = "Palma do Coração"
+description = "Desbloqueia: Golpe que para o coração. 3x dano, atordoa 2s, se matar recupera todo Chi. Custa 50 Chi."
+icon = "S_Sword03"
+
+script = ExtResource("2_node_script")
+id = &"monge_vo_dragao"
+skill_id = &"vo_dragao"
+is_new_skill = true
+max_rank = 1
+requires = ["monge_palma_coracao"]
+per_rank = {}
+display_name = "Vôo do Dragão"
+description = "Desbloqueia: Salta e cai como meteoro. Área 10m, 4x dano, onda de choque atordoa 3s. Custa 60 Chi."
+icon = "S_Fire03"
+
+script = ExtResource("2_node_script")
+id = &"monge_mestre_artes"
+skill_id = &"mestre_das_artes"
+is_new_skill = true
+max_rank = 1
+requires = ["monge_vo_dragao"]
+per_rank = {}
+display_name = "Mestre das Artes"
+description = "Desbloqueia: Estado de fluxo 20s. Todos golpes críticos, Chi infinito, imune a controle. Custa 100 Chi."
+icon = "S_Buff10"
+
+script = ExtResource("2_node_script")
+id = &"monge_palma_1"
+skill_id = &"palma_do_dragao"
+is_new_skill = false
+max_rank = 3
+requires = []
+per_rank = {"damage": 0.15, "cooldown": -0.07, "heal": 0.05}
+display_name = "Palma do Dragão I-III"
+description = "Melhora: +15% dano, -7% cooldown, +5% cura por rank."
+icon = "S_Magic01"
+
+script = ExtResource("2_node_script")
+id = &"monge_palma_2"
+skill_id = &"palma_do_dragao"
+is_new_skill = false
+max_rank = 2
+requires = ["monge_palma_1"]
+per_rank = {"projectile_count": 1, "radius": 0.1}
+display_name = "Palma do Dragão IV-V"
+description = "Melhora: +1 onda de choque, +10% raio por rank."
+icon = "S_Magic01"
+
+script = ExtResource("2_node_script")
+id = &"monge_chute_1"
+skill_id = &"chute_giratorio"
+is_new_skill = false
+max_rank = 3
+requires = ["monge_palma_1"]
+per_rank = {"damage": 0.15, "cooldown": -0.07, "hits": 1}
+display_name = "Chute Giratório I-III"
+description = "Melhora: +15% dano, -7% cooldown, +1 acerto por rank."
+icon = "S_Boot01"
+
+script = ExtResource("2_node_script")
+id = &"monge_onda_1"
+skill_id = &"onda_de_choque"
+is_new_skill = false
+max_rank = 3
+requires = []
+per_rank = {"damage": 0.15, "cooldown": -0.07, "radius": 0.1}
+display_name = "Onda de Choque I-III"
+description = "Melhora: +15% dano, -7% cooldown, +10% raio por rank."
+icon = "S_Earth01"
+
+script = ExtResource("2_node_script")
+id = &"monge_meditacao_1"
+skill_id = &"meditacao_profunda"
+is_new_skill = false
+max_rank = 2
+requires = ["monge_onda_1"]
+per_rank = {"duration": 3.0, "resource_gain": 10}
+display_name = "Meditação Profunda I-II"
+description = "Melhora: +3s duração, +10 Chi/s por rank."
+icon = "S_Buff08"
+
+script = ExtResource("2_node_script")
+id = &"monge_passo_1"
+skill_id = &"passo_do_vento"
+is_new_skill = false
+max_rank = 2
+requires = ["monge_chute_1"]
+per_rank = {"cooldown": -0.1, "reach": 0.2}
+display_name = "Passo do Vento I-II"
+description = "Melhora: -10% cooldown, +20% alcance por rank."
+icon = "S_Boot02"
+
+script = ExtResource("2_node_script")
+id = &"monge_punho_1"
+skill_id = &"punho_de_ferro"
+is_new_skill = false
+max_rank = 2
+requires = ["monge_estilo_bebado"]
+per_rank = {"damage": 0.2, "stun": 0.2}
+display_name = "Punho de Ferro I-II"
+description = "Melhora: +20% dano, +0.2s atordoamento por rank."
+icon = "S_Sword02"
+
+script = ExtResource("2_node_script")
+id = &"monge_mestre_palma"
+skill_id = &"palma_do_dragao"
+is_new_skill = false
+max_rank = 1
+requires = ["monge_palma_2", "monge_estilo_bebado"]
+per_rank = {"damage": 0.25, "heal": 0.15}
+display_name = "Mestre da Palma"
+description = "Melhora final: +25% dano, +15% cura. Palma aplica queimadura."
+icon = "S_Fire01"
+
+script = ExtResource("2_node_script")
+id = &"monge_mestre_ferro"
+skill_id = &"punho_de_ferro"
+is_new_skill = false
+max_rank = 1
+requires = ["monge_punho_1", "monge_vo_dragao"]
+per_rank = {"damage": 0.3, "stun": 0.5}
+display_name = "Mestre do Ferro"
+description = "Melhora final: +30% dano, +0.5s stun. Vôo do Dragão ignora armadura."
+icon = "S_Sword04"
+
+script = ExtResource("2_node_script")
+id = &"monge_grande_mestre"
+skill_id = &"mestre_das_artes"
+is_new_skill = false
+max_rank = 1
+requires = ["monge_mestre_artes", "monge_mestre_palma", "monge_mestre_ferro"]
+per_rank = {"damage": 0.5, "cooldown": -0.5, "duration": 10.0}
+display_name = "Grande Mestre"
+description = "Capstone: Mestre das Artes +50% dano, -50% CD global, +10s. Golpes curam 10% dano causado."
+icon = "S_Buff10"

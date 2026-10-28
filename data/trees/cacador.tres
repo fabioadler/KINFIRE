@@ -1,0 +1,229 @@
+[ext_resource type="Script" path="res://scripts/data/skill_tree_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/data/skill_node_data.gd" id="2_node_script"]
+[ext_resource type="Resource" path="res://data/skills/cacador/flecha_rapida.tres" id="3_rapida"]
+[ext_resource type="Resource" path="res://data/skills/cacador/tiro_perfurante.tres" id="4_perfurante"]
+[ext_resource type="Resource" path="res://data/skills/cacador/chamar_lobo.tres" id="5_lobo"]
+[ext_resource type="Resource" path="res://data/skills/cacador/armadilha_explosiva.tres" id="6_armadilha"]
+[ext_resource type="Resource" path="res://data/skills/cacador/rajada.tres" id="7_rajada"]
+[ext_resource type="Resource" path="res://data/skills/cacador/chuva_de_flechas.tres" id="8_chuva"]
+[ext_resource type="Resource" path="res://data/skills/cacador/ler_o_vento.tres" id="9_vento"]
+[ext_resource type="Resource" path="res://data/skills/cacador/tiro_certeiro.tres" id="10_nova1"]
+[ext_resource type="Resource" path="res://data/skills/cacador/alfa_da_matilha.tres" id="11_nova2"]
+[ext_resource type="Resource" path="res://data/skills/cacador/armadilha_gelo.tres" id="12_nova3"]
+[ext_resource type="Resource" path="res://data/skills/cacador/olho_de_falcao.tres" id="13_nova4"]
+
+[resource]
+script = ExtResource("1_script")
+class_id = &"cacador"
+nodes = [
+        [subresource type="SkillNodeData" id="14_n0"]
+    ,
+        [subresource type="SkillNodeData" id="15_n1"]
+    ,
+        [subresource type="SkillNodeData" id="16_n2"]
+    ,
+        [subresource type="SkillNodeData" id="17_n3"]
+    ,
+        [subresource type="SkillNodeData" id="18_n4"]
+    ,
+        [subresource type="SkillNodeData" id="19_n5"]
+    ,
+        [subresource type="SkillNodeData" id="20_n6"]
+    ,
+        [subresource type="SkillNodeData" id="21_n7"]
+    ,
+        [subresource type="SkillNodeData" id="22_n8"]
+    ,
+        [subresource type="SkillNodeData" id="23_n9"]
+    ,
+        [subresource type="SkillNodeData" id="24_n10"]
+    ,
+        [subresource type="SkillNodeData" id="25_n11"]
+    ,
+        [subresource type="SkillNodeData" id="26_n12"]
+    ,
+        [subresource type="SkillNodeData" id="27_n13"]
+]
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+    ,
+]
+SubResource("14_n0"),
+SubResource("15_n1"),
+SubResource("16_n2"),
+SubResource("17_n3"),
+SubResource("18_n4"),
+SubResource("19_n5"),
+SubResource("20_n6"),
+SubResource("21_n7"),
+SubResource("22_n8"),
+SubResource("23_n9"),
+SubResource("24_n10"),
+SubResource("25_n11"),
+SubResource("26_n12"),
+SubResource("27_n13")
+]
+
+script = ExtResource("2_node_script")
+id = &"cacador_tiro_certeiro"
+skill_id = &"tiro_certeiro"
+is_new_skill = true
+max_rank = 1
+requires = []
+per_rank = {}
+display_name = "Tiro Certeiro"
+description = "Desbloqueia: Próximo tiro ignora esquiva/armadura, crítico garantido. Custa 30 Concentração."
+icon = "S_Bow02"
+
+script = ExtResource("2_node_script")
+id = &"cacador_alfa_matilha"
+skill_id = &"alfa_da_matilha"
+is_new_skill = true
+max_rank = 1
+requires = ["cacador_tiro_certeiro"]
+per_rank = {}
+display_name = "Alfa da Matilha"
+description = "Desbloqueia: Lobo vira Alfa. +50% vida/dano, ganha uivo que concede crítico aos aliados."
+icon = "S_Buff04"
+
+script = ExtResource("2_node_script")
+id = &"cacador_armadilha_gelo"
+skill_id = &"armadilha_gelo"
+is_new_skill = true
+max_rank = 1
+requires = ["cacador_alfa_matilha"]
+per_rank = {}
+display_name = "Armadilha de Gelo"
+description = "Desbloqueia: Armadilha que congela inimigos em 5m por 3s. Dano de gelo +50% neles."
+icon = "S_Ice02"
+
+script = ExtResource("2_node_script")
+id = &"cacador_olho_falcao"
+skill_id = &"olho_de_falcao"
+is_new_skill = true
+max_rank = 1
+requires = ["cacador_armadilha_gelo"]
+per_rank = {}
+display_name = "Olho de Falcão"
+description = "Desbloqueia: Visão verdadeira 15s. Vê invisíveis, +50% alcance, crítico ignora armadura."
+icon = "S_Buff06"
+
+script = ExtResource("2_node_script")
+id = &"cacador_rapida_1"
+skill_id = &"flecha_rapida"
+is_new_skill = false
+max_rank = 3
+requires = []
+per_rank = {"damage": 0.15, "cooldown": -0.07, "projectile_speed": 0.1}
+display_name = "Flecha Rápida I-III"
+description = "Melhora: +15% dano, -7% cooldown, +10% vel. projétil por rank."
+icon = "S_Bow01"
+
+script = ExtResource("2_node_script")
+id = &"cacador_perfurante_1"
+skill_id = &"tiro_perfurante"
+is_new_skill = false
+max_rank = 3
+requires = ["cacador_rapida_1"]
+per_rank = {"damage": 0.15, "cooldown": -0.07, "pierce": 1}
+display_name = "Tiro Perfurante I-III"
+description = "Melhora: +15% dano, -7% cooldown, +1 perfuração por rank."
+icon = "S_Bow03"
+
+script = ExtResource("2_node_script")
+id = &"cacador_lobo_1"
+skill_id = &"chamar_lobo"
+is_new_skill = false
+max_rank = 2
+requires = []
+per_rank = {"duration": 10.0, "damage": 0.2}
+display_name = "Chamar Lobo I-II"
+description = "Melhora: +10s duração, +20% dano do lobo por rank."
+icon = "S_Nature01"
+
+script = ExtResource("2_node_script")
+id = &"cacador_armadilha_1"
+skill_id = &"armadilha_explosiva"
+is_new_skill = false
+max_rank = 3
+requires = ["cacador_lobo_1"]
+per_rank = {"damage": 0.15, "cooldown": -0.07, "radius": 0.1}
+display_name = "Armadilha Explosiva I-III"
+description = "Melhora: +15% dano, -7% cooldown, +10% raio por rank."
+icon = "S_Fire02"
+
+script = ExtResource("2_node_script")
+id = &"cacador_rajada_1"
+skill_id = &"rajada"
+is_new_skill = false
+max_rank = 3
+requires = ["cacador_rapida_1"]
+per_rank = {"damage": 0.1, "projectile_count": 1}
+display_name = "Rajada I-III"
+description = "Melhora: +10% dano, +1 flecha por rank."
+icon = "S_Bow04"
+
+script = ExtResource("2_node_script")
+id = &"cacador_chuva_1"
+skill_id = &"chuva_de_flechas"
+is_new_skill = false
+max_rank = 2
+requires = ["cacador_rajada_1"]
+per_rank = {"damage": 0.15, "radius": 0.15}
+display_name = "Chuva de Flechas I-II"
+description = "Melhora: +15% dano, +15% raio por rank."
+icon = "S_Bow05"
+
+script = ExtResource("2_node_script")
+id = &"cacador_vento_1"
+skill_id = &"ler_o_vento"
+is_new_skill = false
+max_rank = 2
+requires = ["cacador_perfurante_1"]
+per_rank = {"duration": 5.0, "reach": 0.2}
+display_name = "Ler o Vento I-II"
+description = "Melhora: +5s duração, +20% alcance por rank."
+icon = "S_Wind01"
+
+script = ExtResource("2_node_script")
+id = &"cacador_mestre_arco"
+skill_id = &"flecha_rapida"
+is_new_skill = false
+max_rank = 1
+requires = ["cacador_rapida_1", "cacador_tiro_certeiro"]
+per_rank = {"damage": 0.25, "projectile_speed": 0.2}
+display_name = "Mestre do Arco"
+description = "Melhora final: +25% dano, +20% vel. projétil em todas skills de arco."
+icon = "S_Bow06"
+
+script = ExtResource("2_node_script")
+id = &"cacador_mestre_mata"
+skill_id = &"armadilha_explosiva"
+is_new_skill = false
+max_rank = 1
+requires = ["cacador_armadilha_1", "cacador_armadilha_gelo"]
+per_rank = {"damage": 0.3, "radius": 0.25}
+display_name = "Mestre das Armadilhas"
+description = "Melhora final: +30% dano, +25% raio. Armadilhas não disparam em aliados."
+icon = "S_Trap01"
+
+script = ExtResource("2_node_script")
+id = &"cacador_predador_supremo"
+skill_id = &"olho_de_falcao"
+is_new_skill = false
+max_rank = 1
+requires = ["cacador_olho_falcao", "cacador_mestre_arco", "cacador_mestre_mata"]
+per_rank = {"damage": 0.4, "duration": 10.0, "reach": 0.5}
+display_name = "Predador Supremo"
+description = "Capstone: Olho de Falcão +40% dano, +10s, +50% alcance. Tiros nunca erram."
+icon = "S_Buff10"
