@@ -11,14 +11,14 @@ var is_client: bool = false
 var server_running: bool = false
 
 # Peers conectados
-var connected_peers: Dictionary = {}  # peer_id → {"name": str, "hero": Hero}
-var player_chars: Dictionary = {}     # peer_id → Hero node
+var connected_peers: Dictionary = {}  # peer_id -> {"name": str, "hero": Hero}
+var player_chars: Dictionary = {}     # peer_id -> Hero node
 
 # Gerenciadores de state
-var enemy_instances: Dictionary = {}  # enemy_id → Enemy node
-var loot_drops: Dictionary = {}       # drop_id → LootDrop node
-var damage_tracker: Dictionary = {}   # enemy_id → {peer_id: damage_done}
-var kill_credit: Dictionary = {}      # enemy_id → peer_id (last hitter)
+var enemy_instances: Dictionary = {}  # enemy_id -> Enemy node
+var loot_drops: Dictionary = {}       # drop_id -> LootDrop node
+var damage_tracker: Dictionary = {}   # enemy_id -> {peer_id: damage_done}
+var kill_credit: Dictionary = {}      # enemy_id -> peer_id (last hitter)
 
 # Network settings
 const PORT: int = 7777

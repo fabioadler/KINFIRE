@@ -8,7 +8,7 @@ const CHUNK := OverworldGen.CHUNK
 const LOAD_RADIUS := 1        ## chunks carregados ao redor do jogador (3x3)
 const UNLOAD_RADIUS := 2
 const DAY_LENGTH := 360.0     ## segundos por dia completo
-const SHEET := preload("res://assets/sprites/overworld/roguelike_sheet.png")
+const SHEET := null  # Carregado dinamicamente em _ready()
 const DUNGEON_NAMES := ["Cripta Esquecida", "Catacumbas de Varn", "Mina Abandonada", "Covil das Sombras", "Santuário Profanado",
 	"Ruínas de Ashkar", "Caverna dos Ecos", "Masmorra de Kinfire", "Tumba do Rei Cinzento", "Fosso das Almas", "Gruta Rubra", "Cofre dos Anões"]
 
@@ -22,7 +22,7 @@ var _queue: Array[Vector2i] = []
 var _astar_dirty := true
 var _astar_timer := 0.0
 var _player_chunk := Vector2i(999999, 999999)
-## Último território racial em que o jogador esteve (objetivos REACH, Fase 4)
+## Ultimo território racial em que o jogador esteve (objetivos REACH, Fase 4)
 var _last_region := &""
 var _tiles := {}              ## "x,y,mod" -> [coords, alt]
 var _src: TileSetAtlasSource
@@ -544,7 +544,7 @@ func _rebuild_astar() -> void:
 				astar.set_point_solid(origin + Vector2i(i % CHUNK, i / CHUNK), false)
 
 
-# ------------------------------------------------------------------ CONTEÚDO DO CHUNK
+# ------------------------------------------------------------------ CONTEUDO DO CHUNK
 
 func _spawn_chunk_content(k: Vector2i, data: Dictionary) -> void:
 	var rng := RandomNumberGenerator.new()

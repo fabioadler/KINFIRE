@@ -6,7 +6,7 @@ func _ready() -> void:
 	_preload_guild_data()
 
 func _preload_guild_data() -> void:
-	# Carrega 56 guildas de .tres (14 classes × 4 tipos)
+	# Carrega 56 guildas de .tres (14 classes x 4 tipos)
 	var classes = ["humano", "barbaro", "alto_elfo", "elfo_floresta", "drow",
 		"anao_montanha", "anao_colinas", "halfling", "meio_orc", "tiefling",
 		"draconato", "gnomo", "meio_elfo", "tabaxi"]

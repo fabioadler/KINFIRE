@@ -1,5 +1,5 @@
 extends Node
-## Gerador de sprites modernos para HUD em SVG → PNG
+## Gerador de sprites modernos para HUD em SVG -> PNG
 
 static func create_hud_sprites() -> void:
 	# Criar diretório de sprites se não existir

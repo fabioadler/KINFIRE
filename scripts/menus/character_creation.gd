@@ -1,6 +1,6 @@
 extends Control
 ## Criação de personagem em WIZARD sequencial (REGRAS #15, MECANICAS #11):
-## raça → classe → atributos (com antecedente e dificuldade) → nome.
+## raça -> classe -> atributos (com antecedente e dificuldade) -> nome.
 ## Nenhum passo pode ser pulado; todos são obrigatórios.
 ## No fluxo do prólogo (Game.phase == PHASE_PROLOGUE), confirmar chama
 ## Game.finish_prologue() - o herói acorda no acampamento da raça escolhida.
@@ -77,7 +77,7 @@ func _ready() -> void:
 	margin.add_child(root)
 	root.add_child(UIKit.title("Criação de Personagem", 30))
 	if Game.phase == Game.PHASE_PROLOGUE:
-		# Veio do espelho do prólogo: o vazio devolve não o que você era…
+		# Veio do espelho do prólogo: o vazio devolve não o que você era...
 		var sub := UIKit.label("O espelho não devolve o que você era - devolve o que você escolhe ser.", 15, UIKit.TEXT_DIM)
 		sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		root.add_child(sub)
@@ -592,7 +592,7 @@ func _refresh() -> void:
 	var bg: Dictionary = DB.BACKGROUNDS[background]
 	_bg_desc.text = bg.desc
 	var d: Dictionary = DB.DIFFICULTIES[difficulty]
-	_diff_desc.text = "Vida dos monstros ×%.1f, dano ×%.2f. Itens melhores (+%d%%) e +%d%% de experiência." % [d.hp, d.dmg, roundi(d.loot * 100), roundi((d.xp - 1.0) * 100)]
+	_diff_desc.text = "Vida dos monstros x%.1f, dano x%.2f. Itens melhores (+%d%%) e +%d%% de experiência." % [d.hp, d.dmg, roundi(d.loot * 100), roundi((d.xp - 1.0) * 100)]
 	_diff_desc.add_theme_color_override("font_color", d.color)
 
 	# Botão de navegação: habilitação e rótulo por passo

@@ -215,7 +215,7 @@ func _store(q: QuestData, p: Array) -> void:
 	Game.quests[q.id]["prog"] = p
 
 
-## Todos os objetivos do estágio prontos → avança; último estágio → conclui
+## Todos os objetivos do estágio prontos -> avança; último estágio -> conclui
 func _check_stage(q: QuestData) -> void:
 	var st := stage_of(q)
 	var stage: QuestStage = q.stages[st]

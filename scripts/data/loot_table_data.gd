@@ -1,7 +1,7 @@
 class_name LootTableData
 extends Resource
 ## Tabela de loot por raridade de monstro (REGRAS #6 - "drops garantidos").
-## Selecionada por (inimigo × raridade): a raridade escolhe a tabela-base
+## Selecionada por (inimigo x raridade): a raridade escolhe a tabela-base
 ## (DB.loot_tables, índice = Enemy.Rarity); o eixo por inimigo vem do
 ## EnemyData (dados tuned no caso do chefe + `unique_drop` opcional).
 

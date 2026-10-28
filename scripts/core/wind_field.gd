@@ -2,7 +2,7 @@ class_name WindField
 extends RefCounted
 ## Fase 7.4 (MECANICAS #14.5): campo de vento global - o mundo respira.
 ## Vento é INFORMAÇAO (direção, mudança de tempo, calmaria que pressagia
-## chefes) e MECÂNICA (desvia projéteis, inclina fogueiras, empurra
+## chefes) e MECANICA (desvia projéteis, inclina fogueiras, empurra
 ## partículas, muda o custo de rotas).
 ## Coerência espacial e temporal: value-noise sobre (semente do mundo,
 ## tick de 10s) interpolado com smoothstep - o vento nunca vira do nada.

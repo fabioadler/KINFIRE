@@ -99,11 +99,11 @@ const PREFIXES := ["Feroz", "Brutal", "Sombrio", "Ardente", "Glacial", "Sagrado"
 const SUFFIXES := ["da Ruína", "do Abismo", "dos Reis", "da Aurora", "do Dragão", "da Brasa", "do Eclipse", "dos Mártires", "do Lobo", "da Tempestade"]
 const LEGENDARY_NAMES := {
 	"weapon": ["Kinfire, a Chama Ancestral", "Ceifadora de Almas", "Fúria do Rei Caído", "Juramento Quebrado", "Lâmina do Crepúsculo", "Presa de Grolmak"],
-	"offhand": ["Égide do Último Bastião", "Coração de Brasa", "Olho do Vazio", "Grimório de Azkhar"],
+	"offhand": ["Egide do Ultimo Bastião", "Coração de Brasa", "Olho do Vazio", "Grimório de Azkhar"],
 	"helm": ["Coroa do Rei Cinzento", "Elmo de Mil Batalhas", "Visão do Profeta"],
 	"chest": ["Couraça do Dragão Rubro", "Manto das Estrelas Mortas", "Pele de Putrefato"],
 	"boots": ["Passos do Vento Norte", "Botas do Andarilho Eterno"],
-	"amulet": ["Lágrima da Fênix", "Selo do Primeiro Fogo", "Âmbar dos Antigos"],
+	"amulet": ["Lágrima da Fênix", "Selo do Primeiro Fogo", "Ambar dos Antigos"],
 	"ring": ["Anel do Juramento", "Círculo da Brasa Eterna", "Aliança dos Mortos"],
 }
 const LEGENDARY_FLAVOR := [
@@ -131,7 +131,7 @@ var races: Array[RaceData] = []
 var classes: Array[ClassData] = []
 var enemies: Array[EnemyData] = []
 var racial_breath: SkillData
-## Classe oculta do aldeão do prólogo (fora do index.json → não aparece na criação)
+## Classe oculta do aldeão do prólogo (fora do index.json -> não aparece na criação)
 var villager_class: ClassData
 ## LootTableData por raridade de monstro (REGRAS #6); índice = Enemy.Rarity
 var loot_tables: Array[LootTableData] = []
@@ -195,7 +195,7 @@ func _load_dir(dir: String, order: Array) -> Array:
 
 
 ## LootTableData por raridade de monstro - REGRAS #6 ("drops garantidos").
-## Chefe é roteirizado: HP/XP tuned no EnemyData; o ouro ×25 é o da tabela,
+## Chefe é roteirizado: HP/XP tuned no EnemyData; o ouro x25 é o da tabela,
 ## pois não há dado por inimigo para ouro.
 func _build_loot_tables() -> Array[LootTableData]:
 	var out: Array[LootTableData] = []
@@ -206,7 +206,7 @@ func _build_loot_tables() -> Array[LootTableData]:
 	t.globe_chance = 0.12
 	t.item_chance = 0.10
 	out.append(t)
-	# ELITE: ≥1 item Mágico + ouro
+	# ELITE: >=1 item Mágico + ouro
 	t = LootTableData.new()
 	t.gold_chance = 1.0
 	t.gold_mult = 3
@@ -215,7 +215,7 @@ func _build_loot_tables() -> Array[LootTableData]:
 	t.item_magic = 0.15
 	t.guaranteed.assign([Item.Rarity.MAGIC])
 	out.append(t)
-	# CAMPEAO: ≥1 Raro + 20% Lendário + 50% Essência
+	# CAMPEAO: >=1 Raro + 20% Lendário + 50% Essência
 	t = LootTableData.new()
 	t.gold_chance = 1.0
 	t.gold_mult = 6
@@ -226,7 +226,7 @@ func _build_loot_tables() -> Array[LootTableData]:
 	t.legend_chance = 0.2
 	t.essence_chance = 0.5
 	out.append(t)
-	# LENDARIO: ≥1 Lendário/Único + ≥1 Essência
+	# LENDARIO: >=1 Lendário/Unico + >=1 Essência
 	t = LootTableData.new()
 	t.gold_chance = 1.0
 	t.gold_mult = 15
@@ -236,7 +236,7 @@ func _build_loot_tables() -> Array[LootTableData]:
 	t.guaranteed.assign([Item.Rarity.LEGENDARY])
 	t.essence_chance = 1.0
 	out.append(t)
-	# CHEFE: ≥2 itens (≥1 Raro+) + Essência ×2 + item único garantido
+	# CHEFE: >=2 itens (>=1 Raro+) + Essência x2 + item único garantido
 	t = LootTableData.new()
 	t.gold_chance = 1.0
 	t.gold_mult = 25

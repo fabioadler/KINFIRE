@@ -22,7 +22,7 @@ func update_display() -> void:
 	var current = brasa_system.get_brasa()
 	label.text = "[FIRE] Brasa: {0}/{1}".format([current, MAX_BRASA])
 	
-	# Color gradient: blue → red
+	# Color gradient: blue -> red
 	var ratio = float(current) / MAX_BRASA
 	var color = Color.BLUE.lerp(Color.RED, ratio)
 	label.add_theme_color_override("font_color", color)

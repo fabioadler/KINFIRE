@@ -40,7 +40,7 @@ extends Resource
 @export var burst_regen_after_idle: float = 0.0
 ## Regeneração só enquanto parado (Caçador)
 @export var regen_only_still: bool = false
-## Habilidades custam vida em vez de recurso (Bruxo): custo vira % da vida máxima × 0,25
+## Habilidades custam vida em vez de recurso (Bruxo): custo vira % da vida máxima x 0,25
 @export var costs_life: bool = false
 
 @export_group("Mecânicas de classe")

@@ -4,7 +4,7 @@ extends Resource
 
 enum Behavior { MELEE, RANGED, CHARGER, SWARM, BOSS }
 ## Tipo elemental para resistências/vulnerabilidades (REGRAS #3):
-## "undead" = fraco a holy (×1.5), "demon" = imune a shadow + fraco a holy
+## "undead" = fraco a holy (x1.5), "demon" = imune a shadow + fraco a holy
 enum ElementalType { NONE, UNDEAD, DEMON }
 
 @export var id: StringName

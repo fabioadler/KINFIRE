@@ -1,6 +1,6 @@
 class_name InventoryGrid
 extends RefCounted
-## Inventário em grade estilo Diablo: cada item ocupa w×h células.
+## Inventário em grade estilo Diablo: cada item ocupa wxh células.
 
 signal changed
 

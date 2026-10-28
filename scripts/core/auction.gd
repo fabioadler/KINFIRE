@@ -4,7 +4,7 @@ extends RefCounted
 ## MECANICAS #10) - só na capital humana (Porto Franco). 6 slots diários
 ## de itens Raro+ rotativos e determinísticos por dia; lance mínimo sobe
 ## 10% por contra-lance de NPC rival (REGRAS #9); um slot especial aceita
-## ESSÊNCIA (moeda dura, REGRAS #9); relíquias de chefe aparecem raramente.
+## ESSENCIA (moeda dura, REGRAS #9); relíquias de chefe aparecem raramente.
 ##
 ## Estado em Game.auction: {"day": int, "slots": [...]} - cada slot:
 ##   base, level, rarity, value, currency ("gold"/"essence"),
@@ -15,7 +15,7 @@ extends RefCounted
 const SLOT_COUNT := 6
 const UNIQUE_CHANCE := 0.08        ## chance de slot ser relíquia de chefe
 const UNIQUE_BONUS_LEVEL := 3      ## relíquia vem com nível extra
-const BID_PREMIUM := 1.2           ## lance inicial = valor × 1.2 (prêmio)
+const BID_PREMIUM := 1.2           ## lance inicial = valor x 1.2 (prêmio)
 const ESSENCE_INDEX := 5           ## último slot leiloa em essência
 const ESSENCE_DIVISOR := 20        ## valor / 20 = lance inicial em essência
 

@@ -137,7 +137,7 @@ static func _cacador_nodes() -> Array[Dictionary]:
 
 
 # ----------------------------------------------------------------------
-# CLÉRIGO
+# CLERIGO
 # ----------------------------------------------------------------------
 static func _clerigo_nodes() -> Array[Dictionary]:
 	var n: Array[Dictionary] = []
@@ -240,7 +240,7 @@ static func _ladino_nodes() -> Array[Dictionary]:
 
 
 # ----------------------------------------------------------------------
-# LÂMINA ARCANA
+# LAMINA ARCANA
 # ----------------------------------------------------------------------
 static func _lamina_arcana_nodes() -> Array[Dictionary]:
 	var n: Array[Dictionary] = []

@@ -8,23 +8,23 @@ class_name MultiplayerRPC:
 ## ENEMY SYNCHRONIZATION
 ## ============================================================================
 
-## Sincroniza posição de um inimigo (host → clientes, unreliable)
+## Sincroniza posição de um inimigo (host -> clientes, unreliable)
 ## Parâmetros: enemy_id: int, position: Vector2
 const RPC_SYNC_ENEMY_POSITION = "rpc_sync_enemy_position"
 
-## Sincroniza HP de um inimigo (host → clientes, reliable)
+## Sincroniza HP de um inimigo (host -> clientes, reliable)
 ## Parâmetros: enemy_id: int, hp: float, max_hp: float
 const RPC_SYNC_ENEMY_HP = "rpc_sync_enemy_hp"
 
-## Sincroniza status de um inimigo (host → clientes, reliable)
+## Sincroniza status de um inimigo (host -> clientes, reliable)
 ## Parâmetros: enemy_id: int, status_effects: Array[String]
 const RPC_SYNC_ENEMY_STATUS = "rpc_sync_enemy_status"
 
-## Notifica que um inimigo morreu (host → clientes, reliable)
+## Notifica que um inimigo morreu (host -> clientes, reliable)
 ## Parâmetros: enemy_id: int, killer_peer: int, contributors: Dictionary
 const RPC_ENEMY_DIED = "rpc_enemy_died"
 
-## Spawn de um novo inimigo (host → clientes, reliable)
+## Spawn de um novo inimigo (host -> clientes, reliable)
 ## Parâmetros: enemy_id: int, position: Vector2, enemy_data_id: StringName, rarity: int
 const RPC_SPAWN_ENEMY = "rpc_spawn_enemy"
 
@@ -32,15 +32,15 @@ const RPC_SPAWN_ENEMY = "rpc_spawn_enemy"
 ## DAMAGE & COMBAT
 ## ============================================================================
 
-## Aplica dano a um inimigo (cliente → host, reliable)
+## Aplica dano a um inimigo (cliente -> host, reliable)
 ## Parâmetros: enemy_id: int, damage: float, attacker_peer: int, skill_id: StringName
 const RPC_APPLY_DAMAGE_TO_ENEMY = "rpc_apply_damage_to_enemy"
 
-## Aplica dano a um player (host → cliente, reliable)
+## Aplica dano a um player (host -> cliente, reliable)
 ## Parâmetros: damage: float, attacker_name: String
 const RPC_DAMAGE_PLAYER = "rpc_damage_player"
 
-## Sincroniza cooldown de skill (host → clientes, reliable)
+## Sincroniza cooldown de skill (host -> clientes, reliable)
 ## Parâmetros: peer_id: int, skill_slot: int, cooldown_remaining: float
 const RPC_SYNC_SKILL_COOLDOWN = "rpc_sync_skill_cooldown"
 
@@ -48,19 +48,19 @@ const RPC_SYNC_SKILL_COOLDOWN = "rpc_sync_skill_cooldown"
 ## LOOT & ITEMS
 ## ============================================================================
 
-## Loot cai no chão (host → clientes, reliable)
+## Loot cai no chão (host -> clientes, reliable)
 ## Parâmetros: drop_id: int, position: Vector2, item_data: Dictionary
 const RPC_LOOT_DROPPED = "rpc_loot_dropped"
 
-## Um player reclama um item (cliente → host, reliable)
+## Um player reclama um item (cliente -> host, reliable)
 ## Parâmetros: drop_id: int, peer_id: int
 const RPC_CLAIM_ITEM = "rpc_claim_item"
 
-## Loot é reclamado com sucesso (host → clientes, reliable)
+## Loot é reclamado com sucesso (host -> clientes, reliable)
 ## Parâmetros: drop_id: int, peer_id: int, item_data: Dictionary
 const RPC_LOOT_CLAIMED = "rpc_loot_claimed"
 
-## Sincroniza inventário de um player (host → clientes, reliable)
+## Sincroniza inventário de um player (host -> clientes, reliable)
 ## Parâmetros: peer_id: int, inventory_items: Array
 const RPC_SYNC_INVENTORY = "rpc_sync_inventory"
 
@@ -72,19 +72,19 @@ const RPC_SYNC_INVENTORY = "rpc_sync_inventory"
 ## Parâmetros: peer_id: int, position: Vector2, direction: Vector2
 const RPC_SYNC_PLAYER_POSITION = "rpc_sync_player_position"
 
-## Sincroniza HP/Mana de um player (host → clientes, reliable)
+## Sincroniza HP/Mana de um player (host -> clientes, reliable)
 ## Parâmetros: peer_id: int, hp: float, mana: float
 const RPC_SYNC_PLAYER_VITALS = "rpc_sync_player_vitals"
 
-## Um player se junta ao servidor (cliente → host, reliable)
+## Um player se junta ao servidor (cliente -> host, reliable)
 ## Parâmetros: hero_data: Dictionary
 const RPC_PLAYER_JOINED = "rpc_player_joined"
 
-## Notifica todos que um player entrou (host → clientes, reliable)
+## Notifica todos que um player entrou (host -> clientes, reliable)
 ## Parâmetros: peer_id: int, hero_name: String
 const RPC_ANNOUNCE_PLAYER_JOINED = "rpc_announce_player_joined"
 
-## Um player sai (host → clientes, reliable)
+## Um player sai (host -> clientes, reliable)
 ## Parâmetros: peer_id: int
 const RPC_PLAYER_LEFT = "rpc_player_left"
 
@@ -92,11 +92,11 @@ const RPC_PLAYER_LEFT = "rpc_player_left"
 ## REVIVE SYSTEM
 ## ============================================================================
 
-## Um player morre (host → clientes, reliable)
+## Um player morre (host -> clientes, reliable)
 ## Parâmetros: peer_id: int, position: Vector2
 const RPC_PLAYER_DIED = "rpc_player_died"
 
-## Um player é revivido (host → clientes, reliable)
+## Um player é revivido (host -> clientes, reliable)
 ## Parâmetros: target_peer: int, reviver_peer: int, position: Vector2
 const RPC_PLAYER_REVIVED = "rpc_player_revived"
 
@@ -104,15 +104,15 @@ const RPC_PLAYER_REVIVED = "rpc_player_revived"
 ## PARTY SYSTEM
 ## ============================================================================
 
-## Party é criada (host → clientes, reliable)
+## Party é criada (host -> clientes, reliable)
 ## Parâmetros: party_id: int, members: Array[int]
 const RPC_PARTY_CREATED = "rpc_party_created"
 
-## Um player se junta à party (host → clientes, reliable)
+## Um player se junta à party (host -> clientes, reliable)
 ## Parâmetros: party_id: int, peer_id: int
 const RPC_PARTY_MEMBER_JOINED = "rpc_party_member_joined"
 
-## Party é dissolvida (host → clientes, reliable)
+## Party é dissolvida (host -> clientes, reliable)
 ## Parâmetros: party_id: int
 const RPC_PARTY_DISBANDED = "rpc_party_disbanded"
 
@@ -120,15 +120,15 @@ const RPC_PARTY_DISBANDED = "rpc_party_disbanded"
 ## WORLD STATE
 ## ============================================================================
 
-## Cliente pede snapshot do mundo (cliente → host, reliable)
+## Cliente pede snapshot do mundo (cliente -> host, reliable)
 ## Parâmetros: (nenhum)
 const RPC_REQUEST_WORLD_STATE = "rpc_request_world_state"
 
-## Host envia snapshot do mundo (host → cliente, reliable)
+## Host envia snapshot do mundo (host -> cliente, reliable)
 ## Parâmetros: snapshot: Dictionary
 const RPC_SEND_WORLD_SNAPSHOT = "rpc_send_world_snapshot"
 
-## Cliente confirmou que carregou (cliente → host, reliable)
+## Cliente confirmou que carregou (cliente -> host, reliable)
 ## Parâmetros: (nenhum)
 const RPC_CLIENT_READY = "rpc_client_ready"
 
@@ -136,7 +136,7 @@ const RPC_CLIENT_READY = "rpc_client_ready"
 ## RESPAWN SYSTEM
 ## ============================================================================
 
-## Inimigo respawna (host → clientes, reliable)
+## Inimigo respawna (host -> clientes, reliable)
 ## Parâmetros: enemy_id: int, position: Vector2
 const RPC_ENEMY_RESPAWNED = "rpc_enemy_respawned"
 
@@ -144,11 +144,11 @@ const RPC_ENEMY_RESPAWNED = "rpc_enemy_respawned"
 ## EFFECTS & VISUALS
 ## ============================================================================
 
-## Efeito visual (host → clientes, unreliable)
+## Efeito visual (host -> clientes, unreliable)
 ## Parâmetros: fx_type: String, position: Vector2, data: Dictionary
 const RPC_SPAWN_FX = "rpc_spawn_fx"
 
-## Som no mundo (host → clientes, unreliable)
+## Som no mundo (host -> clientes, unreliable)
 ## Parâmetros: sound_name: String, position: Vector2
 const RPC_PLAY_SOUND = "rpc_play_sound"
 

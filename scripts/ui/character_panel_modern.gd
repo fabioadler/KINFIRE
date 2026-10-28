@@ -84,7 +84,7 @@ func _build_header() -> Control:
 	var portrait := ColorRect.new()
 	portrait.custom_minimum_size = Vector2(80, 80)
 	portrait.color = UIKitModern.BG_HOVER
-	portrait.modulate = UIKitModern.rarity_color(3)  # Épico por padrão
+	portrait.modulate = UIKitModern.rarity_color(3)  # Epico por padrão
 	h.add_child(portrait)
 	
 	# Info: Nome, Classe, Raça

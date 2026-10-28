@@ -13,7 +13,7 @@ const SHRINES := [
 	{"name": "Santuário da Fortuna", "stat": "crit", "amount": 0.15, "color": Color(1, 0.9, 0.4)},
 ]
 const SPIKE_FRAMES := ["floor_spikes_anim_f0", "floor_spikes_anim_f1", "floor_spikes_anim_f2", "floor_spikes_anim_f3"]
-const OW_SHEET := preload("res://assets/sprites/overworld/roguelike_sheet.png")
+const OW_SHEET := null  # Carregado dinamicamente em _ready()
 
 var kind: Kind = Kind.CHEST
 var world: World
@@ -143,7 +143,7 @@ func interact(player: Player) -> void:
 			_persist()
 			Sfx.play(&"door", -4.0)
 			if world.level() >= 2 and randf() < 0.12:
-				world.hud.show_message("É um Mímico!", Color(1, 0.3, 0.2))
+				world.hud.show_message("E um Mímico!", Color(1, 0.3, 0.2))
 				world.spawn_enemy(DB.get_enemy(&"mimico"), global_position, Enemy.Rarity.COMUM)
 				queue_free()
 				return

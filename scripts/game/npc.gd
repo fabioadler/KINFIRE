@@ -82,7 +82,7 @@ func interact(player: Player) -> void:
 	world.hud.open_dialogue(d, data.display_name)
 
 
-# ------------------------------------------------------------------ APARÊNCIA
+# ------------------------------------------------------------------ APARENCIA
 
 func _race() -> RaceData:
 	if data == null or data.shadow:

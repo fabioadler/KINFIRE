@@ -19,7 +19,7 @@ const CAPITAL_MIN_GAP := 150.0
 
 var seed_value := 0
 var player_race: StringName = &""
-## race_id -> Vector2 (posição da capital, em CÉLULAS)
+## race_id -> Vector2 (posição da capital, em CELULAS)
 var capitals := {}
 
 var _gen: OverworldGen

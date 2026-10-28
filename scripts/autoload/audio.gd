@@ -133,7 +133,7 @@ func _fade_stop(p: AudioStreamPlayer) -> void:
 		t.tween_callback(p.stop)
 		_tweens[p] = t
 
-# ------------------------------------------------------------------ AMBIÊNCIA
+# ------------------------------------------------------------------ AMBIENCIA
 
 func set_ambience(path: String) -> void:
 	if path == _amb_path and _amb_path != "":
@@ -160,7 +160,7 @@ func set_ambience(path: String) -> void:
 	_tweens[leaving] = t
 
 func update_wind_gain(pos: Vector2) -> void:
-	# #15.1: bus Ambience respira com o vento (-7dB na calmaria… +3dB na ventania)
+	# #15.1: bus Ambience respira com o vento (-7dB na calmaria... +3dB na ventania)
 	_wind_db = lerpf(-7.0, 3.0, clampf(WindField.at(pos).length(), 0.0, 1.0))
 	_apply_amb_bus()
 
@@ -302,7 +302,7 @@ func _rest_near(ow: Overworld) -> bool:
 		return false
 	for n in ow.get_tree().get_nodes_in_group("interactables"):
 		if n is Interactable and n.kind == Interactable.Kind.CAMPFIRE:
-			if n.global_position.distance_squared_to(ow.player.global_position) < 14400.0:  # 120²
+			if n.global_position.distance_squared_to(ow.player.global_position) < 14400.0:  # 1202
 				return true
 	return false
 

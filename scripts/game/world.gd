@@ -55,7 +55,7 @@ var _audio_timer := 0.0
 var _world_env: WorldEnvironment
 var _atmos_layer: CanvasLayer
 var _atmos: ColorRect
-## Último preset aplicado (inspeção/smoke - headless não lê uniforms de shader)
+## Ultimo preset aplicado (inspeção/smoke - headless não lê uniforms de shader)
 var _atmos_preset: Dictionary = {}
 
 
@@ -658,7 +658,7 @@ func _on_enemy_killed(e: Enemy) -> void:
 		LootDrop.drop_gold(self, pos, gold_amount() * t.gold_mult)
 	if randf() < t.globe_chance:
 		LootDrop.drop_globe(self, pos)
-	# Itens garantidos (≥ raridade de cada entrada)
+	# Itens garantidos (>= raridade de cada entrada)
 	for r in t.guaranteed:
 		LootDrop.drop_item(self, pos, DB.roll_item_of(item_level(), r, hero.cls))
 	# Lendário extra (Campeão: 20%)

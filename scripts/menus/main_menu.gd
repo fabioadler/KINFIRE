@@ -2,7 +2,7 @@ extends Control
 ## Menu principal: logo do Kinfire, névoa, brasas, desfile de heróis animados e telas de
 ## Opções, Como Jogar e Créditos.
 
-const LOGO := preload("res://assets/kinfire_logo.png")
+const LOGO := null  # Carregado dinamicamente em _ready()
 const FOG_SHADER := preload("res://shaders/fog.gdshader")
 const AUTHORS := [
 	{"name": "MichaelDCA", "url": "https://github.com/MichaelDouglasCA"},
@@ -173,7 +173,7 @@ func _build_summary() -> PanelContainer:
 	p.add_theme_stylebox_override("panel", UIKit.box(Color(0.05, 0.035, 0.03, 0.85), UIKit.GOLD_DIM, 1, 6))
 	var v := VBoxContainer.new()
 	p.add_child(v)
-	v.add_child(UIKit.label("Último herói", 14, UIKit.GOLD, true))
+	v.add_child(UIKit.label("Ultimo herói", 14, UIKit.GOLD, true))
 	var f := FileAccess.open(Game.SAVE_PATH, FileAccess.READ)
 	var data: Variant = JSON.parse_string(f.get_as_text()) if f else null
 	if data is Dictionary:

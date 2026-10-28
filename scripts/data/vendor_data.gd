@@ -22,7 +22,7 @@ extends Resource
 ## Estoque do dia - determinístico por (id, dia): mesmo dia, mesmo estoque
 ## (verificável no smoke); comprar reduz (5.2 persiste), às 06:00 re-estoca.
 ## Cada entrada: {"base": StringName, "level": int, "rarity": int, "price": int}.
-## Preço base = valor de venda (REGRAS #8): (5 + nível×3) × (1 + raridade×2).
+## Preço base = valor de venda (REGRAS #8): (5 + nívelx3) x (1 + raridadex2).
 func stock_for(day: int, region_level: int) -> Array[Dictionary]:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = hash("%s|%d" % [String(id), day])
@@ -60,6 +60,6 @@ func stock_for(day: int, region_level: int) -> Array[Dictionary]:
 	return out
 
 
-## Valor de um item (REGRAS #8): (5 + nível×3) × (1 + raridade×2)
+## Valor de um item (REGRAS #8): (5 + nívelx3) x (1 + raridadex2)
 static func _base_value(level: int, rarity: int) -> int:
 	return int(round((5.0 + level * 3.0) * (1.0 + rarity * 2.0)))

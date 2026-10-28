@@ -326,7 +326,7 @@ func add_xp(amount: int) -> void:
 	while xp >= xp_to_next() and level < MAX_LEVEL:
 		xp -= xp_to_next()
 		level += 1
-		## +1 ponto de atributo D&D a cada 4 níveis (1, 5, 9, 13…) - REGRAS #2
+		## +1 ponto de atributo D&D a cada 4 níveis (1, 5, 9, 13...) - REGRAS #2
 		unspent_points += 1 if level % 4 == 1 else 0
 		## +2 pontos de status ARPG por nível (livres para distribuir) - REGRAS #2/Fase 10
 		status_points += 2

@@ -275,7 +275,7 @@ func body_radius() -> float:
 ## para o smoke conferir os números sem instanciar inimigo.
 static func _resist_calc(amount: float, element: String, edata: EnemyData) -> float:
 	if element == "holy" and edata.elemental_type == EnemyData.ElementalType.UNDEAD:
-		return amount * 1.5  # mortos-vivos levam ×1.5 de Sagrado
+		return amount * 1.5  # mortos-vivos levam x1.5 de Sagrado
 	if element == "holy" and edata.elemental_type == EnemyData.ElementalType.DEMON:
 		return amount * 1.5  # demônios fracos a Sagrado
 	if element == "shadow" and edata.elemental_type == EnemyData.ElementalType.DEMON:
@@ -311,7 +311,7 @@ func take_damage(amount: float, crit: bool, from_pos: Vector2, knockback: float,
 	hp -= final
 	DamageNumber.spawn(world.fx_layer, hit_center(), final, crit, DB.ELEMENT_COLORS.get(element, Color.WHITE))
 	Fx.burst(world.fx_layer, hit_center(), Color(0.7, 0.05, 0.05) if element == "physical" else DB.ELEMENT_COLORS.get(element, Color.WHITE), 5 if not crit else 10, 50.0, 0.35, 1.5)
-	# TELÚRICO: imune a knockback (MECANICAS #5.2)
+	# TELURICO: imune a knockback (MECANICAS #5.2)
 	if not is_boss() and knockback > 0 and not has_affix(Affix.TELURICO):
 		_knock = from_pos.direction_to(global_position) * knockback * (0.4 if rarity >= Rarity.ELITE else 1.0)
 	if state == State.IDLE:

@@ -445,7 +445,7 @@ func apply_settings() -> void:
 		vp.scaling_3d_mode = Viewport.SCALING_3D_MODE_FSR2
 		vp.fsr_sharpness = 0.4
 	vp.scaling_3d_scale = fsr_scales[clampi(fsr_mode, 0, 3)]
-	# 7.7: MSAA 2×/4× (#14.6) - 0=Off, 2=2×, 4=4×
+	# 7.7: MSAA 2x/4x (#14.6) - 0=Off, 2=2x, 4=4x
 	var msaa_modes: Array = [Viewport.MSAA_DISABLED, Viewport.MSAA_2X, Viewport.MSAA_4X]
 	vp.msaa_2d = msaa_modes[clampi(int(settings.msaa), 0, 2)]
 	# 7.7: filtro de textura - nearest preserva pixel-art (#14.6)

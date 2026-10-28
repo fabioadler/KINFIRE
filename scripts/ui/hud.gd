@@ -784,7 +784,7 @@ func _merchant_item(kind: String, lvl: int) -> Item:
 
 ## Viagem rápida entre fogueiras acesas (estilo waypoint do Diablo)
 func open_waypoints() -> void:
-	## Duck typing (evita ciclo world → hud → overworld → world)
+	## Duck typing (evita ciclo world -> hud -> overworld -> world)
 	if not world.has_method("travel_to"):
 		return
 	var body := _open_popup("Viagem Rápida", 420)
@@ -855,7 +855,7 @@ func show_death_screen() -> void:
 	var v := VBoxContainer.new()
 	v.add_theme_constant_override("separation", 14)
 	center.add_child(v)
-	var t := UIKit.title("VOCÊ MORREU", 56)
+	var t := UIKit.title("VOCE MORREU", 56)
 	t.add_theme_color_override("font_color", Color(0.85, 0.1, 0.05))
 	v.add_child(t)
 	var sub := UIKit.label("%s caiu na Profundidade %d." % [hero.hero_name, Game.depth], 18, UIKit.TEXT)

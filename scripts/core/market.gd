@@ -10,10 +10,10 @@ extends RefCounted
 ##   nível natural: 0.7 para o que o território PRODUZ (inundado), 1.3 para
 ##   o que não produz (escasso) - "cada território paga mais pelo que não
 ##   produz e menos pelo que produz".
-## - Preço de compra = valor base × demanda × fator da especialidade
-##   (produto local ×0.7) × (1 - desconto de reputação, 5.3).
-## - Preço de venda = valor base × 40% (REGRAS #8) × demanda × fator de
-##   escassez (categoria que o território NAO produz ×1.25; produz ×0.8).
+## - Preço de compra = valor base x demanda x fator da especialidade
+##   (produto local x0.7) x (1 - desconto de reputação, 5.3).
+## - Preço de venda = valor base x 40% (REGRAS #8) x demanda x fator de
+##   escassez (categoria que o território NAO produz x1.25; produz x0.8).
 ##   Rotas comerciais emergem: comprar barato no produtor, vender caro
 ##   em quem não produz.
 

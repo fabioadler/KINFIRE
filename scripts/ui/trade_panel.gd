@@ -4,8 +4,8 @@ extends Control
 ## e Leilão. Aberta pelo diálogo do líder da capital (efeito `comercio`,
 ## que emite Game.trade_requested) - cada território negocia pelo seu
 ## líder; o leilão pertence só à Guilda de Porto Franco (humano).
-## Tooltips mostram a decomposição do preço (base × demanda × especialidade
-## × reputação) para o jogador entender a economia (REGRAS #8/#10).
+## Tooltips mostram a decomposição do preço (base x demanda x especialidade
+## x reputação) para o jogador entender a economia (REGRAS #8/#10).
 
 signal closed
 
@@ -146,7 +146,7 @@ func _buy_tooltip(e: Dictionary, price: int) -> String:
 	var producer := cat in v.specialties
 	var dem := Market.demand(race, cat)
 	var rep := int(Game.reputation.get(race, 0)) if Game.hero != null else 0
-	return "base %d\n× demanda local %.2f\n× %s (produto daqui, dump do produtor)\n× reputação %s (-%d%%)\n= %d ouro" % [
+	return "base %d\nx demanda local %.2f\nx %s (produto daqui, dump do produtor)\nx reputação %s (-%d%%)\n= %d ouro" % [
 		int(e["price"]), dem, "0.45" if producer else "1.00",
 		Market.tier_name(rep), 5 * rep, price]
 
@@ -199,7 +199,7 @@ func _sell_tooltip(it: Item, price: int) -> String:
 	var v: VendorData = DB.vendor(race)
 	var scarce := not (cat in v.specialties)
 	var dem := Market.demand(race, cat)
-	return "base %d (valor REGRAS #8)\n× 40%% (vendor compra abaixo do valor)\n× demanda local %.2f\n× %s (o que falta aqui paga mais)\n= %d ouro" % [
+	return "base %d (valor REGRAS #8)\nx 40%% (vendor compra abaixo do valor)\nx demanda local %.2f\nx %s (o que falta aqui paga mais)\n= %d ouro" % [
 		VendorData._base_value(it.item_level, it.rarity), dem,
 		"1.25" if scarce else "0.80", price]
 

@@ -87,8 +87,8 @@ func _draw() -> void:
 	# Contagem
 	if count > 1:
 		var f := UIKit.FONT_TITLE
-		draw_string_outline(f, Vector2(size.x - 18, size.y - 18), "×%d" % count, HORIZONTAL_ALIGNMENT_RIGHT, -1, 14, 3, Color.BLACK)
-		draw_string(f, Vector2(size.x - 18, size.y - 18), "×%d" % count, HORIZONTAL_ALIGNMENT_RIGHT, -1, 14, Color.WHITE)
+		draw_string_outline(f, Vector2(size.x - 18, size.y - 18), "x%d" % count, HORIZONTAL_ALIGNMENT_RIGHT, -1, 14, 3, Color.BLACK)
+		draw_string(f, Vector2(size.x - 18, size.y - 18), "x%d" % count, HORIZONTAL_ALIGNMENT_RIGHT, -1, 14, Color.WHITE)
 	if _flash > 0.0:
 		draw_rect(rect, Color(1, 0.1, 0.1, _flash * 0.5))
 	var border := UIKit.GOLD if get_global_rect().has_point(get_global_mouse_position()) else UIKit.GOLD_DIM

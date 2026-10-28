@@ -30,9 +30,9 @@ const RARITY_COLORS = {
 	0: Color("#7f8c8d"),  # Comum
 	1: GREEN,              # Incomum
 	2: BLUE,               # Raro
-	3: PURPLE,             # Épico
+	3: PURPLE,             # Epico
 	4: RED,                # Lendário
-	5: Color("#f39c12"),   # Único
+	5: Color("#f39c12"),   # Unico
 }
 
 # Animações

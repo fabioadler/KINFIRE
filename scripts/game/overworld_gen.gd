@@ -1,7 +1,7 @@
 class_name OverworldGen
 extends RefCounted
 ## Gerador procedural infinito do mundo aberto (determinístico pela semente).
-## Usa ruído para lagos, rios, temperatura, umidade e corrupção → biomas.
+## Usa ruído para lagos, rios, temperatura, umidade e corrupção -> biomas.
 
 const CHUNK := 32
 ## Raio (em células) da área segura do acampamento inicial

@@ -37,7 +37,7 @@ func _build(tab: int) -> void:
 	_check(video, "Tela Cheia", "fullscreen")
 	var sizes: Array = []
 	for s in Game.WINDOW_SIZES:
-		sizes.append("%d × %d" % [s.x, s.y])
+		sizes.append("%d x %d" % [s.x, s.y])
 	_option(video, "Tamanho da Janela", "window_size", sizes)
 	_check(video, "Sincronização Vertical (VSync)", "vsync")
 	var fps: Array = []
@@ -51,7 +51,7 @@ func _build(tab: int) -> void:
 	# 7.7: FSR 2.2 / MSAA / presets de qualidade (#14.6)
 	_preset_option(video)
 	_option(video, "FSR 2.2 (ampliação)", "fsr_mode", ["Desligado", "Qualidade", "Equilibrado", "Desempenho"])
-	_option(video, "MSAA", "msaa", ["Desligado", "2×", "4×"])
+	_option(video, "MSAA", "msaa", ["Desligado", "2x", "4x"])
 	_option(video, "Filtro de Textura", "texture_filter", ["Nítido (pixel-art)", "Suave (linear)"])
 	_option(video, "Partículas", "particle_amount", ["50%", "75%", "100%"])
 	_check(video, "Brilho/Glow (bloom de luzes, loot raro e vagalumes)", "glow")

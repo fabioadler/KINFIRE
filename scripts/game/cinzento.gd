@@ -1,7 +1,7 @@
 class_name Cinzento
 extends Node2D
 ## O Silhueta - Ithariel, o Cinzento (LORE #8).
-## Último Guardião da Kinfire: sombra consciente que guia o Laço-Vivo.
+## Ultimo Guardião da Kinfire: sombra consciente que guia o Laço-Vivo.
 ## Nunca diz "eu"; indica, não explica. Sua voz não tem eco - o Véu come o som.
 
 const VOICE := Color(0.68, 0.64, 0.82)  ## pálido, cor de névoa à luz de brasa
