@@ -126,6 +126,12 @@
 - [x] 11.4 `feat: save v6 — serialização de guildas e contratos` — Hero.to_dict/from_dict: serialização de arrays/dicts de guildas/contratos para save; retrocompatível com v5 (fallback a listas vazias) — **COMMIT 471e40a**
 - **Aceitação:** 4/4 tarefas concluídas, tipagem 100%, estrutura completa. **✅ FASE 11 CONCLUÍDA**
 
+### Fase 12 — Redesign Moderno da HUD (commits 67–69) — `status: CONCLUÍDA ✅`
+- [x] 12.1 `feat: HUDResponsive — layout moderno, responsivo e compacto` — nova classe `HUDResponsive` estendendo `HUD` original; escala dinâmica baseada em resolução (1280x720 = 1.0x até 2.0x em 4K); painel superior esquerdo com Status (Nível, Vida, Mana, Gold, Essence); barra inferior compacta com Consumíveis 1-9 + Skills + Painéis; elementos nunca ultrapassam a tela; compatibilidade total com painéis existentes (Inventário, Character, Skills, Quest, Tree)
+- [x] 12.2 `feat: gerador de sprites SVG modernos para HUD` — `hud_sprite_generator.gd`: panel_frame com borda dourada, barras com gradientes (HP vermelho, Mana azul), slots (empty/active/cooldown), ícones (health/mana/xp); assets em `assets/sprites/hud/`
+- [x] 12.3 `refactor: integração HUDResponsive no mundo — world.gd usa nova HUD` — `World.hud: HUDResponsive`, inicialização mantém API original, smoke test valida sem erros
+- **Aceitação:** HUD não ultrapassa tela em nenhuma resolução (800x600 até 4K); elementos se redimensionam proporcionalmente; layout minimalista moderno mantém foco no gameplay. **✅ FASE 12 CONCLUÍDA**
+
 ### Backlog (v2 — não prometido)
 - Crafting e coleta de recursos • caravanas comerciais com escolta • montarias • pets de combate não-ladino • localization EN • new game+ • conquesta de masmorras ao final • modo hardcore com ranking local
 
