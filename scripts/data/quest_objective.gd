@@ -27,10 +27,6 @@ func done_text() -> String:
 		Type.FLAG:
 			return "Descubra: %s" % target
 		Type.REACH:
-			var db: Node = get_tree().root.get_node_or_null("/root/DB") if get_tree() else null
-			if db != null:
-				var t: TerritoryData = db.territory(target)
-				return "Viaje até %s" % (t.capital_name if t != null else String(target))
 			return "Viaje até %s" % String(target)
 		Type.COLLECT:
 			return "Recolha %d %s" % [count, target]
