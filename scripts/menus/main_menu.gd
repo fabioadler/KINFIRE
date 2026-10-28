@@ -2,7 +2,7 @@ extends Control
 ## Menu principal: logo do Kinfire, névoa, brasas, desfile de heróis animados e telas de
 ## Opções, Como Jogar e Créditos.
 
-const LOGO := null  # Carregado dinamicamente em _ready()
+const LOGO := preload("res://assets/kinfire_logo.png")
 const FOG_SHADER := preload("res://shaders/fog.gdshader")
 const AUTHORS := [
 	{"name": "MichaelDCA", "url": "https://github.com/MichaelDouglasCA"},
