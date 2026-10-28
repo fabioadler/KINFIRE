@@ -136,9 +136,12 @@ func _on_level_up(lvl: int) -> void:
 	Sfx.play(&"levelup")
 	FxShape.spawn(world.fx_layer, FxShape.Type.PILLAR, global_position, Color(1, 0.85, 0.3), 30.0, 0.9)
 	Fx.burst(world.fx_layer, global_position, Color(1, 0.85, 0.3), 30, 70.0, 1.0)
+	if world.hud:
+		world.hud.show_message("Nível %d!" % lvl, Color(1, 0.85, 0.3))
 	for s in hero.cls.skills:
 		if s.unlock_level == lvl:
-			pass
+			if world.hud:
+				world.hud.show_message("Nova habilidade: %s" % s.display_name, Color(0.6, 0.85, 1.0))
 
 
 func is_dead() -> bool:

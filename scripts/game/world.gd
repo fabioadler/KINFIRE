@@ -34,7 +34,7 @@ const FACE_VARIANTS := ["wall_banner_red", "wall_banner_blue", "wall_banner_gree
 var gen := DungeonGenerator.new()
 var astar := AStarGrid2D.new()
 var player: Player
-var hud: HUDResponsive  # Fase 12: HUD moderna e responsiva
+var hud: HUD  # HUD original (HUDResponsive Fase 12+ é future enhancement)
 var stairs: Interactable
 var boss: Enemy
 var explored := PackedByteArray()
