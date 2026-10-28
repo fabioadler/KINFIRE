@@ -367,7 +367,66 @@ Rank **F → E → D → C → B → A → S** representa o **reconhecimento mun
 
 ---
 
-## 21. Anti-Cheat — Resumo das Regras para Jogadores (NOVO)
+## 21. Contratos de Guilda (NOVO — Fase 11)
+
+### 21.1 Estrutura de Contrato
+
+**ContractData** (Resource em `data/contracts/*.tres`):
+- **id**: identificador único (ex: `guilda_aventureiros_combate_1`)
+- **guilda_id**: qual guilda oferece (StringName: aventureiros/mercadores/artesaos/sombras)
+- **tipo**: COMBATE / COLETA / ESCOLTA / INVESTIGACAO
+- **titulo**: "Derrote os Goblin da Caverna" / "Colete 5 Cogumelos Raros" / etc
+- **descricao**: contexto narrativo
+- **requisitos**: nível mínimo, reputação com a guilda
+- **recompensas**: ouro, XP, item (raridade mínima), promoção de rank (se último da cadeia)
+
+### 21.2 Tipos de Contrato
+
+| Tipo | Objetivo | Duração | Recompensa Base |
+|------|----------|---------|-----------------|
+| **COMBATE** | Kill X inimigos ou 1 chefe | 30 min | ×3 ouro, ×2 XP |
+| **COLETA** | Gather Y itens (drop ou baús) | 45 min | ×1.5 ouro, ×1 XP, item raro |
+| **ESCOLTA** | Proteger NPC da ponto A→B | 60 min | ×2 ouro, rank +1, item de defesa |
+| **INVESTIGACAO** | Explorar zona, falar NPCs, resolver enigma | 90 min | ×1 ouro, ×3 XP, título único |
+
+### 21.3 Aceitação e Progresso
+
+- **Aceitar**: Diálogo com Mestre da Guilda → contrato aparece no painel Missões como **aba separada "Contratos"**
+- **Progresso**: Real-time (kill counter, item counter, NPC check)
+- **Falha**: Timeout ou morte voltar ao Mestre (penalidade: −10% rep, sem recompensa)
+- **Sucesso**: Entrega automática ao completar; recompensas creditadas; unlock contrato seguinte da cadeia (se existir)
+
+### 21.4 Cadeias de Contrato
+
+Contratos de uma guilda formam cadeias (ex: Aventureiros: 1→2→3→4):
+- **Contrato 1** (E-rank): Derrote 3 Lobos Sombrios
+- **Contrato 2** (D-rank): Derrote 8 Esqueletos (pré-req: contrato 1 concluído)
+- **Contrato 3** (C-rank): Derrote Chefe Lendário (pré-req: contrato 2 concluído)
+- **Contrato 4** (B-rank): Investigue Torre Arcana (pré-req: contrato 3 concluído)
+
+Cada conclusão promove 1 rank na guilda (até rank 5).
+
+### 21.5 Casa de Leilões (Auction House — Guilda Humana)
+
+**Localização**: Porto Franco (capital humana), Quarteirão da Guilda.
+
+**Slots**: 6 itens/dia Raro+ rotativos + 1 slot ESSÊNCIA (moeda dura).
+- **Rotação**: Determinística por hash(`"leilao|dia"`); mesmo dia = mesmo lote
+- **Raridade**: 70% Raro, 25% Lendário, 5% Relíquia (Lendário +3 níveis)
+- **Nível**: Sempre relevante (herói nível +1)
+
+**Lances**:
+- **Lance inicial**: valor × 1.2 (prêmio de leilão)
+- **Contra-lances**: Rivais simulados (1–3 por slot, determinísticos por dia+slot)
+  - Cada contra-lance eleva o mínimo ×1.10
+  - Cobrança automática ao vencer (não há taxa de listagem)
+- **Slot Essência**: Leilão em ◆ (moeda dura); cobrança em essência, não ouro
+
+**Vitória**: Heróis ganham acesso prioritário a itens Lendário+ e essência sem farm.
+
+---
+
+## 22. Anti-Cheat — Resumo das Regras para Jogadores (NOVO)
 
 > Detalhe técnico em `docs/ANTICHEAT_DESIGN.md` (arquivo interno). Aqui: o que o jogador **percebe**.
 
