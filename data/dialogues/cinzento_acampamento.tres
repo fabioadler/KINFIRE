@@ -55,10 +55,45 @@ script = ExtResource("3_choice")
 text = "(Partir)"
 effects = "flag cinzento_primeiro_dialogo"
 
+[sub_resource type="Resource" id="DialogueChoice_ithariel"]
+script = ExtResource("3_choice")
+text = "Você é Ithariel?"
+condition = "misterio_7_complete"
+next_id = &"revela_nome"
+
+[sub_resource type="Resource" id="DialogueChoice_por_que"]
+script = ExtResource("3_choice")
+text = "Por que você não me disse?"
+condition = "misterio_7_complete"
+next_id = &"arrependimento"
+
 [sub_resource type="Resource" id="DialogueNode_adeus"]
 script = ExtResource("2_node")
 id = &"adeus"
 pages = PackedStringArray("Siga o fumo, cinza. Fogueiras guardam quem as acende — e o mundo guarda o resto. Nos encontraremos onde as pedras forem cinza.")
+choices = Array[ExtResource("3_choice")]([SubResource("DialogueChoice_ithariel"), SubResource("DialogueChoice_por_que"), SubResource("DialogueChoice_partir")])
+
+[sub_resource type="Resource" id="DialogueChoice_kinfire"]
+script = ExtResource("3_choice")
+text = "(Partir)"
+next_id = &"kinfire_intro"
+
+[sub_resource type="Resource" id="DialogueNode_revela_nome"]
+script = ExtResource("2_node")
+id = &"revela_nome"
+pages = PackedStringArray("Sim. Ithariel. O nome que esqueci quando Maldrach apagou a Primeira Chama.", "Eu sou o oitavo. Eu deveria ter guardado. Falhei.", "Mas você... você encontrou os sete. As sete verdades queimam em suas mãos.", "Vá. Kinfire ainda arde. E ela precisa de alguém que lembre por que o fogo importa.")
+choices = Array[ExtResource("3_choice")]([SubResource("DialogueChoice_kinfire")])
+
+[sub_resource type="Resource" id="DialogueNode_arrependimento"]
+script = ExtResource("2_node")
+id = &"arrependimento"
+pages = PackedStringArray("Porque eu não sabia se você era forte o suficiente. Se todos somos fracos, a mentira vence.", "Você provou não ser. Provou que lembra. Provou que o fogo ainda importa.", "Agora vá. Kinfire te chama.")
+choices = Array[ExtResource("3_choice")]([SubResource("DialogueChoice_kinfire")])
+
+[sub_resource type="Resource" id="DialogueNode_kinfire_intro"]
+script = ExtResource("2_node")
+id = &"kinfire_intro"
+pages = PackedStringArray("Nos encontraremos no coração do fogo apagado. Lá, faremos a Escolha Real.")
 choices = Array[ExtResource("3_choice")]([SubResource("DialogueChoice_partir")])
 
 [resource]
@@ -67,4 +102,4 @@ id = &"cinzento_acampamento"
 display_name = "Cinzento"
 portrait = "k:121"
 start_id = &"acorda"
-nodes = Array[ExtResource("2_node")]([SubResource("DialogueNode_acorda"), SubResource("DialogueNode_lugar"), SubResource("DialogueNode_aconteceu"), SubResource("DialogueNode_adeus")])
+nodes = Array[ExtResource("2_node")]([SubResource("DialogueNode_acorda"), SubResource("DialogueNode_lugar"), SubResource("DialogueNode_aconteceu"), SubResource("DialogueNode_adeus"), SubResource("DialogueNode_revela_nome"), SubResource("DialogueNode_arrependimento"), SubResource("DialogueNode_kinfire_intro")])
