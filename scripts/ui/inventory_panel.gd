@@ -45,6 +45,7 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 	hero_sprite.name = "HeroSprite"
 	hero_sprite.set_sprite(hero.sprite_base(), hero.tint * hero.race.tint)
 	hero_sprite.custom_minimum_size = Vector2(CELL * 4, CELL * 4)
+	hero_sprite.size = Vector2(CELL * 4, CELL * 4)  # Tamanho explícito (Control não dimensiona filhos)
 	hero_sprite.position = Vector2(CELL * 2.25, CELL * 0.75)  # Centro do doll (8.5x5.5 cells)
 	hero_sprite.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	doll.add_child(hero_sprite)
