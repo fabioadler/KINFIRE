@@ -47,7 +47,7 @@ func _make_custom_tooltip(_for_text: String) -> Object:
 		r.text = "[color=#999999]Slot vazio.\nArraste um consumível do inventário.\n[color=#666666]Tecla: %s[/color]" % key_text
 		return r
 	var count: int = player.hero.inventory_get_count(item.base_id)
-	var t := "[font_size=19][color=#e8c060]%s[/color][/font_size]\n" % item.display_name
+	var t := "[font_size=19][color=#e8c060]%s[/color][/font_size]\n" % item.name
 	t += "%s\n\n" % item.description
 	t += "[color=#cccccc]Quantidade: %d[/color]\n" % count
 	if item.cooldown > 0:

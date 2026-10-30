@@ -177,7 +177,7 @@ func equip_from_inventory(it: Item) -> void:
 		if not hero.inventory.add(old):
 			LootDrop.drop_item(hud.world, hud.world.player.global_position, old)
 	Sfx.play(&"equip")
-	hud.show_message("Equipado: %s" % it.display_name(), Color(0.4, 1, 0.4))
+	hud.show_message("Equipado: %s" % it.name, Color(0.4, 1, 0.4))
 	hide_tooltip()
 	_grid_view.queue_redraw()
 
@@ -230,6 +230,7 @@ class _GridView extends Control:
 				if it:
 					if Input.is_key_pressed(KEY_SHIFT):
 						panel._sell(it)
+						panel.hud.show_message("Vendido: %s" % it.name, Color(1, 0.9, 0.4))
 					else:
 						panel.equip_from_inventory(it)
 				accept_event()
