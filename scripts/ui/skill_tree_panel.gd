@@ -144,7 +144,7 @@ func _calculate_depths() -> Dictionary:
 	var visited: Dictionary[StringName, bool] = {}
 	var stack: Array[Dictionary] = []
 	
-	# Começa dos nós raiz (sem pré-requisitos)
+	# Começa dos nós raiz (sem pré-requisitos) - profundidade 0 (esquerda)
 	for n in _tree.nodes:
 		if n.requires.is_empty():
 			stack.append({"node_id": n.id, "depth": 0})
@@ -155,7 +155,6 @@ func _calculate_depths() -> Dictionary:
 		var depth: int = item.depth
 		
 		if visited.has(node_id):
-			# Atualiza para a maior profundidade (nós podem ter múltiplos caminhos)
 			depths[node_id] = max(depths[node_id], depth)
 			continue
 		visited[node_id] = true
@@ -165,12 +164,22 @@ func _calculate_depths() -> Dictionary:
 		if not node:
 			continue
 		
-		for dep_id in node.requires:
-			stack.append({"node_id": dep_id, "depth": depth - 1})
+		# PRÉ-REQUISITOS: vão para a ESQUERDA (depth - 1)
+		for req_id in node.requires:
+			stack.append({"node_id": req_id, "depth": depth - 1})
 		
-		# Visita dependentes
+		# DEPENDENTES: vão para a DIREITA (depth + 1)
 		for dep in _tree.get_dependent_nodes(node_id):
 			stack.append({"node_id": dep.id, "depth": depth + 1})
+	
+	# Normaliza para começar em 0 (shift all to positive)
+	var min_depth := INF
+	for d in depths.values():
+		if d < min_depth:
+			min_depth = d
+	if min_depth < 0:
+		for k in depths.keys():
+			depths[k] -= min_depth
 	
 	return depths
 
