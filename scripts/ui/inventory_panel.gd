@@ -11,6 +11,8 @@ var hero: Hero
 var held: Item          ## Item "na mão" do cursor
 var _grid_view: Control
 var _equip_views: Dictionary = {}
+var _doll: Control
+var _hero_sprite: SpritePreview
 var _gold_label: Label
 var _stats_label: RichTextLabel
 var _tooltip: PanelContainer
@@ -22,38 +24,79 @@ var _gold_callback: Callable     ## Para desconectar depois
 func setup(p_hud: HUD, p_hero: Hero) -> void:
 	hud = p_hud
 	hero = p_hero
-	var w := UIKit.window_panel("Inventário", Vector2(CELL * hero.inventory.cols + 24, 0), func(): hud.toggle_inventory())
+	var w := UIKit.window_panel("Inventário", Vector2(740, 440), func(): hud.toggle_inventory())
 	add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	w.panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	w.panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	add_child(w.panel)
 	var body: VBoxContainer = w.body
+	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 
-	# Scroll: boneco (212px) + stats + grade (240px+) somam mais que a altura
-	# da janela; ouro/vender/dica ficam fixos embaixo, fora do scroll
+	# ScrollContainer para garantir compatibilidade e rolagem suave
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	scroll.custom_minimum_size = Vector2(0, 330)
+	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.add_child(scroll)
 
+	# Container principal lado a lado: Equipamento (Paper Doll) à esquerda, Mochila (Grid) à direita
+	var main_hbox := HBoxContainer.new()
+	main_hbox.add_theme_constant_override("separation", 16)
+	main_hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	main_hbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	scroll.add_child(main_hbox)
+
+	# === COLUNA ESQUERDA: EQUIPAMENTO & PAPER DOLL ===
+	var left_col := VBoxContainer.new()
+	left_col.add_theme_constant_override("separation", 6)
+	left_col.custom_minimum_size = Vector2(320, 0)
+	main_hbox.add_child(left_col)
+
+	var equip_title := UIKit.label("Equipamento", 15, UIKit.GOLD, true)
+	left_col.add_child(equip_title)
+
 	# Equipamento em formato de "boneco" (paper doll)
-	var doll := Control.new()
-	doll.custom_minimum_size = Vector2(CELL * 8.5, CELL * 5.5)
-	doll.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	scroll.add_child(doll)
+	_doll = Control.new()
+	_doll.custom_minimum_size = Vector2(320, 216)
+	_doll.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	left_col.add_child(_doll)
+
+	# Fundo estilizado para a área central do personagem (pedestal/nicho)
+	var char_bg := Panel.new()
+	char_bg.position = Vector2(116, 46)
+	char_bg.size = Vector2(88, 112)
+	char_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	char_bg.add_theme_stylebox_override("panel", UIKit.box(Color(0.03, 0.025, 0.02, 0.8), Color(UIKit.GOLD_DIM.r, UIKit.GOLD_DIM.g, UIKit.GOLD_DIM.b, 0.35), 1, 6))
+	_doll.add_child(char_bg)
+
 	# Sprite do personagem no centro do boneco (paper doll) - usa SpritePreview para frames animados
-	var hero_sprite := SpritePreview.new()
-	hero_sprite.name = "HeroSprite"
-	hero_sprite.set_sprite(hero.sprite_base(), hero.tint * hero.race.tint)
-	hero_sprite.custom_minimum_size = Vector2(CELL * 4, CELL * 4)
-	hero_sprite.size = Vector2(CELL * 4, CELL * 4)  # Tamanho explícito (Control não dimensiona filhos)
-	hero_sprite.position = Vector2(CELL * 2.25, CELL * 0.75)  # Centro do doll (8.5x5.5 cells)
-	hero_sprite.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	doll.add_child(hero_sprite)
+	_hero_sprite = SpritePreview.new()
+	_hero_sprite.name = "HeroSprite"
+	_hero_sprite.set_sprite(hero.sprite_base(), hero.tint * hero.race.tint)
+	_hero_sprite.size = Vector2(80, 106)
+	_hero_sprite.position = Vector2(120, 49)
+	_hero_sprite.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_doll.add_child(_hero_sprite)
+
+	# Layout dos 11 slots de equipamento posicionados ao redor do personagem
 	var layout: Dictionary = {
-		"helm": Rect2(2.5, 0.0, 2.0, 1.5), "amulet": Rect2(4.8, 0.2, 1.2, 1.2),
-		"weapon": Rect2(0.2, 1.5, 2.0, 2.5), "gloves": Rect2(2.3, 1.5, 1.5, 2.5), "chest": Rect2(3.9, 1.7, 2.3, 2.3), "offhand": Rect2(6.3, 1.5, 2.0, 2.5),
-		"ring": Rect2(0.6, 4.2, 1.1, 1.1), "boots": Rect2(2.75, 4.2, 2.0, 1.1), 
-		"accessory_1": Rect2(4.9, 4.2, 1.1, 1.1), "accessory_2": Rect2(6.1, 4.2, 1.1, 1.1), "accessory_3": Rect2(7.3, 4.2, 1.1, 1.1),
+		# Topo (cabeça e pescoço)
+		"helm": Rect2(136, 2, 48, 42),
+		"amulet": Rect2(192, 4, 40, 40),
+		# Lado esquerdo (mão primária, luvas, anel)
+		"weapon": Rect2(4, 48, 52, 100),
+		"gloves": Rect2(60, 48, 52, 50),
+		"ring": Rect2(60, 104, 52, 44),
+		# Lado direito (armadura, acessório 1, mão secundária)
+		"chest": Rect2(208, 48, 52, 50),
+		"accessory_1": Rect2(208, 104, 52, 44),
+		"offhand": Rect2(264, 48, 52, 100),
+		# Parte inferior (acessório 2, botas, acessório 3)
+		"accessory_2": Rect2(60, 160, 52, 48),
+		"boots": Rect2(126, 160, 68, 48),
+		"accessory_3": Rect2(208, 160, 52, 48),
 	}
 	for s in DB.EQUIP_SLOTS:
 		if s not in layout:
@@ -63,29 +106,44 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 		var v := _EquipView.new()
 		v.panel = self
 		v.slot = s
-		v.position = r.position * CELL
-		v.size = r.size * CELL
-		v.custom_minimum_size = r.size * CELL
-		doll.add_child(v)
+		v.position = r.position
+		v.size = r.size
+		v.custom_minimum_size = r.size
+		_doll.add_child(v)
 		_equip_views[s] = v
 
+	left_col.add_child(UIKit.separator())
+
 	_stats_label = UIKit.rich()
-	scroll.add_child(_stats_label)
-	scroll.add_child(UIKit.separator())
+	_stats_label.custom_minimum_size = Vector2(320, 24)
+	left_col.add_child(_stats_label)
+
+	# Divisor vertical entre Equipamento e Mochila
+	var v_sep := VSeparator.new()
+	main_hbox.add_child(v_sep)
+
+	# === COLUNA DIREITA: MOCHILA (GRADE) & AÇÕES ===
+	var right_col := VBoxContainer.new()
+	right_col.add_theme_constant_override("separation", 6)
+	main_hbox.add_child(right_col)
+
+	var inv_title := UIKit.label("Mochila", 15, UIKit.GOLD, true)
+	right_col.add_child(inv_title)
 
 	_grid_view = _GridView.new()
 	_grid_view.panel = self
 	_grid_view.custom_minimum_size = Vector2(hero.inventory.cols * CELL, hero.inventory.rows * CELL)
-	scroll.add_child(_grid_view)
+	right_col.add_child(_grid_view)
 
 	var bottom := HBoxContainer.new()
-	body.add_child(bottom)
-	_gold_label = UIKit.label("", 18, Color(1, 0.85, 0.3), true)
+	right_col.add_child(bottom)
+	_gold_label = UIKit.label("", 16, Color(1, 0.85, 0.3), true)
 	_gold_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	bottom.add_child(_gold_label)
 	bottom.add_child(UIKit.button("Vender Comuns e Mágicos", _sell_junk))
+
 	var hint := UIKit.label("Esq: mover | Dir: equipar | Shift+Dir: vender", 12, UIKit.TEXT_DIM)
-	body.add_child(hint)
+	right_col.add_child(hint)
 
 	_tooltip = PanelContainer.new()
 	_tooltip.add_theme_stylebox_override("panel", UIKit.box(Color(0.02, 0.015, 0.01, 0.97), UIKit.GOLD_DIM, 2, 3))
@@ -107,15 +165,13 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 
 func refresh() -> void:
 	_gold_label.text = "Ouro: %d" % hero.gold
-	_stats_label.text = "[center][color=#bbbbbb]DPS:[/color] [color=#ffffff]%.1f[/color]    [color=#bbbbbb]Armadura:[/color] [color=#ffffff]%.1f[/color]    [color=#bbbbbb]Vida:[/color] [color=#ffffff]%.1f[/color][/center]" % [hero.dps_estimate(), hero.armor(), hero.max_hp()]
+	_stats_label.text = "[center][color=#bbbbbb]DPS:[/color] [color=#ffffff]%.1f[/color]  [color=#bbbbbb]Arm.:[/color] [color=#ffffff]%.1f[/color]  [color=#bbbbbb]Vida:[/color] [color=#ffffff]%.1f[/color][/center]" % [hero.dps_estimate(), hero.armor(), hero.max_hp()]
 	_grid_view.queue_redraw()
 	for v in _equip_views.values():
 		v.queue_redraw()
 	# Atualiza sprite do boneco (pode mudar com equip visual no futuro)
-	var doll := _grid_view.get_parent().get_child(0)  # primeiro child do scroll é o doll
-	var hero_sprite := doll.get_node_or_null("HeroSprite")
-	if hero_sprite:
-		hero_sprite.set_sprite(hero.sprite_base(), hero.tint * hero.race.tint)
+	if _hero_sprite:
+		_hero_sprite.set_sprite(hero.sprite_base(), hero.tint * hero.race.tint)
 
 
 func _process(_delta: float) -> void:
@@ -353,4 +409,13 @@ class _EquipView extends Control:
 			panel._draw_item(self, it, r.grow(-3))
 		else:
 			var f := UIKit.FONT_BODY
-			draw_string(f, Vector2(0, size.y * 0.5 + 5), DB.SLOT_NAMES[slot], HORIZONTAL_ALIGNMENT_CENTER, size.x, 12, Color(0.45, 0.4, 0.35))
+			var txt: String = DB.SLOT_NAMES.get(slot, slot)
+			if txt == "Mão Secundária":
+				txt = "Secundária"
+			elif txt == "Acessório 1":
+				txt = "Acess. 1"
+			elif txt == "Acessório 2":
+				txt = "Acess. 2"
+			elif txt == "Acessório 3":
+				txt = "Acess. 3"
+			draw_string(f, Vector2(0, size.y * 0.5 + 4), txt, HORIZONTAL_ALIGNMENT_CENTER, size.x, 10, Color(0.45, 0.4, 0.35))

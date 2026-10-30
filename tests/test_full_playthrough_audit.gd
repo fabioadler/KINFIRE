@@ -100,20 +100,20 @@ func _add_log(component: String, level: String, message: String, stack: String =
 	var color = ""
 	match level:
 		"ERROR", "CRITICAL": 
-			color = "\033[91m"  # Red
+			color = "\u001b[91m"  # Red
 			errors_found += 1
 			if level == "CRITICAL":
 				critical_errors.append("[%s] %s: %s" % [component, level, message])
 		"WARN":
-			color = "\033[93m"  # Yellow
+			color = "\u001b[93m"  # Yellow
 			warnings_found += 1
 		"INFO":
-			color = "\033[92m"  # Green
+			color = "\u001b[92m"  # Green
 		_:
-			color = "\033[94m"  # Blue
+			color = "\u001b[94m"  # Blue
 	
 	var time_str = "%.2fs" % (log.timestamp / 1000.0)
-	print("%s[%s] [%s] %s: %s\033[0m" % [color, time_str, level, component, message])
+	print("%s[%s] [%s] %s: %s\u001b[0m" % [color, time_str, level, component, message])
 
 
 func _report_bug(severity: String, component: String, description: String) -> void:
@@ -196,11 +196,11 @@ func _phase_init() -> bool:
 		return false
 	_add_log("INIT", "INFO", "✓ %d raças carregadas" % DB.races.size())
 	
-	if DB.CLASSES.size() == 0:
+	if DB.classes.size() == 0:
 		_add_log("INIT", "ERROR", "Nenhuma classe carregada")
-		_report_bug("CRÍTICO", "DB", "DB.CLASSES está vazio")
+		_report_bug("CRÍTICO", "DB", "DB.classes está vazio")
 		return false
-	_add_log("INIT", "INFO", "✓ %d classes carregadas" % DB.CLASSES.size())
+	_add_log("INIT", "INFO", "✓ %d classes carregadas" % DB.classes.size())
 	
 	# Validar slots de equipamento
 	_add_log("INIT", "INFO", "Verificando EQUIP_SLOTS...")
@@ -237,7 +237,7 @@ func _phase_tutorial() -> bool:
 	_add_log("TUTORIAL", "INFO", "✓ Herói aldeão criado")
 	_add_log("TUTORIAL", "INFO", "  Nome: %s" % hero.hero_name)
 	_add_log("TUTORIAL", "INFO", "  Nível: %d" % hero.level)
-	_add_log("TUTORIAL", "INFO", "  Raça: %s" % hero.race.name)
+	_add_log("TUTORIAL", "INFO", "  Raça: %s" % hero.race.display_name)
 	
 	# Validar inventário
 	if hero.inventory == null:
@@ -272,13 +272,13 @@ func _phase_character_creation() -> bool:
 	
 	# Escolher raça e classe
 	var race = DB.races.pick_random()
-	var cls = DB.CLASSES.pick_random()
+	var cls = DB.classes.pick_random()
 	
 	if race == null or cls == null:
 		_add_log("CHARGEN", "CRITICAL", "Raça ou classe null")
 		return false
 	
-	_add_log("CHARGEN", "INFO", "Raça: %s | Classe: %s" % [race.name, cls.name])
+	_add_log("CHARGEN", "INFO", "Raça: %s | Classe: %s" % [race.display_name, cls.display_name])
 	
 	# Criar herói
 	var hero = Hero.create(
@@ -432,6 +432,10 @@ func _phase_system_tests() -> void:
 	# Teste de equipamento completo
 	_test_full_equipment_system()
 	await get_tree().process_frame
+
+	# Teste de UI de inventário e paper doll
+	_test_inventory_ui_paper_doll()
+	await get_tree().process_frame
 	
 	# Teste de stats
 	_test_stats_calculation()
@@ -501,6 +505,71 @@ func _test_full_equipment_system() -> void:
 		else:
 			_add_log("SYSTEMS", "INFO", "    ✓ Slot %s equipado" % slot)
 			equipment_tests_passed += 1
+
+
+func _test_inventory_ui_paper_doll() -> void:
+	_add_log("SYSTEMS", "INFO", "  [Teste] UI do Inventário e Paper Doll")
+	if current_hero == null:
+		_add_log("SYSTEMS", "WARN", "    Herói não disponível")
+		return
+	
+	var panel := InventoryPanel.new()
+	add_child(panel)
+	panel.setup(null, current_hero)
+	
+	# Verifica ScrollContainer
+	var scroll: ScrollContainer = null
+	var stack: Array[Node] = [panel]
+	while not stack.is_empty():
+		var curr: Node = stack.pop_back()
+		if curr is ScrollContainer:
+			scroll = curr as ScrollContainer
+			break
+		for child in curr.get_children():
+			stack.append(child)
+	
+	if scroll == null or scroll.horizontal_scroll_mode != ScrollContainer.SCROLL_MODE_DISABLED:
+		_add_log("SYSTEMS", "ERROR", "    ScrollContainer ausente ou horizontal não desabilitado")
+		_report_bug("ALTO", "INVENTORY_UI", "ScrollContainer inválido no InventoryPanel")
+	elif scroll.get_child_count() != 1:
+		_add_log("SYSTEMS", "ERROR", "    ScrollContainer tem múltiplos filhos (risco de sobreposição em 0,0)")
+		_report_bug("ALTO", "INVENTORY_UI", "ScrollContainer tem múltiplos filhos diretos")
+	else:
+		_add_log("SYSTEMS", "INFO", "    ✓ ScrollContainer configurado sem sobreposição")
+	
+	# Verifica colunas separadas para doll e grid
+	if panel._doll == null or panel._grid_view == null:
+		_add_log("SYSTEMS", "ERROR", "    Doll ou GridView nulo")
+		_report_bug("ALTO", "INVENTORY_UI", "Doll ou GridView nulo")
+	elif panel._doll.get_parent() == panel._grid_view.get_parent():
+		_add_log("SYSTEMS", "ERROR", "    Doll e GridView compartilham o mesmo container direto")
+		_report_bug("ALTO", "INVENTORY_UI", "Doll e GridView não estão em colunas separadas")
+	else:
+		_add_log("SYSTEMS", "INFO", "    ✓ Doll e GridView em colunas separadas (lado a lado)")
+	
+	# Verifica sprite do herói no paper doll
+	if panel._hero_sprite == null or not (panel._hero_sprite is SpritePreview):
+		_add_log("SYSTEMS", "ERROR", "    HeroSprite ausente ou tipo incorreto")
+		_report_bug("ALTO", "INVENTORY_UI", "HeroSprite ausente no paper doll")
+	elif panel._hero_sprite.size.x <= 0 or panel._hero_sprite.size.y <= 0:
+		_add_log("SYSTEMS", "ERROR", "    HeroSprite tem tamanho zero")
+		_report_bug("ALTO", "INVENTORY_UI", "HeroSprite com tamanho zero")
+	else:
+		_add_log("SYSTEMS", "INFO", "    ✓ HeroSprite configurado e visível no paper doll")
+	
+	# Verifica 11 slots
+	var missing_slots := 0
+	for s in DB.EQUIP_SLOTS:
+		if not panel._equip_views.has(s):
+			missing_slots += 1
+	if missing_slots > 0:
+		_add_log("SYSTEMS", "ERROR", "    Faltando %d slots de equipamento no paper doll" % missing_slots)
+		_report_bug("ALTO", "INVENTORY_UI", "Slots de equipamento faltando no paper doll")
+	else:
+		_add_log("SYSTEMS", "INFO", "    ✓ Todos os 11 slots presentes no paper doll")
+	
+	panel.cleanup()
+	panel.queue_free()
 
 
 func _test_stats_calculation() -> void:
@@ -670,9 +739,9 @@ func _save_report() -> void:
 
 func _generate_txt_report(report: Dictionary) -> String:
 	var out = ""
-	out += "═" * 70 + "\n"
-	out += " " * 15 + "RELATÓRIO DE AUDITORIA - KINFIRE\n"
-	out += "═" * 70 + "\n\n"
+	out += "═══════════════════════════════════════════════════════════════════\n"
+	out += "               RELATÓRIO DE AUDITORIA - KINFIRE\n"
+	out += "═══════════════════════════════════════════════════════════════════\n\n"
 	
 	out += "DATA/HORA: %s\n" % report.timestamp
 	out += "DURAÇÃO: %.2fs\n\n" % report.duration_seconds
@@ -708,8 +777,8 @@ func _generate_txt_report(report: Dictionary) -> String:
 	for phase in report.phase_durations:
 		out += "  • %s: %.2fs\n" % [phase, report.phase_durations[phase]]
 	
-	out += "\n" + "═" * 70 + "\n"
+	out += "\n═══════════════════════════════════════════════════════════════════\n"
 	out += "STATUS: %s\n" % ("✅ PASSOU" if report.critical_count == 0 else "⚠️ FALHOU")
-	out += "═" * 70 + "\n"
+	out += "═══════════════════════════════════════════════════════════════════\n"
 	
 	return out
