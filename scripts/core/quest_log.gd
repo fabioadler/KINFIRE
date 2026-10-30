@@ -121,6 +121,7 @@ func notify_flag(flag_name: StringName) -> void:
 		var q: QuestData = DB.quest(qid)
 		if q != null and q.start_flag == flag_name:
 			start(q)
+			_recalc(q)
 
 
 ## Inventário mudou - reconfere objetivos COLLECT
@@ -230,6 +231,7 @@ func _check_stage(q: QuestData) -> void:
 	if st + 1 < q.stages.size():
 		Game.quests[q.id]["stage"] = st + 1
 		Game.quests[q.id]["prog"] = []
+		_recalc(q)
 		quest_advanced.emit(q.id, st + 1)
 	else:
 		_complete(q)
