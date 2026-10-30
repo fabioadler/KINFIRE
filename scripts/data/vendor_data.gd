@@ -47,8 +47,10 @@ func stock_for(day: int, region_level: int) -> Array[Dictionary]:
 		var base: StringName
 		if not pool_specialty.is_empty() and rng.randf() < 0.45:
 			base = pool_specialty[rng.randi_range(0, pool_specialty.size() - 1)]
-		else:
+		elif not pool_rest.is_empty():
 			base = pool_rest[rng.randi_range(0, pool_rest.size() - 1)]
+		else:
+			continue
 		var level := maxi(1, clampi(region_level + rng.randi_range(-2, 1), 1, 9999))
 		var rarity := 2 if rng.randf() < rare_chance else (1 if rng.randf() < 0.35 else 0)
 		out.append({

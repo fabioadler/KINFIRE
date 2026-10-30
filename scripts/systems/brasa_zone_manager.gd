@@ -47,3 +47,11 @@ func _on_zone_exit(zone_id: StringName) -> void:
 	if zone_id in kinfire_zones and zone_id != &"kinfire_core":
 		lore_manager.remove_brasa(1)
 		print("[FIRE] Brasa -1 (zone exited without boss clear)")
+
+
+func _exit_tree() -> void:
+	"""Desconectar signals para evitar memory leak"""
+	if Game and Game.has_meta("world"):
+		var world = Game.get_meta("world")
+		if world and world.territory_changed.is_connected(_on_territory_changed):
+			world.territory_changed.disconnect(_on_territory_changed)

@@ -98,7 +98,7 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 
 func refresh() -> void:
 	_gold_label.text = "Ouro: %d" % hero.gold
-	_stats_label.text = "[center][color=#bbbbbb]DPS:[/color] [color=#ffffff]%.1f[/color]    [color=#bbbbbb]Armadura:[/color] [color=#ffffff]%d[/color]    [color=#bbbbbb]Vida:[/color] [color=#ffffff]%d[/color][/center]" % [hero.dps_estimate(), hero.armor(), hero.max_hp()]
+	_stats_label.text = "[center][color=#bbbbbb]DPS:[/color] [color=#ffffff]%.1f[/color]    [color=#bbbbbb]Armadura:[/color] [color=#ffffff]%.1f[/color]    [color=#bbbbbb]Vida:[/color] [color=#ffffff]%.1f[/color][/center]" % [hero.dps_estimate(), hero.armor(), hero.max_hp()]
 	_grid_view.queue_redraw()
 	for v in _equip_views.values():
 		v.queue_redraw()
@@ -122,7 +122,8 @@ func show_tooltip(it: Item) -> void:
 	if it == null or held:
 		_tooltip.visible = false
 		return
-	var cmp: Item = hero.equipment.get(it.slot) if hero.equipment.get(it.slot) != it else null
+	var equipped: Item = hero.equipment.get(it.slot)
+	var cmp: Item = equipped if equipped != it else null
 	_tooltip_text.text = it.tooltip_bbcode(cmp, hero)
 	_tooltip.visible = true
 	_tooltip.reset_size()
@@ -176,7 +177,7 @@ func _sell_junk() -> void:
 	var total := 0
 	for it in to_sell:
 		total += int(it.sell_value() * hero.sell_multiplier())
-		hero.inventory.items.erase(it)
+		hero.inventory.remove(it)
 	if total > 0:
 		hero.add_gold(total)
 		hero.inventory.changed.emit()
@@ -293,7 +294,8 @@ class _EquipView extends Control:
 	func _gui_input(event: InputEvent) -> void:
 		var hero := panel.hero
 		if event is InputEventMouseMotion:
-			panel.show_tooltip(hero.equipment[slot])
+			var equipped: Item = hero.equipment.get(slot) if slot in hero.equipment else null
+			panel.show_tooltip(equipped)
 		elif event is InputEventMouseButton and event.pressed:
 			if event.button_index == MOUSE_BUTTON_LEFT:
 				if panel.held:
@@ -308,17 +310,19 @@ class _EquipView extends Control:
 							if not hero.inventory.add(extra):
 								LootDrop.drop_item(panel.hud.world, panel.hud.world.player.global_position, extra)
 						Sfx.play(&"equip")
-				elif hero.equipment[slot]:
+				var equipped: Item = hero.equipment.get(slot) if slot in hero.equipment else null
+				if equipped:
 					panel.held = hero.unequip(slot)
 					panel.hide_tooltip()
 					Sfx.play(&"cloth")
-			elif event.button_index == MOUSE_BUTTON_RIGHT and panel.held == null and hero.equipment[slot]:
-				var it: Item = hero.equipment[slot]
-				if hero.inventory.add(it):
-					hero.unequip(slot)
-					Sfx.play(&"cloth")
-				else:
-					panel.hud.show_message("Inventário cheio", Color(1, 0.5, 0.4))
+			elif event.button_index == MOUSE_BUTTON_RIGHT and panel.held == null:
+				var equipped: Item = hero.equipment.get(slot) if slot in hero.equipment else null
+				if equipped:
+					if hero.inventory.add(equipped):
+						hero.unequip(slot)
+						Sfx.play(&"cloth")
+					else:
+						panel.hud.show_message("Inventário cheio", Color(1, 0.5, 0.4))
 			accept_event()
 			queue_redraw()
 
@@ -331,7 +335,7 @@ class _EquipView extends Control:
 		draw_rect(r, Color(0.05, 0.035, 0.03))
 		var highlight := panel.held != null and panel.held.slot == slot
 		draw_rect(r, UIKit.GOLD if highlight else UIKit.GOLD_DIM, false, 2.0)
-		var it: Item = panel.hero.equipment[slot]
+		var it: Item = panel.hero.equipment.get(slot) if slot in panel.hero.equipment else null
 		if it:
 			panel._draw_item(self, it, r.grow(-3))
 		else:

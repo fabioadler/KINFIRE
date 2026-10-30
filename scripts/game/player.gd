@@ -297,7 +297,7 @@ func _free_movement(mouse: Vector2) -> void:
 				if not _lmb_down:
 					_attack_target = null
 				return
-			if _path.is_empty() or _path[_path.size() - 1].distance_to(_attack_target.global_position) > 20.0:
+			if not _path.is_empty() and _path[_path.size() - 1].distance_to(_attack_target.global_position) > 20.0:
 				_set_path_to(_attack_target.global_position)
 
 	if _interact_target:
@@ -334,6 +334,12 @@ func skill_for_slot(slot: int) -> SkillData:
 	if slot == RACIAL_SLOT:
 		return hero.racial_skill()
 	return hero.skill_in_slot(slot)
+
+
+## Usa a skill no slot informado (chamado pelos slots de skill do HUD).
+## O alvo é a posição do mouse no mundo.
+func _use_skill(slot: int) -> void:
+	_request_cast(slot, get_global_mouse_position())
 
 
 ## Custo efetivo (recurso, ou vida para o Bruxo)
@@ -599,6 +605,11 @@ func _use_consumable_slot(slot: int) -> void:
 		return
 	# Usa o consumível
 	if item.use(self):
+		# Consome uma cópia do item do inventário
+		for it in hero.inventory.items:
+			if it.base_id == item.base_id:
+				hero.inventory.remove(it)
+				break
 		# Aplica cooldown se houver
 		if item.cooldown > 0:
 			hero.consumable_cooldowns[item.base_id] = item.cooldown
@@ -797,3 +808,11 @@ func _draw() -> void:
 func _set_state(s: State) -> void:
 	state = s
 	_state_time = 0.0
+
+
+func _exit_tree() -> void:
+	"""Desconectar signals do herói para evitar memory leak"""
+	if hero.stats_changed.is_connected(_on_stats_changed):
+		hero.stats_changed.disconnect(_on_stats_changed)
+	if hero.leveled_up.is_connected(_on_level_up):
+		hero.leveled_up.disconnect(_on_level_up)

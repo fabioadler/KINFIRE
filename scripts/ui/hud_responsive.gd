@@ -277,3 +277,16 @@ func _on_quest_completed(q: QuestData) -> void:
 
 func _on_trade_requested() -> void:
 	pass
+
+
+func _exit_tree() -> void:
+	"""Desconectar signals para evitar memory leak"""
+	if Game.trade_requested.is_connected(_on_trade_requested):
+		Game.trade_requested.disconnect(_on_trade_requested)
+	if Game.quest_log:
+		if Game.quest_log.quest_started.is_connected(_on_quest_started):
+			Game.quest_log.quest_started.disconnect(_on_quest_started)
+		if Game.quest_log.quest_completed.is_connected(_on_quest_completed):
+			Game.quest_log.quest_completed.disconnect(_on_quest_completed)
+	if get_viewport():
+		get_viewport().size_changed.disconnect(_on_viewport_changed)

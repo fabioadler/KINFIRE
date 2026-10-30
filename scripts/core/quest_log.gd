@@ -60,11 +60,15 @@ func start(q: QuestData) -> void:
 
 ## Estágio atual (limitado ao último; concluída fica em stages.size())
 func stage_of(q: QuestData) -> int:
-	return clampi(int(state(q.id).get("stage", 0)), 0, maxi(q.stages.size() - 1, 0))
+	if q.stages.is_empty():
+		return 0
+	return clampi(int(state(q.id).get("stage", 0)), 0, q.stages.size() - 1)
 
 
 ## Progresso dos objetivos do estágio atual (completa com zeros)
 func progress_of(q: QuestData) -> Array:
+	if q.stages.is_empty():
+		return []
 	var stage: QuestStage = q.stages[stage_of(q)]
 	var s := state(q.id)
 	var p: Array = s.get("prog", [])

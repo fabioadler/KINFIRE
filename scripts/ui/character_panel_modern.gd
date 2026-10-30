@@ -259,3 +259,9 @@ func _status_row(label: String, value: int, color: Color) -> HBoxContainer:
 
 func _refresh() -> void:
 	queue_redraw()
+
+
+func cleanup() -> void:
+	"""Desconectar signals para evitar memory leak"""
+	if hero.stats_changed.is_connected(_refresh):
+		hero.stats_changed.disconnect(_refresh)

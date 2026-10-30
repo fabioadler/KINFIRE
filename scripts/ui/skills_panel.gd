@@ -107,3 +107,9 @@ func _on_slot_clicked(slot: int) -> void:
 		return
 	hero.assign_skill(slot, _selected)
 	Sfx.play(&"equip")
+
+
+func cleanup() -> void:
+	"""Desconectar signals para evitar memory leak"""
+	if hero.stats_changed.is_connected(refresh):
+		hero.stats_changed.disconnect(refresh)

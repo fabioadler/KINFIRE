@@ -559,8 +559,14 @@ func assign_skill(slot: int, id: StringName) -> void:
 
 func can_use_category(it: Item) -> bool:
 	if it.slot == "weapon":
+		# Se allowed_weapons está vazio, classe não pode equipar nenhuma arma
+		if cls.allowed_weapons.is_empty():
+			return false
 		return it.category in cls.allowed_weapons
 	if it.slot == "offhand":
+		# Se allowed_offhands está vazio, não pode equipar nada na mão secundária
+		if cls.allowed_offhands.is_empty():
+			return false
 		return it.category in cls.allowed_offhands
 	return true
 

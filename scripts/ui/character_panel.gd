@@ -221,14 +221,14 @@ func refresh() -> void:
 		row.score.add_theme_color_override("font_color", UIKit.GOLD if primary else Color.WHITE)
 	var t := "[font_size=14][table=2]"
 	var wd := hero.weapon_damage()
-	t += _row("Dano da arma", "%d - %d" % [wd.x * hero.damage_multiplier(), wd.y * hero.damage_multiplier()])
+	t += _row("Dano da arma", "%.1f - %.1f" % [wd.x * hero.damage_multiplier(), wd.y * hero.damage_multiplier()])
 	t += _row("DPS estimado", "%.1f" % hero.dps_estimate())
 	t += _row("Velocidade de ataque", "%.2f/s" % hero.attack_speed())
 	t += _row("Chance de crítico", "%.1f%%" % (hero.crit_chance() * 100))
 	t += _row("Dano crítico", "+%d%%" % roundi(hero.crit_damage() * 100))
-	t += _row("Vida máxima", "%d" % hero.max_hp())
-	t += _row("Armadura", "%d (reduz %d%% do dano físico)" % [hero.armor(), roundi(hero.physical_reduction() * 100)])
-	t += _row(hero.cls.resource_label + " máximo", "%d" % hero.max_resource())
+	t += _row("Vida máxima", "%.1f" % hero.max_hp())
+	t += _row("Armadura", "%.1f (reduz %d%% do dano físico)" % [hero.armor(), roundi(hero.physical_reduction() * 100)])
+	t += _row(hero.cls.resource_label + " máximo", "%.1f" % hero.max_resource())
 	t += _row("Velocidade de movimento", "%d%%" % roundi(hero.move_speed() / Hero.BASE_MOVE_SPEED * 100))
 	t += _row("Atributo primário", DB.ABILITY_NAMES[hero.cls.primary_ability])
 	_derived.text = t + "[/table][/font_size]"
@@ -262,6 +262,14 @@ func refresh() -> void:
 	b += _row("Vida máxima", "+%d" % bonus.max_hp_bonus)
 	b += "[/table][/font_size]"
 	_status_bonus.text = b
+
+
+func cleanup() -> void:
+	"""Desconectar signals para evitar memory leak"""
+	if hero.stats_changed.is_connected(refresh):
+		hero.stats_changed.disconnect(refresh)
+	if hero.xp_changed.is_connected(refresh):
+		hero.xp_changed.disconnect(refresh)
 
 	var d := "[font_size=15][color=#e8c060]Resistências[/color][/font_size]\n[font_size=14][table=2]"
 	for e in ["fire", "ice", "poison", "shadow"]:

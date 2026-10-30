@@ -101,6 +101,10 @@ func _carve_corridor(a: Vector2i, b: Vector2i) -> void:
 
 
 func _carve_line(a: Vector2i, b: Vector2i) -> void:
+	# Proteção contra edge case: se a e b são iguais, não fazer nada
+	if a == b:
+		return
+	
 	var c := a
 	var step: Vector2i = Vector2i(signi(b.x - a.x), signi(b.y - a.y))
 	while true:
@@ -131,6 +135,9 @@ func _remove_thin_walls() -> void:
 
 
 func _farthest_room(from: Rect2i) -> Rect2i:
+	# Proteção: se não há salas, retornar retângulo vazio
+	if rooms.is_empty():
+		return Rect2i()
 	# BFS a partir do centro da sala inicial
 	var dist: Dictionary = {}
 	var start := from.get_center()

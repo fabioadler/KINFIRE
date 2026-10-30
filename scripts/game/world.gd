@@ -141,8 +141,9 @@ func minimap_color(c: Vector2i) -> Color:
 ## Pontos de interesse do minimapa: [{pos, color}]
 func points_of_interest() -> Array:
 	var out: Array = []
-	if stairs and is_explored(world_to_cell(stairs.global_position)):
-		out.append({"pos": stairs.global_position, "color": Color(0.7, 0.4, 1.0) if not stairs.locked else Color(1, 0.3, 0.1)})
+	if stairs and is_instance_valid(stairs) and is_explored(world_to_cell(stairs.global_position)):
+		var color = Color(0.7, 0.4, 1.0) if not stairs.locked else Color(1, 0.3, 0.1)
+		out.append({"pos": stairs.global_position, "color": color})
 	return out
 
 
@@ -705,3 +706,11 @@ func respawn_player() -> void:
 	player.revive()
 	if lost > 0:
 		hud.show_message("Você perdeu %d de ouro." % lost, Color(1, 0.5, 0.4))
+
+
+func _exit_tree() -> void:
+	"""Desconectar signals para evitar memory leak"""
+	if player and player.died.is_connected(_on_player_died):
+		player.died.disconnect(_on_player_died)
+	if Game.quality_changed.is_connected(_apply_glow):
+		Game.quality_changed.disconnect(_apply_glow)

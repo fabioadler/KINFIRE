@@ -69,3 +69,14 @@ func get_bonds() -> int:
 
 func has_all_bonds() -> bool:
 	return bonds_system.has_all_bonds() if bonds_system else false
+
+
+func _exit_tree() -> void:
+	"""Desconectar signals para evitar memory leak"""
+	var qlog = null
+	if Game and Game.has_meta("quest_log"):
+		qlog = Game.get_meta("quest_log")
+	elif Game and "quest_log" in Game:
+		qlog = Game.quest_log
+	if qlog and qlog.quest_completed.is_connected(_on_quest_completed):
+		qlog.quest_completed.disconnect(_on_quest_completed)

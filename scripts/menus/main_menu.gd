@@ -430,3 +430,9 @@ func _modal() -> CenterContainer:
 	c.set_anchors_preset(Control.PRESET_FULL_RECT)
 	shade.add_child(c)
 	return c
+
+
+func _exit_tree() -> void:
+	"""Desconectar signals para evitar memory leak"""
+	if get_viewport():
+		get_viewport().size_changed.disconnect(_layout)

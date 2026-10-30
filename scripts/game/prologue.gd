@@ -439,3 +439,9 @@ func level() -> int:
 
 func region_name() -> String:
 	return "Reminiscência de Vale Cinzento"
+
+
+func _exit_tree() -> void:
+	"""Desconectar signals para evitar memory leak"""
+	if Game.hero and Game.hero.leveled_up.is_connected(_on_hero_leveled_up):
+		Game.hero.leveled_up.disconnect(_on_hero_leveled_up)

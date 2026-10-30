@@ -138,3 +138,13 @@ func _diff(v: float, fmt: String) -> String:
 	if v > 0:
 		return "  [color=#40ff40]▲ +" + (fmt % v) + "[/color]"
 	return "  [color=#ff4040]▼ " + (fmt % v) + "[/color]"
+
+
+## Usa o consumível no alvo (jogador). Retorna true se o efeito foi aplicado.
+## Subclasses podem sobrescrever para efeitos customizados (cura, buff, etc.).
+func use(user: Player = null) -> bool:
+	if user == null:
+		return false
+	# Consumível padrão: cura 25% da vida máxima
+	user.heal(user.max_hp * 0.25, true)
+	return true

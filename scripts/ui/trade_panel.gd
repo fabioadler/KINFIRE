@@ -224,7 +224,10 @@ func _show_auction() -> void:
 	var slots: Array = Auction.slots()
 	for i in slots.size():
 		var e: Dictionary = slots[i]
-		var base: Dictionary = DB.BASES[e["base"]]
+		var base_id: StringName = e["base"]
+		var base: Dictionary = DB.BASES.get(base_id, {})
+		if base.is_empty():
+			continue
 		var rname: String = Item.RARITY_NAMES[e["rarity"]]
 		var cur: String = "essência" if String(e["currency"]) == "essence" else "ouro"
 		if bool(e["sold"]):

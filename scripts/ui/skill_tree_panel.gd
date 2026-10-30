@@ -291,9 +291,7 @@ func _on_node_pressed(node: SkillNodeData) -> void:
 	# Compra o nó
 	if hero.spend_tree_point(node.id):
 		Sfx.play(&"click")
-		_update_node_ui(node.id)
-		_update_points()
-		_canvas.queue_redraw()  # Redesenha linhas
+		refresh()  # Atualiza todos os nós (dependentes podem ter ficado disponíveis)
 		hud.show_message("%s adquirido! (Rank %d)" % [node.display_name, hero.get_tree_node_rank(node.id)], Color(0.4, 1, 0.4), 1.5)
 	else:
 		hud.show_message("Não foi possível adquirir", Color(1, 0.3, 0.3), 1.5)
@@ -509,3 +507,11 @@ func refresh() -> void:
 	for node_id in _nodes_ui:
 		_update_node_ui(node_id)
 	_canvas.queue_redraw()
+
+
+func cleanup() -> void:
+	"""Desconectar signals para evitar memory leak"""
+	if _canvas.draw.is_connected(_canvas_draw):
+		_canvas.draw.disconnect(_canvas_draw)
+	if hero.stats_changed.is_connected(_update_points):
+		hero.stats_changed.disconnect(_update_points)

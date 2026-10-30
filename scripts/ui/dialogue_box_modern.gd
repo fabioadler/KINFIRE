@@ -6,6 +6,7 @@ extends Control
 var _content: DialogueData
 var _engine: DialogueEngine
 var _current_page: int = 0
+var _current_node: DialogueNode = null  # Nó atual do diálogo (para navegação entre nós)
 
 var _bg: PanelContainer
 var _portrait: TextureRect
@@ -110,6 +111,7 @@ func open_dialogue(p_content: DialogueData, p_engine: DialogueEngine) -> void:
 	_content = p_content
 	_engine = p_engine
 	_current_page = 0
+	_current_node = p_content.node(p_content.start_id) if p_content else null
 	_is_open = true
 	
 	show()
@@ -119,16 +121,17 @@ func open_dialogue(p_content: DialogueData, p_engine: DialogueEngine) -> void:
 
 
 func _show_page() -> void:
-	if not _content:
+	if not _current_node:
+		close()
 		return
 	
-	var page = _content.pages[_current_page] if _current_page < _content.pages.size() else null
-	if not page:
+	var page = _current_node.page(_current_page) if _current_page < _current_node.page_count() else ""
+	if page == "":
 		close()
 		return
 	
 	# Nome do personagem
-	_name_label.text = page.speaker if page.speaker else "???"
+	_name_label.text = _current_node.portrait if _current_node.portrait != "" else "???"
 	
 	# Retrato (placeholder com cor)
 	_portrait.modulate = UIKitModern.rarity_color(randi() % 6)
@@ -136,21 +139,21 @@ func _show_page() -> void:
 	# Texto com efeito de máquina de escrever
 	_text_label.text = ""
 	_typing = true
-	_type_text(page.text)
+	_type_text(page)
 	
 	# Escolhas
 	_choices_container.clear()
-	if page.choices.is_empty():
+	if _current_node.choices.is_empty():
 		# Próxima página ou fechar
 		var next_btn := UIKitModern.modern_button("Continuar", _advance_or_close, 150, 36)
 		_choices_container.add_child(next_btn)
 	else:
-		for choice in page.choices:
+		for choice in _current_node.choices:
 			var btn := UIKitModern.modern_button(choice.text, func(): _select_choice(choice), 300, 36)
 			_choices_container.add_child(btn)
 	
 	# Indicador
-	_page_indicator.text = "Página %d/%d" % [_current_page + 1, _content.pages.size()]
+	_page_indicator.text = "Página %d/%d" % [_current_page + 1, _current_node.page_count()]
 
 
 func _type_text(text: String) -> void:
@@ -168,25 +171,26 @@ func _type_text(text: String) -> void:
 func _advance_or_close() -> void:
 	if _typing:
 		_typing = false
-		_text_label.text = _content.pages[_current_page].text if _current_page < _content.pages.size() else ""
+		_text_label.text = _current_node.page(_current_page) if _current_node and _current_page < _current_node.page_count() else ""
 		return
 	
 	_current_page += 1
-	if _current_page < _content.pages.size():
+	if _current_node and _current_page < _current_node.page_count():
 		_show_page()
 	else:
 		close()
 
 
 func _select_choice(choice: DialogueChoice) -> void:
-	if _engine and choice.callback:
-		choice.callback.call()
-	
-	if choice.next_id:
-		# Ir para próximo diálogo
-		close()
-	else:
-		close()
+	if choice.next_id and _content:
+		# Avançar para próximo nó de diálogo dentro do mesmo conteúdo
+		var next_node := _content.node(choice.next_id)
+		if next_node:
+			_current_node = next_node
+			_current_page = 0
+			_show_page()
+			return
+	close()
 
 
 func _on_gui_input(event: InputEvent) -> void:
@@ -211,3 +215,9 @@ func close() -> void:
 	hide()
 	_content = null
 	_engine = null
+
+
+func _exit_tree() -> void:
+	"""Desconectar signals para evitar memory leak"""
+	if get_tree() and get_tree().root and get_tree().root.gui_input.is_connected(_on_gui_input):
+		get_tree().root.gui_input.disconnect(_on_gui_input)

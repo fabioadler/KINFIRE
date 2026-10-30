@@ -125,4 +125,6 @@ static func _roll_base(rng: RandomNumberGenerator) -> StringName:
 		if k == &"wood_sword" or b.get("slot", "") == "":
 			continue
 		pool.append(k)
+	if pool.is_empty():
+		return &""
 	return pool[rng.randi_range(0, pool.size() - 1)]
