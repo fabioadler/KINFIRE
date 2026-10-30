@@ -40,13 +40,13 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 	doll.custom_minimum_size = Vector2(CELL * 8.5, CELL * 5.5)
 	doll.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	scroll.add_child(doll)
-	# Sprite do personagem no centro do boneco (paper doll)
-	var hero_sprite := Sprite2D.new()
+	# Sprite do personagem no centro do boneco (paper doll) - usa SpritePreview para frames animados
+	var hero_sprite := SpritePreview.new()
 	hero_sprite.name = "HeroSprite"
-	hero_sprite.texture = DB.icon(hero.sprite_base())
-	hero_sprite.modulate = hero.tint * hero.race.tint
-	hero_sprite.position = Vector2(CELL * 4.25, CELL * 2.75)  # Centro do doll (8.5x5.5 cells)
-	hero_sprite.z_index = -1  # Atrás dos slots de equipamento
+	hero_sprite.set_sprite(hero.sprite_base(), hero.tint * hero.race.tint)
+	hero_sprite.custom_minimum_size = Vector2(CELL * 4, CELL * 4)
+	hero_sprite.position = Vector2(CELL * 2.25, CELL * 0.75)  # Centro do doll (8.5x5.5 cells)
+	hero_sprite.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	doll.add_child(hero_sprite)
 	var layout: Dictionary = {
 		"helm": Rect2(2.5, 0.0, 2.0, 1.5), "amulet": Rect2(4.8, 0.2, 1.2, 1.2),
@@ -114,8 +114,7 @@ func refresh() -> void:
 	var doll := _grid_view.get_parent().get_child(0)  # primeiro child do scroll é o doll
 	var hero_sprite := doll.get_node_or_null("HeroSprite")
 	if hero_sprite:
-		hero_sprite.texture = DB.icon(hero.sprite_base())
-		hero_sprite.modulate = hero.tint * hero.race.tint
+		hero_sprite.set_sprite(hero.sprite_base(), hero.tint * hero.race.tint)
 
 
 func _process(_delta: float) -> void:
