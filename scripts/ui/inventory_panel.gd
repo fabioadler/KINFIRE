@@ -194,7 +194,6 @@ func _sell_junk() -> void:
 		hero.inventory.remove(it)
 	if total > 0:
 		hero.add_gold(total)
-		hero.inventory.changed.emit()
 		Sfx.play(&"coins")
 		hud.show_message("Vendido por %d de ouro" % total, Color(1, 0.85, 0.3))
 
