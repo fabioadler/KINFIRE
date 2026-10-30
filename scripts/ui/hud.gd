@@ -183,6 +183,13 @@ func _build_bottom_bar() -> void:
 		cs.used.connect(func(s: int): player._use_consumable_slot(s))
 		_consumable_slots.append(cs)
 		h.add_child(cs)
+
+	# Conecta refresh dos slots de consumíveis quando inventário muda
+	hero.inventory.changed.connect(func():
+		for i in _consumable_slots.size():
+			_consumable_slots[i].queue_redraw()
+	)
+
 	h.add_child(_spacer(8))
 
 	# Cura simples (Q) - sempre disponível
