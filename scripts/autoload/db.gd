@@ -51,10 +51,11 @@ const DIFFICULTIES := [
 	{"name": "Inferno", "hp": 4.0, "dmg": 2.5, "loot": 0.28, "xp": 2.0, "death_gold_loss": 0.30, "color": Color(1, 0.35, 0.15)},
 ]
 
-const EQUIP_SLOTS := ["helm", "amulet", "weapon", "chest", "offhand", "ring", "boots"]
+const EQUIP_SLOTS := ["helm", "amulet", "weapon", "chest", "offhand", "gloves", "ring", "accessory_1", "accessory_2", "accessory_3", "boots"]
 const SLOT_NAMES := {
 	"weapon": "Arma", "offhand": "Mão Secundária", "helm": "Elmo", "chest": "Armadura",
-	"boots": "Botas", "amulet": "Amuleto", "ring": "Anel",
+	"boots": "Botas", "amulet": "Amuleto", "ring": "Anel", "gloves": "Luvas",
+	"accessory_1": "Acessório 1", "accessory_2": "Acessório 2", "accessory_3": "Acessório 3",
 }
 const CATEGORY_NAMES := {
 	"sword": "Espada", "axe": "Machado", "mace": "Maça", "dagger": "Adaga", "spear": "Lança",

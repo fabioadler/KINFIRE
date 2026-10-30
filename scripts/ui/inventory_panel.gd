@@ -35,15 +35,19 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 
 	# Equipamento em formato de "boneco" (paper doll)
 	var doll := Control.new()
-	doll.custom_minimum_size = Vector2(CELL * 7.5, CELL * 5.3)
+	doll.custom_minimum_size = Vector2(CELL * 8.5, CELL * 5.5)
 	doll.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	scroll.add_child(doll)
 	var layout: Dictionary = {
-		"helm": Rect2(2.75, 0.0, 2.0, 1.6), "amulet": Rect2(5.0, 0.3, 1.1, 1.1),
-		"weapon": Rect2(0.2, 1.3, 2.0, 2.8), "chest": Rect2(2.6, 1.8, 2.3, 2.3), "offhand": Rect2(5.3, 1.3, 2.0, 2.8),
-		"ring": Rect2(0.6, 4.2, 1.1, 1.1), "boots": Rect2(2.75, 4.2, 2.0, 1.1),
+		"helm": Rect2(2.5, 0.0, 2.0, 1.5), "amulet": Rect2(4.8, 0.2, 1.2, 1.2),
+		"weapon": Rect2(0.2, 1.5, 2.0, 2.5), "gloves": Rect2(2.3, 1.5, 1.5, 2.5), "chest": Rect2(3.9, 1.7, 2.3, 2.3), "offhand": Rect2(6.3, 1.5, 2.0, 2.5),
+		"ring": Rect2(0.6, 4.2, 1.1, 1.1), "boots": Rect2(2.75, 4.2, 2.0, 1.1), 
+		"accessory_1": Rect2(4.9, 4.2, 1.1, 1.1), "accessory_2": Rect2(6.1, 4.2, 1.1, 1.1), "accessory_3": Rect2(7.3, 4.2, 1.1, 1.1),
 	}
 	for s in DB.EQUIP_SLOTS:
+		if s not in layout:
+			push_warning("Slot '%s' não tem layout definido" % s)
+			continue
 		var r: Rect2 = layout[s]
 		var v := _EquipView.new()
 		v.panel = self
