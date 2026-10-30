@@ -41,27 +41,54 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.add_child(scroll)
 
-	# Container principal lado a lado: Equipamento (Paper Doll) à esquerda, Mochila (Grid) à direita
+	# Container principal lado a lado: Mochila (Grid) à esquerda, Equipamento (Paper Doll) à direita
 	var main_hbox := HBoxContainer.new()
 	main_hbox.add_theme_constant_override("separation", 16)
 	main_hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	main_hbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.add_child(main_hbox)
 
-	# === COLUNA ESQUERDA: EQUIPAMENTO & PAPER DOLL ===
+	# === COLUNA ESQUERDA: MOCHILA (GRADE) & AÇÕES ===
 	var left_col := VBoxContainer.new()
 	left_col.add_theme_constant_override("separation", 6)
-	left_col.custom_minimum_size = Vector2(320, 0)
 	main_hbox.add_child(left_col)
 
+	var inv_title := UIKit.label("Mochila", 15, UIKit.GOLD, true)
+	left_col.add_child(inv_title)
+
+	_grid_view = _GridView.new()
+	_grid_view.panel = self
+	_grid_view.custom_minimum_size = Vector2(hero.inventory.cols * CELL, hero.inventory.rows * CELL)
+	left_col.add_child(_grid_view)
+
+	var bottom := HBoxContainer.new()
+	left_col.add_child(bottom)
+	_gold_label = UIKit.label("", 16, Color(1, 0.85, 0.3), true)
+	_gold_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bottom.add_child(_gold_label)
+	bottom.add_child(UIKit.button("Vender Comuns e Mágicos", _sell_junk))
+
+	var hint := UIKit.label("Esq: mover | Dir: equipar | Shift+Dir: vender", 12, UIKit.TEXT_DIM)
+	left_col.add_child(hint)
+
+	# Divisor vertical entre Mochila e Equipamento
+	var v_sep := VSeparator.new()
+	main_hbox.add_child(v_sep)
+
+	# === COLUNA DIREITA: EQUIPAMENTO & PAPER DOLL ===
+	var right_col := VBoxContainer.new()
+	right_col.add_theme_constant_override("separation", 6)
+	right_col.custom_minimum_size = Vector2(320, 0)
+	main_hbox.add_child(right_col)
+
 	var equip_title := UIKit.label("Equipamento", 15, UIKit.GOLD, true)
-	left_col.add_child(equip_title)
+	right_col.add_child(equip_title)
 
 	# Equipamento em formato de "boneco" (paper doll)
 	_doll = Control.new()
 	_doll.custom_minimum_size = Vector2(320, 216)
 	_doll.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	left_col.add_child(_doll)
+	right_col.add_child(_doll)
 
 	# Fundo estilizado para a área central do personagem (pedestal/nicho)
 	var char_bg := Panel.new()
@@ -112,38 +139,11 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 		_doll.add_child(v)
 		_equip_views[s] = v
 
-	left_col.add_child(UIKit.separator())
+	right_col.add_child(UIKit.separator())
 
 	_stats_label = UIKit.rich()
 	_stats_label.custom_minimum_size = Vector2(320, 24)
-	left_col.add_child(_stats_label)
-
-	# Divisor vertical entre Equipamento e Mochila
-	var v_sep := VSeparator.new()
-	main_hbox.add_child(v_sep)
-
-	# === COLUNA DIREITA: MOCHILA (GRADE) & AÇÕES ===
-	var right_col := VBoxContainer.new()
-	right_col.add_theme_constant_override("separation", 6)
-	main_hbox.add_child(right_col)
-
-	var inv_title := UIKit.label("Mochila", 15, UIKit.GOLD, true)
-	right_col.add_child(inv_title)
-
-	_grid_view = _GridView.new()
-	_grid_view.panel = self
-	_grid_view.custom_minimum_size = Vector2(hero.inventory.cols * CELL, hero.inventory.rows * CELL)
-	right_col.add_child(_grid_view)
-
-	var bottom := HBoxContainer.new()
-	right_col.add_child(bottom)
-	_gold_label = UIKit.label("", 16, Color(1, 0.85, 0.3), true)
-	_gold_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	bottom.add_child(_gold_label)
-	bottom.add_child(UIKit.button("Vender Comuns e Mágicos", _sell_junk))
-
-	var hint := UIKit.label("Esq: mover | Dir: equipar | Shift+Dir: vender", 12, UIKit.TEXT_DIM)
-	right_col.add_child(hint)
+	right_col.add_child(_stats_label)
 
 	_tooltip = PanelContainer.new()
 	_tooltip.add_theme_stylebox_override("panel", UIKit.box(Color(0.02, 0.015, 0.01, 0.97), UIKit.GOLD_DIM, 2, 3))
