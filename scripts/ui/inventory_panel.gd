@@ -40,6 +40,14 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 	doll.custom_minimum_size = Vector2(CELL * 8.5, CELL * 5.5)
 	doll.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	scroll.add_child(doll)
+	# Sprite do personagem no centro do boneco (paper doll)
+	var hero_sprite := Sprite2D.new()
+	hero_sprite.name = "HeroSprite"
+	hero_sprite.texture = DB.icon(hero.sprite_base())
+	hero_sprite.modulate = hero.tint * hero.race.tint
+	hero_sprite.position = Vector2(CELL * 4.25, CELL * 2.75)  # Centro do doll (8.5x5.5 cells)
+	hero_sprite.z_index = -1  # Atrás dos slots de equipamento
+	doll.add_child(hero_sprite)
 	var layout: Dictionary = {
 		"helm": Rect2(2.5, 0.0, 2.0, 1.5), "amulet": Rect2(4.8, 0.2, 1.2, 1.2),
 		"weapon": Rect2(0.2, 1.5, 2.0, 2.5), "gloves": Rect2(2.3, 1.5, 1.5, 2.5), "chest": Rect2(3.9, 1.7, 2.3, 2.3), "offhand": Rect2(6.3, 1.5, 2.0, 2.5),
@@ -102,6 +110,12 @@ func refresh() -> void:
 	_grid_view.queue_redraw()
 	for v in _equip_views.values():
 		v.queue_redraw()
+	# Atualiza sprite do boneco (pode mudar com equip visual no futuro)
+	var doll := _grid_view.get_parent().get_child(0)  # primeiro child do scroll é o doll
+	var hero_sprite := doll.get_node_or_null("HeroSprite")
+	if hero_sprite:
+		hero_sprite.texture = DB.icon(hero.sprite_base())
+		hero_sprite.modulate = hero.tint * hero.race.tint
 
 
 func _process(_delta: float) -> void:
