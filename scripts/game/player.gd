@@ -586,12 +586,12 @@ func _use_consumable_slot(slot: int) -> void:
 	# Verifica cooldown do item
 	var cd: float = hero.consumable_cooldowns.get(item.base_id, 0.0)
 	if cd > 0.0:
-		world.hud.show_message("%s em recarga (%ds)" % [item.display_name, ceili(cd)], Color(0.9, 0.6, 0.6), 0.8)
+		world.hud.show_message("%s em recarga (%ds)" % [item.name, ceili(cd)], Color(0.9, 0.6, 0.6), 0.8)
 		return
 	# Verifica se tem o item no inventário
-	var count: int = hero.inventory_get_count(item.base_id)
+	var count: int = hero.count_item(item.base_id)
 	if count <= 0:
-		world.hud.show_message("Sem %s no inventário" % item.display_name, Color(0.9, 0.6, 0.6), 0.8)
+		world.hud.show_message("Sem %s no inventário" % item.name, Color(0.9, 0.6, 0.6), 0.8)
 		# Limpa o slot se não tem mais o item
 		hero.consumable_slots[slot] = null
 		if world.hud.has_method("_refresh_consumable_slot"):

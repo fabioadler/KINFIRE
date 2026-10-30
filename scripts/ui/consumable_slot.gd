@@ -46,7 +46,7 @@ func _make_custom_tooltip(_for_text: String) -> Object:
 	if item == null:
 		r.text = "[color=#999999]Slot vazio.\nArraste um consumível do inventário.\n[color=#666666]Tecla: %s[/color]" % key_text
 		return r
-	var count: int = player.hero.inventory_get_count(item.base_id)
+	var count: int = player.hero.count_item(item.base_id)
 	var t := "[font_size=19][color=#e8c060]%s[/color][/font_size]\n" % item.name
 	t += "%s\n\n" % item.description
 	t += "[color=#cccccc]Quantidade: %d[/color]\n" % count
@@ -67,7 +67,7 @@ func _draw() -> void:
 	if item:
 		icon_name = item.icon
 		color = item.color if item.color != Color.WHITE else Color(0.8, 0.7, 0.5)
-		count = player.hero.inventory_get_count(item.base_id)
+		count = player.hero.count_item(item.base_id)
 	if icon_name != "":
 		draw_rect(rect.grow(-3), Color(color.r * 0.25, color.g * 0.25, color.b * 0.25))
 		draw_texture_rect(DB.icon(icon_name), rect.grow(-4), false)
