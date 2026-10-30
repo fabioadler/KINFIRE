@@ -15,6 +15,8 @@ var _gold_label: Label
 var _stats_label: RichTextLabel
 var _tooltip: PanelContainer
 var _tooltip_text: RichTextLabel
+var _refresh_callback: Callable  ## Para desconectar depois
+var _gold_callback: Callable     ## Para desconectar depois
 
 
 func setup(p_hud: HUD, p_hero: Hero) -> void:
@@ -89,7 +91,8 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 
 	hero.inventory.changed.connect(refresh)
 	hero.stats_changed.connect(refresh)
-	hero.gold_changed.connect(func(_g): refresh())
+	_gold_callback = func(_g): refresh()
+	hero.gold_changed.connect(_gold_callback)
 	refresh()
 
 
@@ -147,6 +150,16 @@ func drop_held_to_world() -> void:
 	LootDrop.drop_item(hud.world, hud.world.player.global_position, held)
 	held = null
 	refresh()
+
+
+func cleanup() -> void:
+	"""Desconectar signals para evitar memory leak"""
+	if hero.inventory.changed.is_connected(refresh):
+		hero.inventory.changed.disconnect(refresh)
+	if hero.stats_changed.is_connected(refresh):
+		hero.stats_changed.disconnect(refresh)
+	if hero.gold_changed.is_connected(_gold_callback):
+		hero.gold_changed.disconnect(_gold_callback)
 
 
 func _sell(it: Item) -> void:

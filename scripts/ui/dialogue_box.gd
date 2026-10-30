@@ -22,6 +22,7 @@ var _choices_box: VBoxContainer
 var _continue_btn: Button
 var _type_tween: Tween
 var _pages: PackedStringArray = PackedStringArray()
+var _gui_input_callback: Callable  # Para desconectar depois
 
 
 func _ready() -> void:
@@ -88,10 +89,10 @@ func _ready() -> void:
 	engine.page_shown.connect(_show_page)
 	engine.choices_shown.connect(_show_choices)
 	engine.dialogue_ended.connect(_close)
-	gui_input.connect(func(e: InputEvent):
+	_gui_input_callback = func(e: InputEvent):
 		if e is InputEventMouseButton and e.pressed:
 			_advance()
-	)
+	gui_input.connect(_gui_input_callback)
 
 
 func open(data: DialogueData, speaker_name: String = "") -> void:
@@ -168,6 +169,19 @@ func _advance() -> void:
 func _close() -> void:
 	if _type_tween and _type_tween.is_valid():
 		_type_tween.kill()
+	
+	# Desconectar signals para evitar memory leak
+	if _continue_btn.pressed.is_connected(_advance):
+		_continue_btn.pressed.disconnect(_advance)
+	if engine.page_shown.is_connected(_show_page):
+		engine.page_shown.disconnect(_show_page)
+	if engine.choices_shown.is_connected(_show_choices):
+		engine.choices_shown.disconnect(_show_choices)
+	if engine.dialogue_ended.is_connected(_close):
+		engine.dialogue_ended.disconnect(_close)
+	if gui_input.is_connected(_gui_input_callback):
+		gui_input.disconnect(_gui_input_callback)
+	
 	get_tree().paused = false
 	Sfx.play(&"ui_close", -10.0)
 	# 7.5: diálogo acabou - música volta ao volume (MECANICAS #15.1)
