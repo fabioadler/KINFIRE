@@ -214,8 +214,9 @@ func _calculate_depths() -> Dictionary:
 		if d < min_depth:
 			min_depth = d
 	if min_depth < 0:
+		var shift: int = int(-min_depth)
 		for k in depths.keys():
-			depths[k] -= min_depth
+			depths[k] += shift
 	
 	return depths
 
