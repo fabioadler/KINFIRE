@@ -52,13 +52,13 @@ func _log(component: String, level: String, message: String) -> void:
 	
 	var color = ""
 	match level:
-		"CRITICAL": color = "\033[91m"
-		"ERROR": color = "\033[91m"
-		"WARN": color = "\033[93m"
-		"INFO": color = "\033[92m"
-		_: color = "\033[94m"
+		"CRITICAL": color = "\u001b[91m"
+		"ERROR": color = "\u001b[91m"
+		"WARN": color = "\u001b[93m"
+		"INFO": color = "\u001b[92m"
+		_: color = "\u001b[94m"
 	
-	print("%s[%.2fs] [%s] %s: %s\033[0m" % [color, log.timestamp, level, component, message])
+	print("%s[%.2fs] [%s] %s: %s\u001b[0m" % [color, log.timestamp, level, component, message])
 
 func _run() -> void:
 	_log("PLAYTHROUGH", "INFO", "Fase 1: Validação de Inicialização")
@@ -178,7 +178,7 @@ func _validate_hero_stats(hero: Hero, level: int) -> void:
 	_log("GAMEPLAY", "INFO", "L%d: HP=%d, ARM=%d, DPS=%.1f" % [level, hp, armor, dps])
 
 func _equip_random_item(hero: Hero) -> void:
-	var item = DB.create_item(&"sword", hero.level, Item.Rarity.pick_random() if randf() > 0.7 else Item.Rarity.COMMON)
+	var item = DB.create_item(&"sword", hero.level, [Item.Rarity.MAGIC, Item.Rarity.RARE, Item.Rarity.LEGENDARY].pick_random() if randf() > 0.7 else Item.Rarity.COMMON)
 	var result = hero.equip(item)
 	if result.size() > 0:
 		_log("GAMEPLAY", "INFO", "Item desequipado: %s" % result[0].name)
@@ -206,9 +206,9 @@ func _analyze_performance() -> void:
 func _finalize() -> void:
 	metrics.test_duration = (Time.get_ticks_msec() - test_start_time) / 1000.0
 	
-	print("\n" + "═"*60)
+	print("\n" + "═".repeat(60))
 	print("RELATÓRIO FINAL - TESTE DE 50 NÍVEIS")
-	print("═"*60)
+	print("═".repeat(60))
 	print("\nDuração: %.2fs" % metrics.test_duration)
 	print("Níveis Completados: %d/50" % metrics.levels_completed)
 	print("Total de Logs: %d" % metrics.total_logs)
@@ -227,7 +227,7 @@ func _finalize() -> void:
 	else:
 		print("\n⚠️ TESTE FALHOU")
 	
-	print("\n" + "═"*60)
+	print("\n" + "═".repeat(60))
 	
 	_save_report()
 	get_tree().quit()

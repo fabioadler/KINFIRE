@@ -22,7 +22,11 @@ class Bank:
 		return true
 	
 	func remove_item(item: Item) -> bool:
-		return slots.erase(item) > 0
+		var idx := slots.find(item)
+		if idx < 0:
+			return false
+		slots.remove_at(idx)
+		return true
 	
 	func get_slots_used() -> int:
 		return slots.size()

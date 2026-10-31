@@ -1,26 +1,11 @@
 # class_name HUDModern
-extends CanvasLayer
+extends HUD
 ## HUD moderna, responsiva e otimizada - layout fluido que se adapta a qualquer resolução
 ## Fase 12: Redesign completo para suportar múltiplas resoluções e estilo moderno
 
-const Hero := preload("res://scripts/core/hero.gd")
-const VitalsBar := preload("res://scripts/ui/vitals_bar.gd")
-const SkillSlot := preload("res://scripts/ui/skill_slot.gd")
-const InventoryPanel := preload("res://scripts/ui/inventory_panel.gd")
-const CharacterPanel := preload("res://scripts/ui/character_panel.gd")
-const SkillsPanel := preload("res://scripts/ui/skills_panel.gd")
-const QuestPanel := preload("res://scripts/ui/quest_panel.gd")
-const UnifiedPanel := preload("res://scripts/ui/unified_panel.gd")
-const SkillTreePanel := preload("res://scripts/ui/skill_tree_panel.gd")
-const DialogueBox := preload("res://scripts/ui/dialogue_box.gd")
-const TradePanel := preload("res://scripts/ui/trade_panel.gd")
-const ConsumableSlotScript := preload("res://scripts/ui/consumable_slot.gd")
+# Consts e membros compartilhados (world, player, hero, _root, _hp_bar, _slots,
+# panels etc.) são herdados de HUD.
 
-var world: World
-var player: Player
-var hero: Hero
-
-var _root: Control
 var _screen_size: Vector2
 var _scale_factor: float = 1.0  # Escala dinâmica baseada em resolução
 
@@ -32,24 +17,10 @@ var _right_panel: PanelContainer  # Target / Quest tracker
 var _minimap: Control  # Minimapa (futuro)
 
 # Sub-elementos
-var _hp_bar: VitalsBar
-var _res_bar: VitalsBar
 var _level_label: Label
 var _gold_label: Label
 var _essence_label: Label
 var _clock_label: Label
-var _slots: Array[SkillSlot] = []
-var _consumable_slots: Array = []
-var _messages: VBoxContainer
-var _buff_row: HBoxContainer
-var _target_box: PanelContainer
-var _unified: UnifiedPanel
-
-var inventory: InventoryPanel
-var character: CharacterPanel
-var skills: SkillsPanel
-var questlog: QuestPanel
-var skill_tree: SkillTreePanel
 
 
 func setup(p_world: World, p_player: Player) -> void:
@@ -88,7 +59,7 @@ func _build() -> void:
 
 
 func _on_viewport_changed() -> void:
-	_screen_size = get_viewport_rect().size
+	_screen_size = get_viewport().get_visible_rect().size
 	# Escala dinâmica: 1280x720 = 1.0, 1920x1080 = 1.5, 2560x1440 = 2.0
 	_scale_factor = _screen_size.x / 1280.0
 	_layout()
@@ -227,7 +198,7 @@ func _build_bottom_bar() -> void:
 	for i in 4:
 		var slot := SkillSlot.new(i, Game.key_name("skill_%d" % (i + 1)))
 		slot.player = player
-		slot.clicked.connect(func(idx: int, _: StringName): player._use_skill(idx))
+		slot.clicked.connect(func(idx: int, _skill_name: StringName): player._use_skill(idx))
 		slot.custom_minimum_size = Vector2(40 * _scale_factor, 40 * _scale_factor)
 		_slots.append(slot)
 		skills_h.add_child(slot)
@@ -238,16 +209,17 @@ func _build_bottom_bar() -> void:
 	skills_h.add_child(panel_h)
 
 	var panel_shortcuts: Array = [
-		("C", "Personagem", Game.key_name("char")),
-		("I", "Inventário", Game.key_name("inv")),
-		("S", "Skills", Game.key_name("skills")),
-		("M", "Missões", Game.key_name("quest")),
-		("B", "Arvore", Game.key_name("skill_tree")),
+		["C", "Personagem", Game.key_name("char")],
+		["I", "Inventário", Game.key_name("inv")],
+		["S", "Skills", Game.key_name("skills")],
+		["M", "Missões", Game.key_name("quest")],
+		["B", "Arvore", Game.key_name("skill_tree")],
 	]
 
-	for label_text: String in panel_shortcuts:
+	for entry in panel_shortcuts:
 		var btn := Button.new()
-		btn.text = label_text
+		btn.text = entry[0]
+		btn.tooltip_text = "%s (%s)" % [entry[1], entry[2]]
 		btn.custom_minimum_size = Vector2(32 * _scale_factor, 40 * _scale_factor)
 		btn.add_theme_font_size_override("font_size", int(12 * _scale_factor))
 		panel_h.add_child(btn)
@@ -321,11 +293,11 @@ func update_status() -> void:
 	_essence_label.text = str(hero.essence)
 
 
-func _on_quest_started(_q: QuestData) -> void:
+func _on_quest_started(_id: StringName) -> void:
 	pass
 
 
-func _on_quest_completed(_q: QuestData) -> void:
+func _on_quest_completed(_id: StringName) -> void:
 	pass
 
 

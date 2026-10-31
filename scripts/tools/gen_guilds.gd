@@ -57,7 +57,7 @@ func _initialize() -> void:
 		"sombras": GuildData.Type.SOMBRAS
 	}
 	
-	DirAccess.make_abs_path_recursive_absolute("res://data/guilds/")
+	DirAccess.make_dir_recursive_absolute("res://data/guilds/")
 	
 	var generated = 0
 	for cls in CLASSES:

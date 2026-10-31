@@ -53,7 +53,7 @@ func generate_all() -> void:
 	}
 	
 	# Garantir diretório
-	DirAccess.make_abs_path_recursive_absolute("res://data/guilds/")
+	DirAccess.make_dir_recursive_absolute("res://data/guilds/")
 	
 	var generated = 0
 	for cls in CLASSES:

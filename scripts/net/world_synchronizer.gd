@@ -4,7 +4,7 @@
 
 extends Node
 
-# class_name WorldSynchronizer
+class_name WorldSynchronizer
 
 ## ============================================================================
 ## SNAPSHOT - HOST SIDE
@@ -30,7 +30,7 @@ static func create_snapshot(world: Node) -> Dictionary:
 			snapshot["biome"] = ow.og.biome_at(ow.world_to_cell(ow.player.global_position))
 	
 	# Snapshot de inimigos ativos
-	for enemy in get_tree().get_nodes_in_group("enemies"):
+	for enemy in world.get_tree().get_nodes_in_group("enemies"):
 		if enemy is Enemy:
 			snapshot["enemies"].append({
 				"id": enemy.get_instance_id(),
@@ -42,7 +42,7 @@ static func create_snapshot(world: Node) -> Dictionary:
 			})
 	
 	# Snapshot de loot no chão
-	for drop in get_tree().get_nodes_in_group("pickups"):
+	for drop in world.get_tree().get_nodes_in_group("pickups"):
 		if drop is LootDrop:
 			snapshot["loot"].append({
 				"id": drop.get_instance_id(),

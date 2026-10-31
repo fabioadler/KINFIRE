@@ -41,7 +41,7 @@ static func check_advancement(hero: Hero) -> bool:
 				if req_value > Game.mysteries_completed:
 					return false
 			"fragmentos":
-				if req_value > (Game.fragmentos if Game.fragmentos is int else 0):
+				if req_value > Game.fragmentos.size():
 					return false
 			"reputacao":
 				# Reputação mínima em qualquer território

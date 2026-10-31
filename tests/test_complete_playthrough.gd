@@ -58,18 +58,18 @@ func _add_log(component: String, level: String, message: String, stack: String =
 	var color = ""
 	match level:
 		"ERROR", "CRITICAL": 
-			color = "\033[91m"  # Red
+			color = "\u001b[91m"  # Red
 			errors_found += 1
 			critical_errors.append("[%s] %s: %s" % [component, level, message])
 		"WARN":
-			color = "\033[93m"  # Yellow
+			color = "\u001b[93m"  # Yellow
 			warnings_found += 1
 		"INFO":
-			color = "\033[92m"  # Green
+			color = "\u001b[92m"  # Green
 		_:
-			color = "\033[94m"  # Blue
+			color = "\u001b[94m"  # Blue
 	
-	print("%s[%.2fs] [%s] %s: %s\033[0m" % [color, log.timestamp / 1000.0, level, component, message])
+	print("%s[%.2fs] [%s] %s: %s\u001b[0m" % [color, log.timestamp / 1000.0, level, component, message])
 
 
 func _run() -> void:

@@ -48,7 +48,7 @@ func _build() -> void:
 
 
 func _on_viewport_changed() -> void:
-	_screen_size = get_viewport_rect().size
+	_screen_size = get_viewport().get_visible_rect().size
 	# Escala dinâmica baseada em resolução (1280x720 = 1.0)
 	_scale_factor = maxf(minf(_screen_size.x / 1280.0, 2.0), 0.8)
 	_layout()
@@ -189,7 +189,7 @@ func _build_bottom_bar() -> void:
 	for i in 4:
 		var slot := SkillSlot.new(i, Game.key_name("skill_%d" % (i + 1)))
 		slot.player = player
-		slot.clicked.connect(func(idx: int, _: StringName): player._use_skill(idx))
+		slot.clicked.connect(func(idx: int, _skill_name: StringName): player._use_skill(idx))
 		_slots.append(slot)
 		h.add_child(slot)
 
@@ -198,17 +198,18 @@ func _build_bottom_bar() -> void:
 	# Botões de painéis
 	_bar_buttons = {}
 	var shortcuts: Array = [
-		("C", "character", Game.key_name("char")),
-		("I", "inventory", Game.key_name("inv")),
-		("S", "skills", Game.key_name("skills")),
-		("M", "quest_log", Game.key_name("quest")),
-		("B", "skill_tree", Game.key_name("skill_tree")),
+		["C", "character", Game.key_name("char")],
+		["I", "inventory", Game.key_name("inv")],
+		["S", "skills", Game.key_name("skills")],
+		["M", "quest_log", Game.key_name("quest")],
+		["B", "skill_tree", Game.key_name("skill_tree")],
 	]
 
-	for label: String in shortcuts:
+	for entry in shortcuts:
 		var btn := Button.new()
-		btn.text = label
-		_bar_buttons[label] = btn
+		btn.text = entry[0]
+		btn.tooltip_text = "%s (%s)" % [entry[1], entry[2]]
+		_bar_buttons[entry[0]] = btn
 		h.add_child(btn)
 
 
@@ -260,22 +261,22 @@ func _spacer(size: int = 8) -> Control:
 
 func refresh_skill_bar() -> void:
 	for i in mini(_slots.size(), hero.skill_bar.size()):
-		var skill_id := hero.skill_bar[i]
+		var skill_id: StringName = hero.skill_bar[i]
 		if skill_id != &"":
-			var skill := DB.get_skill(skill_id)
+			var skill := DB.get_skill(hero.cls, skill_id)
 			if skill:
 				_slots[i].set_skill(skill, hero)
 
 
-func _on_quest_started(q: QuestData) -> void:
+func _on_quest_started(_id: StringName) -> void:
 	pass
 
 
-func _on_quest_completed(q: QuestData) -> void:
+func _on_quest_completed(_id: StringName) -> void:
 	pass
 
 
-func _on_trade_requested() -> void:
+func _on_trade_requested(_p_race: StringName) -> void:
 	pass
 
 

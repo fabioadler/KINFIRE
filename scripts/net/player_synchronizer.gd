@@ -34,7 +34,7 @@ static func spawn_remote_player(peer_id: int, hero_data: Dictionary, spawn_pos: 
 	if world:
 		world.add_child(hero)
 	else:
-		get_tree().root.add_child(hero)
+		(Engine.get_main_loop() as SceneTree).root.add_child(hero)
 	
 	# Registrar no manager
 	MultiplayerManager.player_chars[peer_id] = hero

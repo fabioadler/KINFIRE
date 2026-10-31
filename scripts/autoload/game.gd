@@ -82,6 +82,10 @@ var quest_log := QuestLog.new()
 var flags: Dictionary = {}
 ## Fragmentos da Verdade coletados (Fase 4 - 8 destravam o Final Dourado)
 var fragmentos: Array = []
+## Guildas criadas pelos jogadores: id -> PlayerGuild
+var player_guilds: Dictionary = {}
+## Mistérios resolvidos (usado pelo RankSystem)
+var mysteries_completed: int = 0
 ## Economia por território (Fase 5.2): {raça: {"demand": {cat: float}, "sold": [índices]}}
 var market: Dictionary = {}
 ## Casa de leilões (Fase 5.4): {"day": int, "slots": [...]} (REGRAS #9)

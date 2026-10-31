@@ -5,7 +5,7 @@ static func create_hud_sprites() -> void:
 	# Criar diretório de sprites se não existir
 	var dir = DirAccess.open("res://assets/sprites/hud")
 	if dir == null:
-		DirAccess.make_absolute_path("res://assets/sprites/hud")
+		DirAccess.make_dir_recursive_absolute("res://assets/sprites/hud")
 	
 	# Gerar sprites SVG
 	_create_panel_frame()
