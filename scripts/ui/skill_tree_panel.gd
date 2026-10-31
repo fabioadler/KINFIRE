@@ -11,7 +11,7 @@ var hud: HUD
 var hero: Hero
 var _tree: SkillTreeDataRes
 var _canvas: Control
-var _points_label: Label = null
+var _points_label: RichTextLabel = null
 var _nodes_ui: Dictionary = {}  # node_id -> {container, btn, icon, pos, node, rank_label}
 var _tooltip: Control = null
 var _drag_offset := Vector2.ZERO
