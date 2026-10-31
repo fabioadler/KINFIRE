@@ -4,19 +4,16 @@ extends PanelContainer
 ## Nós clicáveis, conexões visuais, tooltips, sistema de pontos de árvore.
 
 ## Preloads para type hints funcionarem em parse time
-const SkillTreeData := preload("res://scripts/data/skill_tree_data.gd")
-const SkillNodeData := preload("res://scripts/data/skill_node_data.gd")
+const SkillTreeDataRes := preload("res://scripts/data/skill_tree_data.gd")
+const SkillNodeDataRes := preload("res://scripts/data/skill_node_data.gd")
 
 var hud: HUD
 var hero: Hero
-var _tree: SkillTreeData
+var _tree: SkillTreeDataRes
 var _canvas: Control
 var _points_label: Label = null
 var _nodes_ui: Dictionary = {}  # node_id -> {container, btn, icon, pos, node, rank_label}
-var _selected_node: SkillNodeData = null
 var _tooltip: Control = null
-var _h_scroll: HScrollBar
-var _v_scroll: VScrollBar
 var _drag_offset := Vector2.ZERO
 var _dragging := false
 var _bg_rect: ColorRect = null
@@ -194,7 +191,7 @@ func _calculate_depths() -> Dictionary:
 		var depth: int = item.depth
 		
 		if visited.has(node_id):
-			depths[node_id] = max(depths.get(node_id, -INF), depth)
+			depths[node_id] = max(depths.get(node_id, -2147483647), depth)
 			continue
 		visited[node_id] = true
 		depths[node_id] = depth
@@ -223,7 +220,7 @@ func _calculate_depths() -> Dictionary:
 	return depths
 
 
-func _create_node_ui(node: SkillNodeData, pos: Vector2) -> void:
+func _create_node_ui(node: SkillNodeDataRes, pos: Vector2) -> void:
 	var container := Control.new()
 	container.name = "Node_%s" % node.id
 	container.position = pos
@@ -344,7 +341,7 @@ func _update_node_visual(btn: Button, icon: SpritePreview, unlocked: bool, avail
 	btn.add_theme_stylebox_override("focus", style_normal)
 
 
-func _on_node_pressed(node: SkillNodeData) -> void:
+func _on_node_pressed(node: SkillNodeDataRes) -> void:
 	if hero.tree_points <= 0:
 		hud.show_message("Sem pontos de árvore!", Color(1, 0.4, 0.4), 1.5)
 		return
@@ -371,7 +368,7 @@ func _on_node_pressed(node: SkillNodeData) -> void:
 		var ui: Dictionary = _nodes_ui[node.id]
 		if ui:
 			var btn: Button = ui["button"]
-			var icon: SpritePreview = ui["icon"]
+			var _icon: SpritePreview = ui["icon"]
 			
 			# Para pulse tween anterior se existir
 			if btn.has_meta("_pulse_tween") and btn.get_meta("_pulse_tween").is_valid():
@@ -412,7 +409,7 @@ func _update_node_ui(node_id: StringName) -> void:
 	if not _nodes_ui.has(node_id):
 		return
 	var ui: Dictionary = _nodes_ui[node_id]
-	var node: SkillNodeData = ui["node"]
+	var node: SkillNodeDataRes = ui["node"]
 	var btn: Button = ui["button"]
 	var icon: SpritePreview = ui["icon"]
 	var is_unlocked := node_id in hero.tree_unlocked
@@ -443,13 +440,13 @@ func _update_points() -> void:
 		_points_label.text = "Pontos de Árvore: [color=#F0C060]%d[/color]" % hero.tree_points
 
 
-func _rich_label(text: String, size: int = 14, color: Color = Color(1, 0.9, 0.8), wrap: bool = false) -> RichTextLabel:
+func _rich_label(text: String, p_size: int = 14, color: Color = Color(1, 0.9, 0.8), p_wrap: bool = false) -> RichTextLabel:
 	"""Cria um RichTextLabel com BBCode habilitado para evitar vazamento de tags."""
-	var fit_content := not wrap
+	var fit_content := not p_wrap
 	var lbl := UIKit.rich(text, fit_content)
-	lbl.add_theme_font_size_override("normal_font_size", size)
+	lbl.add_theme_font_size_override("normal_font_size", p_size)
 	lbl.add_theme_color_override("default_color", color)
-	if wrap:
+	if p_wrap:
 		lbl.autowrap_mode = TextServer.AUTOWRAP_WORD
 		lbl.custom_minimum_size = Vector2(260, 0)
 	return lbl
@@ -566,8 +563,8 @@ func _do_center(target: Vector2) -> void:
 		var offset: Vector2 = target - viewport_size * 0.5
 		offset.x = clamp(offset.x, 0, _canvas.custom_minimum_size.x - viewport_size.x)
 		offset.y = clamp(offset.y, 0, _canvas.custom_minimum_size.y - viewport_size.y)
-		scroll_container.scroll_horizontal = offset.x
-		scroll_container.scroll_vertical = offset.y
+		scroll_container.scroll_horizontal = int(offset.x)
+		scroll_container.scroll_vertical = int(offset.y)
 
 
 func _canvas_draw() -> void:
@@ -581,7 +578,7 @@ func _canvas_draw() -> void:
 	
 	for node_id in _nodes_ui:
 		var ui: Dictionary = _nodes_ui[node_id]
-		var node: SkillNodeData = ui["node"]
+		var node: SkillNodeDataRes = ui["node"]
 		var from_pos: Vector2 = ui["pos"] + Vector2(36, 36)  # Centro do nó
 		
 		for req_id in node.requires:
@@ -642,7 +639,7 @@ func _on_canvas_gui_input(event: InputEvent) -> void:
 			scroll_container.scroll_vertical -= event.relative.y
 
 
-func _apply_zoom(factor: float, center: Vector2) -> void:
+func _apply_zoom(factor: float, _center: Vector2) -> void:
 	var new_zoom: float = clamp(_zoom * factor, _min_zoom, _max_zoom)
 	if new_zoom == _zoom:
 		return
