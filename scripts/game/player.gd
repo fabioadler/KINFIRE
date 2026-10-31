@@ -531,15 +531,16 @@ func use_potion() -> void:
 
 
 ## Cura simples (Q) - sempre disponível, sem custo, CD 8s
-var _simple_heal_cd := 0.0
+## Público: o tutorial (prologue) e a HUD leem este cooldown
+var simple_heal_cd := 0.0
 const SIMPLE_HEAL_CD := 8.0
 const SIMPLE_HEAL_PERCENT := 0.15
 
 func _use_simple_heal() -> void:
-	if _simple_heal_cd > 0.0:
-		world.hud.show_message("Cura simples em recarga (%ds)" % ceili(_simple_heal_cd), Color(0.9, 0.6, 0.6), 0.8)
+	if simple_heal_cd > 0.0:
+		world.hud.show_message("Cura simples em recarga (%ds)" % ceili(simple_heal_cd), Color(0.9, 0.6, 0.6), 0.8)
 		return
-	_simple_heal_cd = SIMPLE_HEAL_CD
+	simple_heal_cd = SIMPLE_HEAL_CD
 	heal(max_hp * SIMPLE_HEAL_PERCENT)
 	Sfx.play(&"magic")
 	Fx.burst(world.fx_layer, global_position + Vector2(0, -6), Color(0.3, 1, 0.5), 12, 30.0, 0.6)
@@ -745,7 +746,7 @@ func _tick_timers(delta: float) -> void:
 	for k in cooldowns.keys():
 		cooldowns[k] = maxf(cooldowns[k] - delta, 0.0)
 	potion_cd = maxf(potion_cd - delta, 0.0)
-	_simple_heal_cd = maxf(_simple_heal_cd - delta, 0.0)
+	simple_heal_cd = maxf(simple_heal_cd - delta, 0.0)
 	dodge_cd = maxf(dodge_cd - delta, 0.0)
 	auto_dodge_cd = maxf(auto_dodge_cd - delta, 0.0)
 	cheat_death_cd = maxf(cheat_death_cd - delta, 0.0)

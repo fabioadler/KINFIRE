@@ -41,7 +41,7 @@ objectives = Array[ExtResource("3_qobj")]([SubResource("Obj_collect")])
 script = ExtResource("3_qobj")
 type = 2
 target = &"tut_equip"
-text = "Equipe a espada (inventário Tab, clique direito nela)"
+text = "Equipe a espada (Tab → arraste até o slot de arma, ou clique direito nela)"
 
 [sub_resource type="Resource" id="Stage_equip"]
 script = ExtResource("2_qstage")

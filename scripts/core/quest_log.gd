@@ -153,7 +153,7 @@ func _event(type: int, target: StringName) -> void:
 						p[i] += 1
 						touched = true
 				QuestObjective.Type.FLAG:
-					if Game.flags.has(o.target):
+					if o.target == target and Game.flags.has(o.target):
 						p[i] = o.count
 						touched = true
 				QuestObjective.Type.COLLECT:

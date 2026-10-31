@@ -247,7 +247,7 @@ func _create_node_ui(node: SkillNodeDataRes, pos: Vector2) -> void:
 	var rank := hero.get_tree_node_rank(node.id)
 	var rank_lbl: Label = null
 	
-	_update_node_visual(btn, icon, is_unlocked, is_available, rank, node.max_rank)
+	_update_node_visual(node.id, btn, icon, is_unlocked, is_available, rank, node.max_rank)
 	
 	# Tooltip e click
 	btn.mouse_entered.connect(func(): _show_tooltip(node, btn))
@@ -275,7 +275,7 @@ func _create_node_ui(node: SkillNodeDataRes, pos: Vector2) -> void:
 	}
 
 
-func _update_node_visual(btn: Button, icon: SpritePreview, unlocked: bool, available: bool, rank: int, max_rank: int) -> void:
+func _update_node_visual(p_node_id: StringName, btn: Button, icon: SpritePreview, unlocked: bool, available: bool, rank: int, max_rank: int) -> void:
 	var style_normal := StyleBoxFlat.new()
 	style_normal.corner_radius_top_left = 32
 	style_normal.corner_radius_top_right = 32
@@ -286,12 +286,7 @@ func _update_node_visual(btn: Button, icon: SpritePreview, unlocked: bool, avail
 	style_normal.border_width_top = 3
 	style_normal.border_width_bottom = 3
 	
-	# Usa ID do nó para rastrear tween (precisamos achar o node_id pelo btn)
-	var node_id: StringName = ""
-	for k in _nodes_ui:
-		if _nodes_ui[k]["button"] == btn:
-			node_id = k
-			break
+	var node_id: StringName = p_node_id
 	
 	if unlocked:
 		# Verde - comprado
@@ -415,7 +410,7 @@ func _update_node_ui(node_id: StringName) -> void:
 	var is_available := node.is_available(hero.tree_unlocked)
 	var rank := hero.get_tree_node_rank(node_id)
 	
-	_update_node_visual(btn, icon, is_unlocked, is_available, rank, node.max_rank)
+	_update_node_visual(node_id, btn, icon, is_unlocked, is_available, rank, node.max_rank)
 	
 	# Atualiza/cria label de rank
 	if is_unlocked:
@@ -451,7 +446,7 @@ func _rich_label(text: String, p_size: int = 14, color: Color = Color(1, 0.9, 0.
 	return lbl
 
 
-func _show_tooltip(node: SkillNodeData, btn: Button) -> void:
+func _show_tooltip(node: SkillNodeDataRes, btn: Button) -> void:
 	if _tooltip:
 		_hide_tooltip()
 	

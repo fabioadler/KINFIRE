@@ -300,7 +300,7 @@ func _test_prologue() -> void:
 	assert(pro.tut_step == Prologue.TutStep.POTION)
 	assert(Game.hero.equipment.weapon != null)
 	# Passo 5: cura simples (Q)
-	pro.player._simple_heal_cd = 0.1
+	pro.player.simple_heal_cd = 0.1
 	await _wait(0.3)
 	assert(pro.tut_step == Prologue.TutStep.CAMPFIRE)
 	assert(pro._guide_target() == pro.cell_to_world(Prologue.CAMPFIRE_CELL), "seta aponta a fogueira")

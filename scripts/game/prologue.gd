@@ -64,7 +64,7 @@ const STEP_HINTS := {
 	TutStep.MOVE: "Use WASD ou clique no chão para andar.",
 	TutStep.ATTACK: "Clique esquerdo no espantalho para atacar.",
 	TutStep.COLLECT: "Aproxime-se do brilho da espada (ou clique no nome) para apanhá-la.",
-	TutStep.EQUIP: "Abra o inventário (Tab) e clique com o botão direito na espada para equipá-la.",
+	TutStep.EQUIP: "Abra o inventário (Tab) e arraste a espada até o slot de arma (ou clique direito nela).",
 	TutStep.POTION: "Aperte Q para usar a Cura Simples.",
 	TutStep.CAMPFIRE: "Aperte E na fogueira para acendê-la.",
 }
@@ -189,7 +189,7 @@ func _process(delta: float) -> void:
 		if Game.hero.equipment.weapon != null:
 			_advance()
 	elif tut_step == TutStep.POTION:
-		if player.potion_cd > 0.0:
+		if player.simple_heal_cd > 0.0:
 			_advance()
 	_last_player_pos = player.global_position
 
@@ -206,7 +206,7 @@ func _step_condition_met() -> bool:
 		TutStep.MOVE: return _moved >= MOVE_DIST
 		TutStep.COLLECT: return _has_wood_sword()
 		TutStep.EQUIP: return Game.hero.equipment.weapon != null
-		TutStep.POTION: return player.potion_cd > 0.0
+		TutStep.POTION: return player.simple_heal_cd > 0.0
 	return false
 
 

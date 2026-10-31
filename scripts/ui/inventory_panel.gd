@@ -272,6 +272,9 @@ func _drop_on_grid(cell: Vector2i) -> void:
 	if not is_dragging():
 		return
 	var item: Item = _drag.item
+	if item == null:
+		drag_clear()
+		return
 	
 	# Se item está equipado, desequipa primeiro
 	if hero.equipment.get(item.slot) == item:
@@ -281,22 +284,23 @@ func _drop_on_grid(cell: Vector2i) -> void:
 		drop_to_floor(item)
 		return
 	
-	if not hero.inventory.can_add(item):
-		hud.show_message("Inventário cheio", Color(1, 0.5, 0.4))
-		_cancel_drag()
-		return
-	
 	var over := hero.inventory.overlapping(item, cell)
 	if over.size() == 1:
+		# Swap com outro item da grade
 		var other: Item = over[0]
 		hero.inventory.remove(other)
 		hero.inventory.place(item, cell)
 		held = other
 		Sfx.play(&"drop")
-	elif hero.inventory.add(item):
-		hero.inventory.replace(item, cell)
-		held = null
+	elif hero.inventory.can_place(item, cell):
+		hero.inventory.place(item, cell)
 		Sfx.play(&"drop")
+	elif hero.inventory.add(item):
+		hud.show_message("Movido para outro espaço livre", Color(1, 0.8, 0.4))
+		Sfx.play(&"drop")
+	else:
+		drop_to_floor(item)
+		return
 	drag_clear()
 
 
@@ -312,6 +316,14 @@ func _drop_on_slot(slot: String) -> void:
 	if not is_dragging():
 		return
 	var item: Item = _drag.item
+	if item == null:
+		drag_clear()
+		return
+	
+	# Dropar de volta no mesmo slot de equipamento: no-op
+	if _drag.source == "equip" and slot == _drag.slot:
+		drag_clear()
+		return
 	
 	# Verifica se slot é compatível
 	if item.slot != slot:
@@ -327,12 +339,19 @@ func _drop_on_slot(slot: String) -> void:
 	
 	# Slot livre: equipa direto
 	if not slot in hero.equipment or hero.equipment[slot] == null:
-		equip_from_inventory(item)
+		if _drag.source == "grid":
+			equip_from_inventory(item)
+		else:
+			hero.equip(item)
+			Sfx.play(&"equip")
+			hud.show_message("Equipado: %s" % item.name, Color(0.4, 1, 0.4))
 		drag_clear()
 		return
 	
-	# Slot ocupado: swap automático
+	# Slot ocupado: swap automático (remove do inventário ANTES de equipar para não duplicar)
 	var old: Item = hero.equipment[slot]
+	if _drag.source == "grid":
+		hero.inventory.remove(item)
 	hero.equip(item)
 	if not hero.inventory.add(old):
 		LootDrop.drop_item(hud.world, hud.world.player.global_position, old)
@@ -409,13 +428,13 @@ class _GridView extends Control:
 			var cell := _cell_at(mp)
 			_hover_cell = cell
 			
-			var drag_item: Item = panel._drag.item if panel.is_dragging() else null
+			var drag_item: Item = panel._get_drag_item()
 			panel.show_tooltip(inv.item_at(cell) if drag_item == null else drag_item)
 			
 			# Atualiza preview de drop
-			if panel.is_dragging() and panel._drag.source in ["grid", "equip"]:
+			if panel.is_dragging() and panel._drag.source in ["grid", "equip"] and drag_item:
 				_drop_target_cell = cell
-				_drop_valid = inv.in_bounds(panel._drag.item, cell) and inv.overlapping(panel._drag.item, cell).size() <= 1
+				_drop_valid = inv.in_bounds(drag_item, cell) and inv.overlapping(drag_item, cell).size() <= 1
 			else:
 				_drop_target_cell = Vector2i(-1, -1)
 				_drop_valid = false
@@ -478,8 +497,10 @@ class _GridView extends Control:
 
 		elif event is InputEventMouseButton and not event.pressed:
 			if event.button_index == MOUSE_BUTTON_LEFT and panel.is_dragging():
-				# Solta fora de célula válida = cancela
-				if _drop_target_cell == Vector2i(-1, -1) or not _drop_valid:
+				# Release: solta na célula sob o cursor (press-hold-release padrão)
+				if _drop_target_cell != Vector2i(-1, -1) and _drop_valid:
+					panel._drop_on_grid(_drop_target_cell)
+				else:
 					panel._cancel_drag()
 				queue_redraw()
 				accept_event()
@@ -515,7 +536,7 @@ class _GridView extends Control:
 				draw_rect(r.grow(-1), Color(0.22, 0.17, 0.12), false, 1.0)
 		
 		# Highlight célula de drop válida
-		if _drop_target_cell != Vector2i(-1, -1):
+		if _drop_target_cell != Vector2i(-1, -1) and panel._get_drag_item():
 			var r := Rect2(Vector2(_drop_target_cell) * cs, Vector2(panel._drag.item.size) * cs)
 			draw_rect(r, Color(0.2, 0.8, 0.2, 0.3) if _drop_valid else Color(0.8, 0.1, 0.1, 0.3))
 		
@@ -532,7 +553,7 @@ class _GridView extends Control:
 				draw_rect(Rect2(Vector2(pos) * cs, Vector2(panel.held.size) * cs), Color(0.2, 0.8, 0.2, 0.25) if ok else Color(0.8, 0.1, 0.1, 0.25))
 		
 		# Ghost do drag-and-drop
-		if panel.is_dragging() and panel._drag.source in ["grid", "equip"] and panel._drag.ghost_visible:
+		if panel.is_dragging() and panel._drag.source in ["grid", "equip"] and panel._drag.ghost_visible and panel._get_drag_item():
 			var mouse := get_local_mouse_position()
 			var s: Vector2 = panel._drag.item.size * cs
 			var ghost_rect := Rect2(mouse - s * 0.5, s)
@@ -610,7 +631,9 @@ class _EquipView extends Control:
 
 		elif event is InputEventMouseButton and not event.pressed:
 			if event.button_index == MOUSE_BUTTON_LEFT and panel.is_dragging():
-				if not _is_drop_target or not _drop_valid:
+				if _is_drop_target and _drop_valid:
+					panel._drop_on_slot(slot)
+				else:
 					panel._cancel_drag()
 				queue_redraw()
 				accept_event()
@@ -649,7 +672,7 @@ class _EquipView extends Control:
 			panel._draw_item(self, it, r.grow(-3))
 		
 		# Ghost do drag-and-drop (desenha no viewport global)
-		if is_drag_source and panel._drag.ghost_visible:
+		if is_drag_source and panel._drag.ghost_visible and panel._get_drag_item():
 			var mp := get_local_mouse_position()
 			panel._draw_item(self, panel._drag.item, Rect2(mp.x - size.x * 0.5, mp.y - size.y * 0.5, size.x, size.y))
 		

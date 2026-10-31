@@ -45,7 +45,7 @@ func _make_custom_tooltip(_for_text: String) -> Object:
 	var r := UIKit.rich()
 	r.custom_minimum_size = Vector2(300, 0)
 	if is_potion:
-		r.text = "[font_size=18][color=#ff6060]Poção de Vida[/color][/font_size]\nRestaura 50% da vida.\n[color=#999999]Recarga: 20s  -  Tecla Q[/color]"
+		r.text = "[font_size=18][color=#60ff90]Cura Simples[/color][/font_size]\nRestaura 15% da vida.\n[color=#999999]Recarga: 8s  -  Tecla Q[/color]"
 		return r
 	if s == null:
 		r.text = "[color=#999999]Slot vazio.\nAbra Habilidades (K) para atribuir.[/color]"
@@ -101,8 +101,8 @@ func _draw() -> void:
 	var remaining := 0.0
 	if player:
 		if is_potion:
-			remaining = player.potion_cd
-			frac = remaining / Player.POTION_COOLDOWN
+			remaining = player.simple_heal_cd
+			frac = remaining / Player.SIMPLE_HEAL_CD
 		elif s:
 			remaining = player.cooldowns.get(s.id, 0.0)
 			var total := s.cooldown * player.hero.cooldown_mult()

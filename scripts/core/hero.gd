@@ -461,9 +461,22 @@ func spend_tree_point(node_id: StringName) -> bool:
 ## Respec da árvore de habilidades: devolve todos os pontos gastos e desbloqueia todos os nós
 func respec_tree() -> void:
 	var spent := tree_unlocked.size()
+	# Coleta skill_ids de nós "nova skill" antes de limpar
+	var tree := DB.get_skill_tree(cls.id)
+	var tree_skill_ids: Array[StringName] = []
+	if tree:
+		for node_id in tree_unlocked:
+			var node := tree.get_node(node_id)
+			if node and node.is_new_skill:
+				tree_skill_ids.append(node.skill_id)
 	tree_points += spent
 	tree_unlocked.clear()
-	# Re-refresh skill bar para remover skills desbloqueadas pela árvore (se necessário)
+	# Remove skills desbloqueadas pela árvore do skill bar
+	for sid in tree_skill_ids:
+		var idx := skill_bar.find(sid)
+		while idx >= 0:
+			skill_bar[idx] = &""
+			idx = skill_bar.find(sid)
 	refresh_skill_bar()
 	stats_changed.emit()
 
