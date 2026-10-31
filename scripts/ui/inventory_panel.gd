@@ -1,14 +1,13 @@
 class_name InventoryPanel
 extends PanelContainer
 ## Inventário estilo Diablo: equipamento + grade com itens de tamanhos variados.
-## Clique esquerdo pega/solta (troca), clique direito equipa/desequipa,
-## soltar fora do painel joga o item no chão.
+## Drag-and-drop completo: arraste entre grade e slots, solte fora para dropar, ESC cancela.
 
 const CELL := 40
 
 var hud: HUD
 var hero: Hero
-var held: Item          ## Item "na mão" do cursor
+var held: Item          ## Item "na mão" do cursor (click-to-hold legacy)
 var _grid_view: Control
 var _equip_views: Dictionary = {}
 var _doll: Control
@@ -17,8 +16,17 @@ var _gold_label: Label
 var _stats_label: RichTextLabel
 var _tooltip: PanelContainer
 var _tooltip_text: RichTextLabel
-var _refresh_callback: Callable  ## Para desconectar depois
-var _gold_callback: Callable     ## Para desconectar depois
+var _refresh_callback: Callable
+var _gold_callback: Callable
+
+## Estado de arraste (drag-and-drop unificado)
+var _drag: Dictionary = {"source": null, "item": null, "slot": null, "start_pos": Vector2.ZERO, "ghost_visible": false}
+func is_dragging() -> bool: return _drag != null and _drag.source != null
+func drag_clear() -> void: _drag = {"source": null, "item": null, "slot": null, "start_pos": Vector2.ZERO, "ghost_visible": false}
+
+# Helper tipado para acessar item do drag
+func _get_drag_item() -> Item:
+	return _drag.item if _drag and _drag.item else null
 
 
 func setup(p_hud: HUD, p_hero: Hero) -> void:
@@ -33,7 +41,6 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 
-	# ScrollContainer para garantir compatibilidade e rolagem suave
 	var scroll := ScrollContainer.new()
 	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
@@ -41,7 +48,6 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.add_child(scroll)
 
-	# Container principal lado a lado: Mochila (Grid) à esquerda, Equipamento (Paper Doll) à direita
 	var main_hbox := HBoxContainer.new()
 	main_hbox.add_theme_constant_override("separation", 16)
 	main_hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -68,10 +74,9 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 	bottom.add_child(_gold_label)
 	bottom.add_child(UIKit.button("Vender Comuns e Mágicos", _sell_junk))
 
-	var hint := UIKit.label("Esq: mover | Dir: equipar | Shift+Dir: vender", 12, UIKit.TEXT_DIM)
+	var hint := UIKit.label("Arraste: segurar item | Soltar: equipar/trocar | ESC: cancelar | Fora: dropar", 12, UIKit.TEXT_DIM)
 	left_col.add_child(hint)
 
-	# Divisor vertical entre Mochila e Equipamento
 	var v_sep := VSeparator.new()
 	main_hbox.add_child(v_sep)
 
@@ -84,13 +89,11 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 	var equip_title := UIKit.label("Equipamento", 15, UIKit.GOLD, true)
 	right_col.add_child(equip_title)
 
-	# Equipamento em formato de "boneco" (paper doll)
 	_doll = Control.new()
 	_doll.custom_minimum_size = Vector2(320, 216)
 	_doll.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	right_col.add_child(_doll)
 
-	# Fundo estilizado para a área central do personagem (pedestal/nicho)
 	var char_bg := Panel.new()
 	char_bg.position = Vector2(116, 46)
 	char_bg.size = Vector2(88, 112)
@@ -98,7 +101,6 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 	char_bg.add_theme_stylebox_override("panel", UIKit.box(Color(0.03, 0.025, 0.02, 0.8), Color(UIKit.GOLD_DIM.r, UIKit.GOLD_DIM.g, UIKit.GOLD_DIM.b, 0.35), 1, 6))
 	_doll.add_child(char_bg)
 
-	# Sprite do personagem no centro do boneco (paper doll) - usa SpritePreview para frames animados
 	_hero_sprite = SpritePreview.new()
 	_hero_sprite.name = "HeroSprite"
 	_hero_sprite.set_sprite(hero.sprite_base(), hero.tint * hero.race.tint)
@@ -107,20 +109,15 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 	_hero_sprite.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_doll.add_child(_hero_sprite)
 
-	# Layout dos 11 slots de equipamento posicionados ao redor do personagem
 	var layout: Dictionary = {
-		# Topo (cabeça e pescoço)
 		"helm": Rect2(136, 2, 48, 42),
 		"amulet": Rect2(192, 4, 40, 40),
-		# Lado esquerdo (mão primária, luvas, anel)
 		"weapon": Rect2(4, 48, 52, 100),
 		"gloves": Rect2(60, 48, 52, 50),
 		"ring": Rect2(60, 104, 52, 44),
-		# Lado direito (armadura, acessório 1, mão secundária)
 		"chest": Rect2(208, 48, 52, 50),
 		"accessory_1": Rect2(208, 104, 52, 44),
 		"offhand": Rect2(264, 48, 52, 100),
-		# Parte inferior (acessório 2, botas, acessório 3)
 		"accessory_2": Rect2(60, 160, 52, 48),
 		"boots": Rect2(126, 160, 68, 48),
 		"accessory_3": Rect2(208, 160, 52, 48),
@@ -169,7 +166,6 @@ func refresh() -> void:
 	_grid_view.queue_redraw()
 	for v in _equip_views.values():
 		v.queue_redraw()
-	# Atualiza sprite do boneco (pode mudar com equip visual no futuro)
 	if _hero_sprite:
 		_hero_sprite.set_sprite(hero.sprite_base(), hero.tint * hero.race.tint)
 
@@ -223,8 +219,130 @@ func drop_held_to_world() -> void:
 	refresh()
 
 
+## --- DRAG-AND-DROP UNIFICADO ---
+
+func _start_drag(source: String, item: Item, slot: Variant, mouse_pos: Vector2) -> void:
+	if not item:
+		return
+	_drag = {"source": source, "item": item, "slot": slot, "start_pos": mouse_pos, "ghost_visible": true}
+	held = null
+	hide_tooltip()
+	Sfx.play(&"cloth")
+	_grid_view.queue_redraw()
+	for v in _equip_views.values():
+		v.queue_redraw()
+
+
+func drag_from_grid(item: Item, cell: Vector2i, mouse_pos: Vector2) -> void:
+	_start_drag("grid", item, cell, mouse_pos)
+
+
+func drag_from_equip(slot: String, mouse_pos: Vector2) -> void:
+	var it: Item = hero.equipment.get(slot) if slot in hero.equipment else null
+	_start_drag("equip", it, slot, mouse_pos)
+
+
+func _cancel_drag() -> void:
+	if not is_dragging():
+		return
+	# Devolve item para origem
+	var item: Item = _drag.item
+	var source: String = _drag.source
+	var slot: Variant = _drag.slot
+	
+	if source == "grid":
+		# Recoloca na grade na posição original
+		if hero.inventory.in_bounds(item, slot):
+			hero.inventory.place(item, slot)
+		elif hero.inventory.add(item):
+			pass # já estava no inventário
+		else:
+			drop_to_floor(item)
+	elif source == "equip":
+		# Re-equipa
+		hero.equip(item)
+	
+	drag_clear()
+	_grid_view.queue_redraw()
+	for v in _equip_views.values():
+		v.queue_redraw()
+
+
+func _drop_on_grid(cell: Vector2i) -> void:
+	if not is_dragging():
+		return
+	var item: Item = _drag.item
+	
+	# Se item está equipado, desequipa primeiro
+	if hero.equipment.get(item.slot) == item:
+		hero.unequip(item.slot)
+	
+	if not hero.inventory.in_bounds(item, cell):
+		drop_to_floor(item)
+		return
+	
+	if not hero.inventory.can_add(item):
+		hud.show_message("Inventário cheio", Color(1, 0.5, 0.4))
+		_cancel_drag()
+		return
+	
+	var over := hero.inventory.overlapping(item, cell)
+	if over.size() == 1:
+		var other: Item = over[0]
+		hero.inventory.remove(other)
+		hero.inventory.place(item, cell)
+		held = other
+		Sfx.play(&"drop")
+	elif hero.inventory.add(item):
+		hero.inventory.replace(item, cell)
+		held = null
+		Sfx.play(&"drop")
+	drag_clear()
+
+
+func drop_to_floor(item: Item) -> void:
+	LootDrop.drop_item(hud.world, hud.world.player.global_position, item)
+	Sfx.play(&"drop")
+	if hud:
+		hud.show_message("Item jogado fora: %s" % item.name, Color(0.8, 0.3, 0.3))
+	drag_clear()
+
+
+func _drop_on_slot(slot: String) -> void:
+	if not is_dragging():
+		return
+	var item: Item = _drag.item
+	
+	# Verifica se slot é compatível
+	if item.slot != slot:
+		hud.show_message("Este item não vai neste espaço", Color(1, 0.5, 0.4))
+		_cancel_drag()
+		return
+	
+	var problem := hero.equip_problem(item)
+	if problem != "":
+		hud.show_message(problem, Color(1, 0.5, 0.4))
+		_cancel_drag()
+		return
+	
+	# Slot livre: equipa direto
+	if not slot in hero.equipment or hero.equipment[slot] == null:
+		equip_from_inventory(item)
+		drag_clear()
+		return
+	
+	# Slot ocupado: swap automático
+	var old: Item = hero.equipment[slot]
+	hero.equip(item)
+	if not hero.inventory.add(old):
+		LootDrop.drop_item(hud.world, hud.world.player.global_position, old)
+	Sfx.play(&"equip")
+	if hud:
+		hud.show_message("Equipado: %s" % item.name, Color(0.4, 1, 0.4))
+	drag_clear()
+
+
 func cleanup() -> void:
-	"""Desconectar signals para evitar memory leak"""
 	if hero.inventory.changed.is_connected(refresh):
 		hero.inventory.changed.disconnect(refresh)
 	if hero.stats_changed.is_connected(refresh):
@@ -274,6 +392,8 @@ func equip_from_inventory(it: Item) -> void:
 class _GridView extends Control:
 	var panel: InventoryPanel
 	var _hover_cell: Vector2i = Vector2i(-1, -1)
+	var _drop_target_cell: Vector2i = Vector2i(-1, -1)
+	var _drop_valid: bool = false
 
 	func _init() -> void:
 		mouse_filter = Control.MOUSE_FILTER_STOP
@@ -283,36 +403,70 @@ class _GridView extends Control:
 
 	func _gui_input(event: InputEvent) -> void:
 		var inv := panel.hero.inventory
+		
 		if event is InputEventMouseMotion:
-			_hover_cell = _cell_at(event.position)
-			panel.show_tooltip(inv.item_at(_hover_cell))
+			var mp := get_local_mouse_position()
+			var cell := _cell_at(mp)
+			_hover_cell = cell
+			
+			var drag_item: Item = panel._drag.item if panel.is_dragging() else null
+			panel.show_tooltip(inv.item_at(cell) if drag_item == null else drag_item)
+			
+			# Atualiza preview de drop
+			if panel.is_dragging() and panel._drag.source in ["grid", "equip"]:
+				_drop_target_cell = cell
+				_drop_valid = inv.in_bounds(panel._drag.item, cell) and inv.overlapping(panel._drag.item, cell).size() <= 1
+			else:
+				_drop_target_cell = Vector2i(-1, -1)
+				_drop_valid = false
 			queue_redraw()
+
 		elif event is InputEventMouseButton and event.pressed:
 			var cell := _cell_at(event.position)
+			
 			if event.button_index == MOUSE_BUTTON_LEFT:
-				if panel.held == null:
+				# Inicia arraste da grade
+				if not panel.is_dragging():
 					var it := inv.item_at(cell)
 					if it:
-						inv.remove(it)
-						panel.held = it
-						panel.hide_tooltip()
-						Sfx.play(&"cloth")
-				else:
-					var pos := _anchor_for(panel.held, event.position)
-					if inv.in_bounds(panel.held, pos):
-						var over := inv.overlapping(panel.held, pos)
-						if over.size() == 0:
-							inv.place(panel.held, pos)
-							panel.held = null
-							Sfx.play(&"drop")
-						elif over.size() == 1:
-							var other: Item = over[0]
-							inv.remove(other)
-							inv.place(panel.held, pos)
-							panel.held = other
-							Sfx.play(&"drop")
-				accept_event()
-			elif event.button_index == MOUSE_BUTTON_RIGHT and panel.held == null:
+						panel.drag_from_grid(it, cell, event.global_position)
+						queue_redraw()
+						accept_event()
+						return
+				
+				# Solta item arrastado na grade
+				if panel.is_dragging() and panel._drag.source in ["grid", "equip"]:
+					panel._drop_on_grid(cell)
+					accept_event()
+					return
+				
+				# Legacy click-to-hold
+				var it := inv.item_at(cell)
+				if it == null:
+					return
+				if panel.held == null:
+					inv.remove(it)
+					panel.held = it
+					panel.hide_tooltip()
+					Sfx.play(&"cloth")
+					accept_event()
+					return
+				var pos := _anchor_for(panel.held, event.position)
+				if inv.in_bounds(panel.held, pos):
+					var over := inv.overlapping(panel.held, pos)
+					if over.size() == 0:
+						inv.place(panel.held, pos)
+						panel.held = null
+						Sfx.play(&"drop")
+					elif over.size() == 1:
+						var other: Item = over[0]
+						inv.remove(other)
+						inv.place(panel.held, pos)
+						panel.held = other
+						Sfx.play(&"drop")
+					accept_event()
+					
+			elif event.button_index == MOUSE_BUTTON_RIGHT and panel.held == null and not panel.is_dragging():
 				var it := inv.item_at(cell)
 				if it:
 					if Input.is_key_pressed(KEY_SHIFT):
@@ -320,6 +474,20 @@ class _GridView extends Control:
 						panel.hud.show_message("Vendido: %s" % it.name, Color(1, 0.9, 0.4))
 					else:
 						panel.equip_from_inventory(it)
+					accept_event()
+
+		elif event is InputEventMouseButton and not event.pressed:
+			if event.button_index == MOUSE_BUTTON_LEFT and panel.is_dragging():
+				# Solta fora de célula válida = cancela
+				if _drop_target_cell == Vector2i(-1, -1) or not _drop_valid:
+					panel._cancel_drag()
+				queue_redraw()
+				accept_event()
+
+		elif event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+			if panel.is_dragging():
+				panel._cancel_drag()
+				queue_redraw()
 				accept_event()
 
 	func _anchor_for(it: Item, mouse: Vector2) -> Vector2i:
@@ -330,25 +498,46 @@ class _GridView extends Control:
 	func _notification(what: int) -> void:
 		if what == NOTIFICATION_MOUSE_EXIT:
 			_hover_cell = Vector2i(-1, -1)
+			_drop_target_cell = Vector2i(-1, -1)
+			_drop_valid = false
 			panel.hide_tooltip()
 			queue_redraw()
 
 	func _draw() -> void:
 		var inv := panel.hero.inventory
 		var cs := InventoryPanel.CELL
+		
+		# Grade de fundo
 		for x in inv.cols:
 			for y in inv.rows:
 				var r: Rect2 = Rect2(x * cs, y * cs, cs, cs)
 				draw_rect(r.grow(-1), Color(0.08, 0.06, 0.05))
 				draw_rect(r.grow(-1), Color(0.22, 0.17, 0.12), false, 1.0)
+		
+		# Highlight célula de drop válida
+		if _drop_target_cell != Vector2i(-1, -1):
+			var r := Rect2(Vector2(_drop_target_cell) * cs, Vector2(panel._drag.item.size) * cs)
+			draw_rect(r, Color(0.2, 0.8, 0.2, 0.3) if _drop_valid else Color(0.8, 0.1, 0.1, 0.3))
+		
+		# Itens na grade
 		for it in inv.items:
 			panel._draw_item(self, it, Rect2(Vector2(it.grid_pos) * cs, Vector2(it.size) * cs))
+		
+		# Preview do item segurado (legacy held)
 		if panel.held:
 			var mouse := get_local_mouse_position()
 			if Rect2(Vector2.ZERO, size).has_point(mouse):
 				var pos := _anchor_for(panel.held, mouse)
 				var ok := inv.in_bounds(panel.held, pos) and inv.overlapping(panel.held, pos).size() <= 1
 				draw_rect(Rect2(Vector2(pos) * cs, Vector2(panel.held.size) * cs), Color(0.2, 0.8, 0.2, 0.25) if ok else Color(0.8, 0.1, 0.1, 0.25))
+		
+		# Ghost do drag-and-drop
+		if panel.is_dragging() and panel._drag.source in ["grid", "equip"] and panel._drag.ghost_visible:
+			var mouse := get_local_mouse_position()
+			var s: Vector2 = panel._drag.item.size * cs
+			var ghost_rect := Rect2(mouse - s * 0.5, s)
+			draw_rect(ghost_rect, Color(0.2, 0.2, 0.2, 0.3))
+			panel._draw_item(self, panel._drag.item, ghost_rect)
 
 
 # ================================================================== EQUIPAMENTO
@@ -356,17 +545,39 @@ class _GridView extends Control:
 class _EquipView extends Control:
 	var panel: InventoryPanel
 	var slot := "weapon"
+	var _is_drop_target: bool = false
+	var _drop_valid: bool = false
 
 	func _init() -> void:
 		mouse_filter = Control.MOUSE_FILTER_STOP
 
 	func _gui_input(event: InputEvent) -> void:
 		var hero := panel.hero
+		
 		if event is InputEventMouseMotion:
 			var equipped: Item = hero.equipment.get(slot) if slot in hero.equipment else null
-			panel.show_tooltip(equipped)
+			var drag_item: Item = panel._get_drag_item()
+			panel.show_tooltip(drag_item if drag_item else equipped)
+			
+			# Atualiza preview de drop no slot
+			if panel.is_dragging() and panel._drag.source == "grid":
+				_is_drop_target = true
+				var item: Item = panel._get_drag_item()
+				_drop_valid = (item.slot == slot) and (hero.equip_problem(item) == "")
+			else:
+				_is_drop_target = false
+				_drop_valid = false
+			queue_redraw()
+
 		elif event is InputEventMouseButton and event.pressed:
 			if event.button_index == MOUSE_BUTTON_LEFT:
+				# Drop de item da grade neste slot
+				if panel.is_dragging() and panel._drag.source == "grid":
+					panel._drop_on_slot(slot)
+					accept_event()
+					return
+				
+				# Legacy click-to-hold
 				if panel.held:
 					if panel.held.slot != slot:
 						panel.hud.show_message("Este item não vai neste espaço", Color(1, 0.5, 0.4))
@@ -379,12 +590,15 @@ class _EquipView extends Control:
 							if not hero.inventory.add(extra):
 								LootDrop.drop_item(panel.hud.world, panel.hud.world.player.global_position, extra)
 						Sfx.play(&"equip")
+				
+				# Inicia arraste do slot de equip
 				var equipped: Item = hero.equipment.get(slot) if slot in hero.equipment else null
 				if equipped:
-					panel.held = hero.unequip(slot)
-					panel.hide_tooltip()
-					Sfx.play(&"cloth")
-			elif event.button_index == MOUSE_BUTTON_RIGHT and panel.held == null:
+					panel.drag_from_equip(slot, event.global_position)
+					accept_event()
+					return
+			
+			elif event.button_index == MOUSE_BUTTON_RIGHT and panel.held == null and not panel.is_dragging():
 				var equipped: Item = hero.equipment.get(slot) if slot in hero.equipment else null
 				if equipped:
 					if hero.inventory.add(equipped):
@@ -392,22 +606,54 @@ class _EquipView extends Control:
 						Sfx.play(&"cloth")
 					else:
 						panel.hud.show_message("Inventário cheio", Color(1, 0.5, 0.4))
-			accept_event()
-			queue_redraw()
+				accept_event()
+
+		elif event is InputEventMouseButton and not event.pressed:
+			if event.button_index == MOUSE_BUTTON_LEFT and panel.is_dragging():
+				if not _is_drop_target or not _drop_valid:
+					panel._cancel_drag()
+				queue_redraw()
+				accept_event()
+
+		elif event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+			if panel.is_dragging():
+				panel._cancel_drag()
+				queue_redraw()
+				accept_event()
 
 	func _notification(what: int) -> void:
 		if what == NOTIFICATION_MOUSE_EXIT:
+			_is_drop_target = false
+			_drop_valid = false
 			panel.hide_tooltip()
+			queue_redraw()
 
 	func _draw() -> void:
 		var r: Rect2 = Rect2(Vector2.ZERO, size)
 		draw_rect(r, Color(0.05, 0.035, 0.03))
-		var highlight := panel.held != null and panel.held.slot == slot
-		draw_rect(r, UIKit.GOLD if highlight else UIKit.GOLD_DIM, false, 2.0)
-		var it: Item = panel.hero.equipment.get(slot) if slot in panel.hero.equipment else null
-		if it:
-			panel._draw_item(self, it, r.grow(-3))
+		
+		var is_drag_source: bool = panel.is_dragging() and panel._drag.source == "equip" and panel._drag.slot == slot
+		var highlight: bool = panel.held != null and panel.held.slot == slot or is_drag_source
+		
+		# Highlight de drop target
+		if _is_drop_target:
+			draw_rect(r.grow(2), Color(0.2, 0.8, 0.2, 0.5) if _drop_valid else Color(0.8, 0.1, 0.1, 0.5))
+			draw_rect(r.grow(2), Color(0.2, 0.8, 0.2) if _drop_valid else Color(0.8, 0.1, 0.1), false, 3.0)
+		elif highlight:
+			draw_rect(r, UIKit.GOLD, false, 2.0)
 		else:
+			draw_rect(r, UIKit.GOLD_DIM, false, 2.0)
+		
+		var it: Item = panel.hero.equipment.get(slot) if slot in panel.hero.equipment else null
+		if it and not is_drag_source:
+			panel._draw_item(self, it, r.grow(-3))
+		
+		# Ghost do drag-and-drop (desenha no viewport global)
+		if is_drag_source and panel._drag.ghost_visible:
+			var mp := get_local_mouse_position()
+			panel._draw_item(self, panel._drag.item, Rect2(mp.x - size.x * 0.5, mp.y - size.y * 0.5, size.x, size.y))
+		
+		if not it and not is_drag_source:
 			var f := UIKit.FONT_BODY
 			var txt: String = DB.SLOT_NAMES.get(slot, slot)
 			if txt == "Mão Secundária":

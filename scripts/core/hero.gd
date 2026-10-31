@@ -458,6 +458,16 @@ func spend_tree_point(node_id: StringName) -> bool:
 	return true
 
 
+## Respec da árvore de habilidades: devolve todos os pontos gastos e desbloqueia todos os nós
+func respec_tree() -> void:
+	var spent := tree_unlocked.size()
+	tree_points += spent
+	tree_unlocked.clear()
+	# Re-refresh skill bar para remover skills desbloqueadas pela árvore (se necessário)
+	refresh_skill_bar()
+	stats_changed.emit()
+
+
 ## Retorna bônus acumulado da árvore para uma skill específica
 func get_tree_bonus_for_skill(skill_id: StringName) -> Dictionary:
 	var bonus: Dictionary = {}
