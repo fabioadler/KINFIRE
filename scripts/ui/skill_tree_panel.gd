@@ -64,14 +64,12 @@ func setup(p_hud: HUD, p_hero: Hero) -> void:
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	header.add_child(title)
 	
-	_points_label = Label.new()
-	_points_label.text = "Pontos de Árvore: [color=#F0C060]%d[/color]" % hero.tree_points
-	_points_label.bbcode_enabled = true
+	_points_label = UIKit.rich("[center]Pontos de Árvore: [color=#F0C060]%d[/color][/center]" % hero.tree_points)
 	_points_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_points_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_points_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_points_label.add_theme_font_size_override("font_size", 18)
-	_points_label.add_theme_color_override("font_color", Color(1, 0.9, 0.4))
+	_points_label.add_theme_font_size_override("normal_font_size", 18)
+	_points_label.add_theme_color_override("default_color", Color(1, 0.9, 0.4))
 	header.add_child(_points_label)
 
 	# Botão de reset de pontos (respec)
